@@ -1,0 +1,1406 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>23Hertz 文档工作台</title>
+<meta name="description" content="23Hertz 右侧工作区第一轮重新设计：交互效果稿、动效稿、工程级设计规范与 Codex 统一开工提示词（v2）">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --font:"Inter","Noto Sans SC","Segoe UI Variable Text","Microsoft YaHei UI",system-ui,sans-serif;
+  --mono:"JetBrains Mono","Cascadia Mono",Consolas,"Noto Sans SC",monospace;
+  --ease:cubic-bezier(.215,.61,.355,1);
+  --t-fast:80ms;--t:120ms;--t-slow:160ms;--t-out:200ms;
+}
+:root.reduce{--t-fast:0ms;--t:0ms;--t-slow:0ms;--t-out:0ms}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+:root.reduce{scroll-behavior:auto}
+body{margin:0;background:var(--page);color:var(--ink);font:14px/1.6 var(--font);-webkit-font-smoothing:antialiased;font-feature-settings:"cv11","ss01"}
+button,input{font:inherit;color:inherit}
+.ic{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;overflow:visible}
+.ic.s12{width:12px;height:12px}.ic.s14{width:14px;height:14px}.ic.s20{width:20px;height:20px}
+.tn{font-variant-numeric:tabular-nums}
+/* ================= document chrome ================= */
+.wrap{max-width:1360px;margin:0 auto;padding:0 32px}
+.top{position:sticky;top:0;z-index:100;background:color-mix(in srgb,var(--page) 88%,transparent);backdrop-filter:blur(12px) saturate(1.3);border-bottom:1px solid var(--hair)}
+.top .wrap{display:flex;align-items:center;gap:18px;height:56px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;white-space:nowrap}
+.logo{width:24px;height:24px;border-radius:7px;background:var(--ink);display:grid;place-items:center}
+.logo svg{width:14px;height:14px;stroke:var(--onsolid);fill:none;stroke-width:1.6}
+.nav{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+.nav a{text-decoration:none;color:var(--ink2);padding:6px 10px;border-radius:8px;font-size:13px;white-space:nowrap}
+.nav a:hover{background:var(--hover);color:var(--ink)}
+.nav a b{font-weight:500;color:var(--ink4);margin-right:5px}
+.tools{margin-left:auto;display:flex;align-items:center;gap:10px}
+.segd{display:inline-flex;padding:2px;border-radius:8px;background:var(--sunken)}
+.segd button{border:0;background:transparent;height:26px;padding:0 9px;border-radius:6px;font-size:12px;color:var(--ink2);cursor:pointer;white-space:nowrap}
+.segd button[aria-pressed="true"]{background:var(--canvas);color:var(--ink);box-shadow:0 0 0 1px var(--line);font-weight:500}
+.segd button:focus-visible,.dbtn:focus-visible,.chip:focus-visible{outline:none;box-shadow:0 0 0 2px var(--focus)}
+.sw{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--ink2);cursor:pointer;user-select:none;white-space:nowrap}
+.sw input{appearance:none;margin:0;width:28px;height:16px;border-radius:99px;background:var(--strong);position:relative;cursor:pointer;transition:background var(--t) var(--ease)}
+.sw input::after{content:"";position:absolute;left:2px;top:2px;width:12px;height:12px;border-radius:50%;background:var(--canvas);box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform var(--t) var(--ease)}
+.sw input:checked{background:var(--ink)}.sw input:checked::after{transform:translateX(12px)}
+.sw input:focus-visible{outline:none;box-shadow:0 0 0 2px var(--focus)}
+.hero{padding:56px 0 8px}
+.eyebrow{font-size:12px;color:var(--ink3);letter-spacing:.04em}
+.hero h1{font-size:36px;line-height:1.2;margin:10px 0 14px;font-weight:650;letter-spacing:-.015em}
+.hero p{max-width:860px;color:var(--ink2);margin:0}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.meta span{font-size:12px;padding:3px 10px;border-radius:99px;border:1px solid var(--line);color:var(--ink2);background:var(--canvas)}
+.meta b{font-weight:600;color:var(--ink)}
+.princ{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:28px 0 8px}
+.princ div{padding:16px;border-radius:12px;background:var(--canvas);border:1px solid var(--hair)}
+.princ b{display:block;font-size:14px;margin-bottom:4px}
+.princ span{font-size:13px;color:var(--ink2);line-height:1.6;display:block}
+section.blk{padding:48px 0 16px;scroll-margin-top:60px}
+.sh{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+.sh .no{font-size:13px;color:var(--ink4)}
+.sh h2{font-size:24px;margin:0;font-weight:650;letter-spacing:-.01em}
+.lede{color:var(--ink2);margin:0 0 20px;max-width:900px}
+h3{font-size:16px;margin:34px 0 12px;font-weight:620}
+h3 small{font-weight:400;color:var(--ink3);margin-left:8px;font-size:12px}
+.box{background:var(--canvas);border:1px solid var(--hair);border-radius:12px}
+.tw{overflow-x:auto;border:1px solid var(--hair);border-radius:12px;background:var(--canvas)}
+table.t{width:100%;border-collapse:collapse;font-size:13px;line-height:1.55}
+table.t th{text-align:left;font-weight:600;color:var(--ink2);background:var(--sunken);font-size:12px;white-space:nowrap}
+table.t th,table.t td{padding:9px 14px;border-bottom:1px solid var(--hair);vertical-align:top}
+table.t tr:last-child td{border-bottom:0}
+code,.c{font-family:var(--mono);font-size:12px;background:var(--sunken);padding:1px 5px;border-radius:4px}
+.dbtn{height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:var(--canvas);cursor:pointer;font-size:13px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.dbtn:hover{background:var(--hover)}
+.dbtn.pri{background:var(--ink);border-color:var(--ink);color:var(--onsolid)}
+.dbtn.pri:hover{opacity:.9}
+.pill{display:inline-block;font-size:11px;line-height:18px;padding:0 7px;border-radius:99px;border:1px solid var(--line);color:var(--ink2);white-space:nowrap;vertical-align:middle}
+.pill.n{color:var(--link);border-color:color-mix(in srgb,var(--link) 40%,transparent)}
+.pill.r{color:var(--success);border-color:color-mix(in srgb,var(--success) 40%,transparent)}
+.pill.w{color:var(--warning);border-color:color-mix(in srgb,var(--warning) 40%,transparent)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.foot{padding:48px 0 64px;color:var(--ink3);font-size:12px}
+/* ================= stage ================= */
+.scgroups{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.scg{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.scg>span{font-size:12px;color:var(--ink3);width:40px;flex:none}
+.chip{height:30px;padding:0 11px;border-radius:8px;border:1px solid var(--hair);background:var(--canvas);font-size:13px;cursor:pointer;color:var(--ink2);white-space:nowrap;transition:background var(--t-fast),color var(--t-fast)}
+.chip:hover{background:var(--hover);color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--onsolid);border-color:var(--ink)}
+.sbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+.sbar .sp{flex:1}
+.viewport{position:relative;width:100%;overflow:auto;border-radius:12px;background:var(--sunken);padding:20px;scrollbar-width:thin}
+.viewport.fit{overflow:hidden}
+.vinner{position:relative;transform-origin:0 0}
+.scale-note{font-size:12px;color:var(--ink3);margin-top:8px}
+.cap{margin-top:14px;padding:16px 18px;display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.cap .h{grid-column:1/-1;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-weight:600;font-size:15px}
+.cap h4{margin:0 0 4px;font-size:12px;color:var(--ink3);font-weight:500}
+.cap p{margin:0;font-size:13px;color:var(--ink2);line-height:1.65}
+/* ================= mock window (1:1 DIP) ================= */
+.win{position:relative;width:1280px;height:820px;border-radius:8px;overflow:hidden;background:var(--page);color:var(--ink);font:14px/1.5 var(--font);box-shadow:0 0 0 1px var(--line),0 24px 64px rgba(0,0,0,.14);display:flex;--pw:504px}
+.win *{transition-timing-function:var(--ease)}
+.wctl{position:absolute;top:0;right:0;height:36px;display:flex;z-index:40}
+.wctl span{width:46px;display:grid;place-items:center;color:var(--ink2)}
+.wctl svg{width:10px;height:10px;stroke:currentColor;stroke-width:1;fill:none}
+.rail{width:60px;flex:none;background:var(--rail);border-right:1px solid var(--hair);display:flex;flex-direction:column;align-items:center;padding:14px 0 12px;gap:4px}
+.rail .rb{width:36px;height:36px;border-radius:9px;display:grid;place-items:center;color:var(--ink2);border:0;background:transparent;cursor:pointer}
+.rail .rb:hover{background:var(--hover);color:var(--ink)}
+.rail .rb.on{background:var(--accent-bg);color:var(--ink)}
+.rail .sp{flex:1}
+.rail .ses{width:36px;height:36px;border-radius:9px;display:grid;place-items:center;font-size:12px;font-weight:600;color:var(--ink2);border:0;background:transparent;cursor:pointer;position:relative}
+.rail .ses.on{background:var(--accent-bg);color:var(--ink)}
+.rail .ses .dot{position:absolute;right:5px;top:5px;width:6px;height:6px;border-radius:50%;background:#F5600F}
+.main{flex:1;min-width:0;display:flex;flex-direction:column;position:relative}
+.mh{height:88px;flex:none;position:relative;padding:20px 28px 0}
+.mh .tt{font-size:17px;line-height:24px;font-weight:600}
+.mh .ts{font-size:12px;line-height:16px;color:var(--ink3);font-weight:500}
+.mh .acts{position:absolute;right:16px;top:44px;display:flex;align-items:center;gap:2px}
+.ha{height:36px;min-width:36px;padding:0 8px;border-radius:10px;border:0;background:transparent;color:var(--ink2);display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:12px;position:relative;cursor:pointer;transition:background var(--t-fast),color var(--t-fast)}
+.ha:hover{background:var(--hover);color:var(--ink)}
+.ha.on{background:var(--accent-bg);color:var(--ink)}
+.ha:focus-visible{outline:none;box-shadow:0 0 0 2px var(--focus)}
+.ha .pd{position:absolute;left:24px;top:8px;width:6px;height:6px;border-radius:50%;background:var(--ink);box-shadow:0 0 0 2px var(--page);opacity:0;transition:opacity var(--t) var(--ease)}
+.ha.pending .pd{opacity:1}
+.hsep{width:1px;height:14px;background:var(--line);margin:0 6px}
+.ring{width:16px;height:16px}
+.tr{flex:1;overflow:auto;padding:0 32px 24px;scrollbar-width:thin}
+.col{max-width:640px;margin:0 auto}
+.um{display:flex;justify-content:flex-end;margin:12px 0 18px}
+.um div{max-width:78%;background:var(--sunken);border-radius:14px;padding:9px 14px;font-size:15px;line-height:24px}
+.am{font-size:15px;line-height:26px;margin:4px 0 6px}
+.am code{font-size:13px}
+.trow{display:flex;align-items:center;gap:8px;color:var(--ink3);font-size:13px;margin:6px 0}
+.shelf{display:flex;flex-direction:column;gap:8px;margin:12px 0 4px}
+.dc{width:440px;max-width:100%;position:relative;border:1px solid var(--line);border-radius:12px;background:var(--raised);transition:background var(--t-fast),box-shadow var(--t-slow)}
+.dc:hover{background:color-mix(in srgb,var(--raised) 100%,transparent);box-shadow:0 0 0 1px var(--line)}
+.dc .row{display:flex;align-items:center;padding-right:6px}
+.dc .op{flex:1;min-width:0;display:flex;align-items:center;gap:12px;padding:10px 12px;border:0;background:transparent;text-align:left;cursor:pointer;border-radius:12px}
+.dc .op:focus-visible{outline:none;box-shadow:0 0 0 2px var(--focus)}
+.dc .lb{min-width:0;display:flex;flex-direction:column;gap:2px}
+.dc .nm{font-size:15px;line-height:21px;font-weight:500;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-all}
+.dc .mt{font-size:13px;line-height:18px;color:var(--ink3)}
+.dc .mt .on{color:var(--ink2);font-weight:500}
+.dc .mt .w{color:var(--warning)}.dc .mt .d{color:var(--danger)}
+.dc .mk{position:absolute;left:-1px;top:12px;bottom:12px;width:3px;border-radius:0 2px 2px 0;background:var(--ink);opacity:0;transition:opacity var(--t) var(--ease)}
+.dc.sel .mk{opacity:1}
+.dc.sel{border-color:color-mix(in srgb,var(--ink) 28%,transparent)}
+.dc.flash{animation:flash 1000ms var(--ease)}
+@keyframes flash{0%,35%{background:var(--accent-bg);box-shadow:0 0 0 3px var(--accent-bg)}100%{background:var(--raised);box-shadow:none}}
+:root.reduce .dc.flash{animation:none;box-shadow:0 0 0 2px var(--line)}
+.dnote{margin:0 10px 10px;padding:10px 12px;border-radius:8px;background:var(--warning-bg);display:flex;gap:10px;font-size:13px;line-height:20px;animation:fin var(--t) var(--ease)}
+.dnote .ic{color:var(--warning);margin-top:2px}
+.dnote .ac{display:flex;gap:16px;margin-top:6px;flex-wrap:wrap}
+.lk{border:0;background:none;padding:0;font-size:13px;font-weight:500;color:var(--ink);cursor:pointer;text-underline-offset:3px}
+.lk:hover{text-decoration:underline}
+.lk:focus-visible{outline:none;box-shadow:0 0 0 2px var(--focus);border-radius:3px}
+.lk.q{color:var(--ink3);font-weight:400}
+.more-row{font-size:13px;color:var(--ink2);border:0;background:none;padding:4px 0;cursor:pointer;text-align:left}
+.more-row:hover{color:var(--ink)}
+.chg{font-size:13px;color:var(--ink2);margin:10px 0 2px;display:flex;gap:8px;align-items:center}
+.chg .a{color:var(--success)}.chg .d{color:var(--danger)}
+.comp{flex:none;padding:0 32px 10px}
+.cb{max-width:680px;margin:0 auto;border-radius:12px;background:linear-gradient(var(--canvas),color-mix(in srgb,var(--sunken) 50%,var(--canvas)));border:1px solid var(--cedge);box-shadow:var(--cshadow);padding:12px 12px 10px 16px}
+.cb .chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.cb .chips:empty{display:none}
+.qc{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:8px;background:var(--sunken);font-size:12px;max-width:320px;animation:fin var(--t) var(--ease)}
+.qc .ic{width:13px;height:13px;color:var(--ink3)}
+.qc b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cb .in{font-size:15px;line-height:24px;color:var(--ink4);min-height:26px}
+.cb .in.has{color:var(--ink)}
+.cb .bar{display:flex;align-items:center;gap:14px;margin-top:10px;font-size:13px;color:var(--ink2)}
+.cb .bar .sp{flex:1}
+.cb .bar span{display:inline-flex;align-items:center;gap:6px}
+.send{height:30px;padding:0 16px;border-radius:99px;background:var(--socket);font-size:13px;color:var(--ink2);border:0}
+.send.run{background:#F5600F;color:#fff;width:30px;padding:0;display:grid;place-items:center}
+.send.run i{width:9px;height:9px;border-radius:2px;background:#fff}
+.disc{text-align:center;font-size:11px;color:var(--ink4);margin-top:6px}
+.split{width:6px;margin-left:-3px;margin-right:-3px;flex:none;cursor:ew-resize;position:relative;z-index:6;touch-action:none}
+.split::after{content:"";position:absolute;left:2.5px;top:0;bottom:0;width:1px;background:var(--hair)}
+.split:hover::after,.split.drag::after{background:var(--ink4)}
+.split:focus-visible{outline:none}.split:focus-visible::after{background:var(--focus);width:2px;left:2px}
+.pn{width:var(--pw);flex:none;background:var(--canvas);display:flex;flex-direction:column;position:relative;min-width:0;border-left:1px solid var(--hair)}
+.win.closed .pn,.win.closed .split{display:none}
+.scrim{position:absolute;inset:0;background:var(--scrim);z-index:18;display:none;animation:fin var(--t) var(--ease)}
+.win.float .scrim{display:block}
+.win.float .split{display:none}
+.win.float .pn{position:absolute;right:0;top:0;bottom:0;z-index:20;box-shadow:-12px 0 32px rgba(0,0,0,.12)}
+.pstrip{height:40px;flex:none}
+/* object header */
+.oh{height:56px;flex:none;display:flex;align-items:center;gap:8px;padding:0 12px 0 20px}
+.idn{flex:1;min-width:0;display:flex;align-items:center;gap:12px;border:0;background:transparent;text-align:left;padding:6px 8px;margin-left:-8px;border-radius:8px;cursor:default}
+button.idn{cursor:pointer}
+button.idn:hover,button.idn.open{background:var(--hover)}
+button.idn:focus-visible{outline:none;box-shadow:0 0 0 2px var(--focus)}
+.idl{min-width:0;display:flex;flex-direction:column}
+.idl .n{display:flex;align-items:center;gap:4px;min-width:0;font-size:15px;line-height:20px;font-weight:600}
+.idl .m{font-size:12px;line-height:16px;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mid{display:flex;min-width:0;white-space:nowrap}.mid .h{overflow:hidden;text-overflow:ellipsis;min-width:0}.mid .t{flex:none}
+.oa{display:flex;align-items:center;gap:2px;flex:none}
+/* icon button */
+.ib{width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:6px;background:transparent;color:var(--ink3);cursor:pointer;position:relative;transition:background var(--t-fast),color var(--t-fast)}
+.ib:hover{background:var(--hover);color:var(--ink)}
+.ib:active{background:var(--strong)}
+.ib:focus-visible{outline:none;box-shadow:0 0 0 2px var(--focus)}
+.ib.on{background:var(--accent-bg);color:var(--ink)}
+.ib[aria-disabled="true"]{color:var(--ink5);pointer-events:none}
+.ib.t{width:auto;padding:0 8px;font-size:13px;color:var(--ink2)}
+/* reading bar */
+.rb2{height:40px;flex:none;display:flex;align-items:center;gap:4px;padding:0 12px;border-bottom:1px solid var(--hair);font-size:13px}
+.rb2 .sp{flex:1}
+.vs{width:1px;height:16px;background:var(--hair);margin:0 6px;flex:none}
+.seg{display:inline-flex;padding:2px;border-radius:8px;background:var(--sunken);margin-left:8px}
+.seg button{border:0;background:transparent;height:28px;padding:0 12px;border-radius:6px;font-size:13px;color:var(--ink2);cursor:pointer}
+.seg button.on{background:var(--canvas);color:var(--ink);font-weight:500;box-shadow:0 0 0 1px var(--hair),0 1px 2px rgba(0,0,0,.06)}
+.seg button:focus-visible{outline:none;box-shadow:0 0 0 2px var(--focus)}
+.pgf{display:inline-flex;align-items:center}
+.pgf input{width:34px;height:28px;border:1px solid transparent;border-radius:6px;background:transparent;text-align:center;font-size:13px;font-variant-numeric:tabular-nums}
+.pgf input:hover{border-color:var(--line)}
+.pgf input:focus{outline:none;border-color:transparent;box-shadow:0 0 0 2px var(--focus)}
+.pgf .of{color:var(--ink3);padding:0 4px 0 2px;font-variant-numeric:tabular-nums}
+.dd{height:32px;padding:0 6px 0 10px;border:0;border-radius:6px;background:transparent;font-size:13px;color:var(--ink2);display:inline-flex;align-items:center;gap:4px;cursor:pointer;white-space:nowrap}
+.dd:hover,.dd.open{background:var(--hover);color:var(--ink)}
+.dd:focus-visible{outline:none;box-shadow:0 0 0 2px var(--focus)}
+.dd .ic{color:var(--ink4)}
+.qbtn{height:28px;padding:0 10px 0 8px;border:0;border-radius:6px;background:var(--ink);color:var(--onsolid);font-size:13px;font-weight:500;display:inline-flex;align-items:center;gap:6px;cursor:pointer;animation:fin var(--t) var(--ease);margin-left:2px}
+.qbtn:hover{opacity:.9}.qbtn:focus-visible{outline:none;box-shadow:0 0 0 2px var(--canvas),0 0 0 4px var(--focus)}
+.qbtn kbd{font:11px var(--font);opacity:.7}
+.tabs{display:flex;gap:18px;height:40px;align-items:stretch;margin-left:8px}
+.tabs button{border:0;background:none;font-size:13px;color:var(--ink3);cursor:pointer;padding:0;position:relative}
+.tabs button.on{color:var(--ink);font-weight:500}
+.tabs button.on::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--ink);border-radius:2px}
+.tabs button:focus-visible{outline:none;box-shadow:0 0 0 2px var(--focus);border-radius:4px}
+.addr{flex:1;min-width:0;height:30px;border-radius:8px;background:var(--sunken);display:flex;align-items:center;gap:6px;padding:0 10px;font-size:13px;color:var(--ink3);white-space:nowrap;overflow:hidden;margin:0 4px}
+.addr b{color:var(--ink);font-weight:500}
+.ld{height:2px;flex:none;position:relative;overflow:hidden;margin-top:-2px}
+.ld.on::before{content:"";position:absolute;top:0;bottom:0;width:28%;left:-28%;background:var(--ink);opacity:.5;animation:ldm 1.1s var(--ease) infinite}
+:root.reduce .ld.on::before{animation:none;left:0;width:100%;opacity:.16}
+@keyframes ldm{to{left:100%}}
+/* status strip */
+.ss{flex:none;display:flex;align-items:flex-start;gap:10px;padding:8px 12px 8px 20px;font-size:13px;line-height:20px;color:var(--ink2);background:var(--sunken);border-bottom:1px solid var(--hair)}
+.ss .ic{margin-top:2px;color:var(--ink3)}
+.ss.w{background:var(--warning-bg);color:var(--ink)}
+.ss.w .ic{color:var(--warning)}
+.ss .x{flex:1}
+.ss .lk{white-space:nowrap}
+/* find */
+.fb{height:44px;flex:none;display:flex;align-items:center;gap:2px;padding:0 12px 0 16px;border-bottom:1px solid var(--hair)}
+.fb .fi{flex:1;min-width:0;height:30px;display:flex;align-items:center;gap:8px;border-radius:8px;background:var(--sunken);padding:0 10px;margin-right:6px}
+.fb .fi:focus-within{box-shadow:0 0 0 2px var(--focus)}
+.fb input{flex:1;min-width:0;border:0;background:transparent;font-size:13px;outline:none}
+.fb .cnt{font-size:12px;color:var(--ink3);font-variant-numeric:tabular-nums;white-space:nowrap}
+/* canvas */
+.cv{flex:1;overflow:auto;position:relative;background:var(--reader);scrollbar-width:thin}
+.cv.flat{background:var(--canvas)}
+.cv:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
+.pages{padding:20px;display:flex;flex-direction:column;align-items:center;gap:16px}
+.win.float.focus .pages{padding:32px}
+.pg{width:var(--pgw);aspect-ratio:612/792;background:#fff;color:#1d1d1f;box-shadow:var(--page-edge);container-type:inline-size;position:relative;padding:8.8cqw 9.8cqw;flex:none;overflow:hidden}
+.pg .ph{display:flex;justify-content:space-between;font-size:1.47cqw;color:#86868b;border-bottom:.16cqw solid #e5e5ea;padding-bottom:1.3cqw}
+.pg h5{font-size:3.6cqw;line-height:1.3;margin:4.2cqw 0 1cqw;font-weight:700;letter-spacing:-.01em}
+.pg .sub{font-size:1.63cqw;color:#6e6e73;margin-bottom:3.3cqw}
+.pg .kp{display:grid;grid-template-columns:repeat(3,1fr);gap:1.6cqw;margin-bottom:3.3cqw}
+.pg .kp div{border:.16cqw solid #e5e5ea;border-radius:1cqw;padding:1.6cqw 2cqw}
+.pg .kp small{display:block;font-size:1.47cqw;color:#86868b}
+.pg .kp b{font-size:3.1cqw;font-weight:650;font-variant-numeric:tabular-nums}
+.pg .bars{display:flex;align-items:flex-end;gap:1.6cqw;height:19cqw;border-bottom:.16cqw solid #d2d2d7;margin-bottom:1cqw;padding:0 1cqw}
+.pg .bars i{flex:1;background:#1d1d1f;border-radius:.4cqw .4cqw 0 0}
+.pg .bars i:nth-child(2n){background:#a1a1a6}
+.pg .bl{display:flex;justify-content:space-around;font-size:1.3cqw;color:#86868b;margin-bottom:3cqw}
+.pg p{font-size:1.72cqw;line-height:1.75;margin:0 0 1.6cqw;color:#1d1d1f;text-align:justify}
+.pg table.pt{width:100%;border-collapse:collapse;font-size:1.63cqw;margin:1cqw 0 2.4cqw;font-variant-numeric:tabular-nums}
+.pg table.pt th,.pg table.pt td{border-bottom:.16cqw solid #e5e5ea;padding:.9cqw 1cqw;text-align:right}
+.pg table.pt th:first-child,.pg table.pt td:first-child{text-align:left}
+.pg table.pt th{color:#6e6e73;font-weight:600}
+.pg .pf{position:absolute;bottom:4cqw;left:0;right:0;text-align:center;font-size:1.47cqw;color:#a1a1a6}
+.pfi{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);height:26px;padding:0 10px;border-radius:6px;background:color-mix(in srgb,var(--ink) 86%,transparent);color:var(--onsolid);font-size:12px;display:flex;align-items:center;font-variant-numeric:tabular-nums;opacity:0;pointer-events:none;transition:opacity var(--t-out) var(--ease);z-index:12}
+.pfi.on{opacity:1;transition-duration:var(--t)}
+.zhud{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);height:32px;padding:0 12px;border-radius:8px;background:color-mix(in srgb,var(--ink) 86%,transparent);color:var(--onsolid);font-size:13px;display:flex;align-items:center;font-variant-numeric:tabular-nums;opacity:0;pointer-events:none;transition:opacity var(--t-out) var(--ease);z-index:12}
+.zhud.on{opacity:1;transition-duration:var(--t)}
+/* text-ish readers */
+.code{display:grid;grid-template-columns:auto 1fr;font-family:var(--mono);font-size:13px;line-height:21px;padding:16px 0 32px;min-width:max-content}
+.code .gt{padding:0 12px 0 20px;text-align:right;color:var(--ink4);user-select:none;border-right:1px solid var(--hair)}
+.code .gt span{display:block}
+.code .gt span.on{color:var(--ink)}
+.code .tx{padding:0 24px 0 16px;white-space:pre;color:var(--ink)}
+.code .tx span.l{display:block}
+.code .l.sel{background:var(--tsel);margin-left:-16px;padding-left:16px;margin-right:-24px;padding-right:24px}
+.code .k{color:var(--ckw)}.code .s{color:var(--cstr)}.code .nb{color:var(--cnum)}.code .cm{color:var(--ccom);font-style:italic}
+.code mark{background:var(--hit);color:inherit;border-radius:2px}
+.code mark.cur{background:var(--hitcur);box-shadow:0 0 0 1px var(--warning)}
+.paper{max-width:680px;margin:20px auto 40px;background:#fff;color:#1d1d1f;box-shadow:var(--page-edge);padding:48px 56px 56px;font-size:15px;line-height:26px}
+.paper h4{font-size:22px;line-height:30px;margin:0 0 6px;font-weight:700}
+.paper h6{font-size:16px;line-height:24px;margin:22px 0 6px;font-weight:650}
+.paper p{margin:0 0 12px}
+.paper .mut{color:#6e6e73;font-size:13px}
+.read{max-width:680px;margin:0 auto;padding:28px 28px 48px;font-size:15px;line-height:26px}
+.read h4{font-size:22px;line-height:30px;margin:0 0 12px;font-weight:650}
+.read h6{font-size:16px;margin:22px 0 6px;font-weight:600}
+.read p{margin:0 0 12px}
+.read ul{padding-left:20px;margin:0 0 12px}
+.read table{border-collapse:collapse;width:100%;font-size:13px;margin:8px 0 14px}
+.read th,.read td{border-bottom:1px solid var(--hair);padding:7px 10px;text-align:left}
+.read th{color:var(--ink2);font-weight:600;background:var(--sunken)}
+.read .slide{border-top:1px solid var(--hair);padding-top:14px;margin-top:16px}
+.read .slide small{display:block;color:var(--ink3);font-size:12px}
+.sheet{padding:0}
+.sheet table{border-collapse:separate;border-spacing:0;font-size:13px;min-width:100%}
+.sheet th,.sheet td{border-right:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:0 12px;height:32px;white-space:nowrap}
+.sheet th{position:sticky;top:0;background:var(--sunken);color:var(--ink2);font-weight:600;text-align:left;z-index:1}
+.sheet td.n{text-align:right;font-variant-numeric:tabular-nums}
+.sheet td.rh,.sheet th.rh{color:var(--ink4);text-align:center;width:40px;padding:0;background:var(--sunken);font-weight:400}
+.sheet tr.cur td{background:var(--accent-bg)}
+.img{min-height:100%;display:grid;place-items:center;padding:20px}
+.img svg{max-width:100%;height:auto;box-shadow:var(--page-edge);background:#fff}
+.zip{padding:4px 0}
+.zr{display:grid;grid-template-columns:24px 1fr 80px 120px;gap:10px;align-items:center;height:40px;padding:0 20px;font-size:13px;border-bottom:1px solid var(--hair)}
+.zr.h{height:32px;font-size:12px;color:var(--ink3);background:var(--sunken)}
+.zr .s,.zr .d{color:var(--ink3);font-variant-numeric:tabular-nums;text-align:right}
+.zr .ic{color:var(--ink3)}
+.json{font-family:var(--mono);font-size:13px;line-height:24px;padding:16px 20px}
+.json .k{color:var(--ckw)}.json .s{color:var(--cstr)}.json .nb{color:var(--cnum)}
+.json .tg{display:inline-block;width:16px;color:var(--ink4);cursor:default}
+.json .ind{padding-left:18px;border-left:1px solid var(--hair);margin-left:7px}
+.rec{font-family:var(--mono);font-size:13px;line-height:21px;padding:16px 20px;white-space:pre-wrap;color:var(--ink)}
+.rec .ok{color:var(--success)}.rec .dim{color:var(--ink3)}
+.web{background:#fff;color:#1d1d1f;min-height:100%;font-size:14px}
+.web .wn{height:52px;display:flex;align-items:center;gap:22px;padding:0 28px;border-bottom:1px solid #eee;font-size:13px;color:#6e6e73}
+.web .wn b{color:#1d1d1f;margin-right:auto}
+.web .hb{padding:44px 28px 26px}
+.web .hb h5{font-size:28px;line-height:1.25;margin:0 0 10px;font-weight:700;letter-spacing:-.015em}
+.web .hb p{color:#6e6e73;margin:0;max-width:440px}
+.web .gc{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:8px 28px 28px}
+.web .gc div{border:1px solid #e5e5ea;border-radius:10px;padding:14px;font-size:13px;color:#6e6e73}
+.web .gc b{display:block;color:#1d1d1f;margin-bottom:2px;font-size:15px}
+.empty,.errc{min-height:100%;display:grid;place-items:center;padding:32px}
+.empty .in,.errc .in{max-width:360px;text-align:left}
+.empty h6,.errc h6{margin:14px 0 6px;font-size:15px;line-height:22px;font-weight:600}
+.empty p,.errc p{margin:0;font-size:13px;line-height:20px;color:var(--ink2)}
+.errc .path{font-family:var(--mono);font-size:12px;color:var(--ink3);margin-top:10px;word-break:break-all}
+.errc .ac{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.btn2{height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:var(--raised);font-size:13px;cursor:pointer;color:var(--ink)}
+.btn2:hover{background:var(--hover)}.btn2:active{background:var(--strong)}.btn2:focus-visible{outline:none;box-shadow:0 0 0 2px var(--focus)}
+.lcard{position:absolute;inset:0;display:grid;place-items:center;animation:fin var(--t) var(--ease)}
+.lcard .in{width:300px}
+.lcard h6{margin:0 0 4px;font-size:15px;font-weight:600}
+.lcard p{margin:0;font-size:13px;color:var(--ink2)}
+/* overlays */
+.ov{position:absolute;left:12px;right:12px;bottom:12px;display:flex;justify-content:center;pointer-events:none;z-index:30}
+.req{pointer-events:auto;width:100%;max-width:480px;display:flex;align-items:center;gap:10px;padding:10px 10px 10px 14px;border-radius:10px;background:var(--raised);border:1px solid var(--line);box-shadow:var(--float);font-size:13px;line-height:20px;animation:fin var(--t-slow) var(--ease)}
+.req .ic{color:var(--ink2)}
+.req .x{flex:1;min-width:0}
+.req .x small{display:block;color:var(--ink3);font-size:12px;line-height:16px}
+.req.e .ic{color:var(--danger)}
+.pbtn{height:28px;padding:0 12px;border:0;border-radius:6px;background:var(--ink);color:var(--onsolid);font-size:13px;font-weight:500;cursor:pointer}
+.pbtn:hover{opacity:.9}.pbtn:focus-visible{outline:none;box-shadow:0 0 0 2px var(--raised),0 0 0 4px var(--focus)}
+.qbt{height:28px;padding:0 10px;border:0;border-radius:6px;background:transparent;color:var(--ink2);font-size:13px;cursor:pointer}
+.qbt:hover{background:var(--hover);color:var(--ink)}
+.toast{pointer-events:auto;display:flex;align-items:center;gap:8px;height:34px;padding:0 14px 0 12px;border-radius:8px;background:var(--ink);color:var(--onsolid);font-size:13px;box-shadow:var(--float);animation:fin var(--t) var(--ease)}
+.toast.out{animation:fout var(--t-out) var(--ease) forwards}
+.toast .ic{width:14px;height:14px}
+@keyframes fin{from{opacity:0}}
+@keyframes fout{to{opacity:0}}
+.fly{position:absolute;z-index:50;background:var(--raised);border:1px solid var(--line);border-radius:10px;box-shadow:var(--float);padding:4px;animation:fin 100ms var(--ease)}
+:root.reduce .fly{animation:none}
+.fly .gh{font-size:12px;color:var(--ink3);padding:8px 10px 4px;display:flex;justify-content:space-between}
+.mi{height:32px;width:100%;display:flex;align-items:center;gap:10px;padding:0 10px;border:0;border-radius:6px;background:transparent;font-size:13px;text-align:left;cursor:pointer;white-space:nowrap;color:var(--ink)}
+.mi:hover,.mi:focus-visible{background:var(--hover);outline:none}
+.mi .ic{color:var(--ink3)}
+.mi kbd{margin-left:auto;padding-left:20px;font:12px var(--font);color:var(--ink4)}
+.mi.chk::after{content:"";margin-left:auto}
+.msep{height:1px;background:var(--hair);margin:4px 0}
+.pr{min-height:44px;width:100%;display:flex;align-items:center;gap:10px;padding:8px 10px;border:0;border-radius:6px;background:transparent;text-align:left;cursor:pointer;color:var(--ink)}
+.pr:hover{background:var(--hover)}
+.pr.cur{background:var(--accent-bg)}
+.pr .pl{flex:1;min-width:0;display:flex;flex-direction:column}
+.pr .pt{font-size:13px;line-height:18px}.pr.cur .pt{font-weight:600}
+.pr .pf{font-size:12px;line-height:16px;color:var(--ink3)}
+/* format tag */
+.ft{flex:none;display:grid;place-items:center;border-radius:6px;font-family:var(--mono);font-weight:700;letter-spacing:.02em;line-height:1}
+/* annotations */
+.annot [data-spec]{outline:1px dashed color-mix(in srgb,var(--focus) 75%,transparent);outline-offset:-1px;position:relative}
+.annot [data-spec]::after{content:attr(data-spec);position:absolute;z-index:70;right:4px;top:-9px;font:600 10px/16px var(--font);color:#fff;background:#245BCD;padding:0 6px;border-radius:4px;white-space:nowrap;pointer-events:none}
+/* motion demos */
+.md-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.g2>*,.g3>*,.md-grid>*,.cap>*,.princ>*,.anat>*{min-width:0}
+.mdx{padding:18px;display:flex;flex-direction:column;gap:12px}
+.mdx h4{margin:0;font-size:14px;font-weight:600;display:flex;gap:8px;align-items:center}
+.mdx .ds{margin:0;font-size:13px;color:var(--ink2)}
+.mstage{position:relative;height:250px;border-radius:10px;border:1px solid var(--line);background:var(--page);overflow:hidden}
+.mrow{display:flex;gap:8px;flex-wrap:wrap}
+.mspec{display:grid;grid-template-columns:72px 1fr;gap:3px 10px;font-size:12px;color:var(--ink2);border-top:1px solid var(--hair);padding-top:10px}
+.mspec b{font-weight:500;color:var(--ink3)}
+.mini{position:absolute;inset:0;display:flex}
+.mini .mc{flex:1;padding:14px;display:flex;flex-direction:column;gap:8px}
+.mini .mc i{display:block;height:8px;border-radius:4px;background:var(--strong)}
+.mini .mp{width:56%;background:var(--canvas);border-left:1px solid var(--hair);display:flex;flex-direction:column;position:relative}
+.mini .mp .oh{height:44px;padding:0 6px 0 14px}
+.mini .mp .idl .n{font-size:13px;line-height:18px}
+.mini .mp .cv{position:relative}
+.fadein{animation:fin var(--t) var(--ease)}
+.curve{width:100%;height:auto}
+.curve text{font:10px var(--font);fill:var(--ink3)}
+/* spec visuals */
+.tok{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.tk{display:flex;gap:12px;align-items:center;padding:10px 12px}
+.tk .sw2{width:44px;height:44px;border-radius:10px;flex:none;box-shadow:inset 0 0 0 1px rgba(128,128,128,.28);background-image:repeating-conic-gradient(#ccc 0 25%,#fff 0 50%);background-size:8px 8px;position:relative;overflow:hidden}
+.tk .sw2 i{position:absolute;inset:0}
+.tk b{font-size:13px;font-weight:600;display:block}
+.tk small{display:block;font-size:11px;color:var(--ink3);font-family:var(--mono)}
+.tk em{display:block;font-style:normal;font-size:12px;color:var(--ink2)}
+.icg{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.icc{display:flex;gap:12px;padding:12px}
+.icz{width:64px;height:64px;flex:none;border-radius:8px;background-color:var(--sunken);background-image:linear-gradient(var(--hair) 1px,transparent 1px),linear-gradient(90deg,var(--hair) 1px,transparent 1px);background-size:4px 4px;display:grid;place-items:center;color:var(--ink)}
+.icz .ic{width:48px;height:48px;stroke-width:1.5}
+.icz .ic.real{width:16px;height:16px}
+.icc b{font-size:13px;font-weight:600;display:block}
+.icc small{display:block;font-size:12px;color:var(--ink3);line-height:1.5}
+.icc code{display:block;margin-top:6px;font-size:10px;background:none;padding:0;color:var(--ink2);word-break:break-all;line-height:1.45}
+.stm{display:grid;grid-template-columns:150px repeat(7,minmax(76px,1fr));border:1px solid var(--hair);border-radius:12px;overflow:auto;background:var(--canvas)}
+.stm>div{display:flex;align-items:center;justify-content:center;min-height:56px;padding:8px;border-right:1px solid var(--hair);border-bottom:1px solid var(--hair);font-size:12px;color:var(--ink2)}
+.stm>div.h{min-height:34px;background:var(--sunken);font-weight:600}
+.stm>div.r{justify-content:flex-start;font-weight:600;color:var(--ink)}
+.f-h{background:var(--hover)!important;color:var(--ink)!important}
+.f-p{background:var(--strong)!important;color:var(--ink)!important}
+.f-f{box-shadow:0 0 0 2px var(--focus)!important}
+.typo>div{display:grid;grid-template-columns:200px 1fr 230px;gap:16px;align-items:baseline;padding:12px 16px;border-bottom:1px solid var(--hair)}
+.typo>div:last-child{border-bottom:0}
+.typo small{color:var(--ink3);font-size:12px}
+.anat{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:start}
+.anatp{width:504px;height:520px;border:1px solid var(--line);border-radius:10px;overflow:hidden;position:relative;background:var(--canvas)}
+.dim{position:absolute;right:-1px;font:600 10px/16px var(--font);color:#fff;background:#245BCD;padding:0 6px;border-radius:4px 0 0 4px;z-index:5}
+.gl{position:absolute;top:0;bottom:0;width:0;border-left:1px dashed #245BCD;opacity:.55;z-index:4}
+.md{padding:28px 32px;font-size:13.5px;line-height:1.75}
+.md h1{font-size:22px;line-height:1.35;margin:0 0 14px}
+.md h2{font-size:18px;margin:30px 0 10px;padding-top:18px;border-top:1px solid var(--hair)}
+.md h3{font-size:15px;margin:20px 0 8px}
+.md p{margin:6px 0}.md ul,.md ol{margin:6px 0;padding-left:22px}.md li{margin:3px 0}.md li.l2{margin-left:18px;list-style:circle}
+.md blockquote{margin:10px 0;padding:8px 14px;border-left:3px solid var(--ink);background:var(--sunken);border-radius:0 8px 8px 0;color:var(--ink2)}
+.md table{border-collapse:collapse;width:100%;margin:10px 0;font-size:12.5px;display:block;overflow-x:auto}
+.md th,.md td{border:1px solid var(--hair);padding:6px 10px;text-align:left;vertical-align:top}
+.md th{background:var(--sunken);font-weight:600}
+.dtoast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--onsolid);padding:8px 14px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:opacity var(--t) var(--ease);z-index:200}
+.dtoast.on{opacity:1}
+.review li{margin:6px 0}
+@media (max-width:1100px){.g3,.princ{grid-template-columns:1fr 1fr}.cap{grid-template-columns:1fr 1fr}.anat{grid-template-columns:1fr}.md-grid{grid-template-columns:1fr}}
+@media (max-width:720px){.wrap{padding:0 16px}.g2,.g3,.princ,.cap{grid-template-columns:1fr}.hero h1{font-size:27px}.brand span{display:none}.typo>div{grid-template-columns:1fr}.md{padding:18px 16px}.top .wrap{gap:10px}.tools .sw{display:none}.anatp{width:100%}.viewport{padding:10px}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-close" viewBox="0 0 16 16"><path d="M4 4L12 12M12 4L4 12"/></symbol>
+<symbol id="i-focus" viewBox="0 0 16 16"><path d="M2.5 6V3.5A1 1 0 0 1 3.5 2.5H6M10 2.5H12.5A1 1 0 0 1 13.5 3.5V6M13.5 10V12.5A1 1 0 0 1 12.5 13.5H10M6 13.5H3.5A1 1 0 0 1 2.5 12.5V10"/></symbol>
+<symbol id="i-unfocus" viewBox="0 0 16 16"><path d="M6 2.5V5A1 1 0 0 1 5 6H2.5M13.5 6H11A1 1 0 0 1 10 5V2.5M10 13.5V11A1 1 0 0 1 11 10H13.5M2.5 10H5A1 1 0 0 1 6 11V13.5"/></symbol>
+<symbol id="i-more" viewBox="0 0 16 16"><circle cx="3.5" cy="8" r="1.25" fill="currentColor" stroke="none"/><circle cx="8" cy="8" r="1.25" fill="currentColor" stroke="none"/><circle cx="12.5" cy="8" r="1.25" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-ext" viewBox="0 0 16 16"><path d="M9.5 2.5H13.5V6.5M13.5 2.5L8 8M6.5 3.5H4A1.5 1.5 0 0 0 2.5 5V12A1.5 1.5 0 0 0 4 13.5H11A1.5 1.5 0 0 0 12.5 12V9.5"/></symbol>
+<symbol id="i-quote" viewBox="0 0 16 16"><path d="M2.5 13.5H13.5M2.5 10.5H9"/><path d="M5 6.75A1.75 1.75 0 1 1 5 3.25A1.75 1.75 0 0 1 6.75 5C6.75 6.9 5.8 8 4.25 8.5"/><path d="M10.5 6.75A1.75 1.75 0 1 1 10.5 3.25A1.75 1.75 0 0 1 12.25 5C12.25 6.9 11.3 8 9.75 8.5"/></symbol>
+<symbol id="i-find" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L13.5 13.5"/></symbol>
+<symbol id="i-up" viewBox="0 0 16 16"><path d="M4.5 10L8 6.5L11.5 10"/></symbol>
+<symbol id="i-down" viewBox="0 0 16 16"><path d="M4.5 6L8 9.5L11.5 6"/></symbol>
+<symbol id="i-prev" viewBox="0 0 16 16"><path d="M9.5 4L5.5 8L9.5 12"/></symbol>
+<symbol id="i-next" viewBox="0 0 16 16"><path d="M6.5 4L10.5 8L6.5 12"/></symbol>
+<symbol id="i-minus" viewBox="0 0 16 16"><path d="M4 8H12"/></symbol>
+<symbol id="i-plus" viewBox="0 0 16 16"><path d="M4 8H12M8 4V12"/></symbol>
+<symbol id="i-chev" viewBox="0 0 16 16"><path d="M5 6.5L8 9.5L11 6.5"/></symbol>
+<symbol id="i-check" viewBox="0 0 16 16"><path d="M3.5 8.5L6.5 11.5L12.5 4.5"/></symbol>
+<symbol id="i-info" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 7.5V11"/><circle cx="8" cy="5.2" r=".85" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-warn" viewBox="0 0 16 16"><path d="M7.13 2.98L1.9 12A1 1 0 0 0 2.77 13.5H13.23A1 1 0 0 0 14.1 12L8.87 2.98A1 1 0 0 0 7.13 2.98Z"/><path d="M8 6.5V9"/><circle cx="8" cy="11.2" r=".85" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-err" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M6 6L10 10M10 6L6 10"/></symbol>
+<symbol id="i-ok" viewBox="0 0 16 16"><path d="M3.5 8.5L6.5 11.5L12.5 4.5"/></symbol>
+<symbol id="i-folder" viewBox="0 0 16 16"><path d="M2 4.5A1 1 0 0 1 3 3.5H6.2L7.7 5H13A1 1 0 0 1 14 6V12A1 1 0 0 1 13 13H3A1 1 0 0 1 2 12Z"/></symbol>
+<symbol id="i-save" viewBox="0 0 16 16"><path d="M8 2.5V9.5M5 6.5L8 9.5L11 6.5M3 11V13.5H13V11"/></symbol>
+<symbol id="i-copy" viewBox="0 0 16 16"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 3.5V3A1 1 0 0 0 9.5 2H3.5A1 1 0 0 0 2.5 3V9A1 1 0 0 0 3.5 10H4"/></symbol>
+<symbol id="i-attach" viewBox="0 0 16 16"><path d="M13 7.5L8.2 12.3A3 3 0 0 1 3.7 7.8L8.6 2.9A2 2 0 0 1 11.4 5.7L6.6 10.5A1 1 0 0 1 5.2 9.1L9.6 4.7"/></symbol>
+<symbol id="i-locate" viewBox="0 0 16 16"><path d="M2.5 4.5H9.5M2.5 8H7M2.5 11.5H9.5"/><path d="M12.5 6V13M10.5 11L12.5 13L14.5 11"/></symbol>
+<symbol id="i-reload" viewBox="0 0 16 16"><path d="M13 7.5A5 5 0 1 0 11.5 11.5M13 3.5V7.5H9"/></symbol>
+<symbol id="i-back" viewBox="0 0 16 16"><path d="M9.5 4L5.5 8L9.5 12"/></symbol>
+<symbol id="i-fwd" viewBox="0 0 16 16"><path d="M6.5 4L10.5 8L6.5 12"/></symbol>
+<symbol id="i-lock" viewBox="0 0 16 16"><rect x="3.5" y="7" width="9" height="6.5" rx="1.5"/><path d="M5.5 7V5.5A2.5 2.5 0 0 1 10.5 5.5V7"/></symbol>
+<symbol id="i-doc" viewBox="0 0 16 16"><path d="M4 2.5H9L12 5.5V13A.5.5 0 0 1 11.5 13.5H4.5A.5.5 0 0 1 4 13Z"/><path d="M9 2.5V5.5H12"/></symbol>
+<symbol id="i-box" viewBox="0 0 16 16"><path d="M2.5 5L8 2.5L13.5 5V11L8 13.5L2.5 11Z"/><path d="M2.5 5L8 7.5L13.5 5M8 7.5V13.5"/></symbol>
+<symbol id="i-globe" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.75"/><path d="M2.25 8H13.75M8 2.25C9.6 4 10.25 6 10.25 8S9.6 12 8 13.75C6.4 12 5.75 10 5.75 8S6.4 4 8 2.25Z"/></symbol>
+<symbol id="g-globe" viewBox="0 0 20 20"><path d="M17.5 10A7.5 7.5 0 1 1 2.5 10A7.5 7.5 0 1 1 17.5 10ZM13 10A3 7.5 0 1 1 7 10A3 7.5 0 1 1 13 10ZM2.5 10H17.5"/></symbol>
+<symbol id="g-files" viewBox="0 0 20 20"><path d="M2.5 7V5.5A1.5 1.5 0 0 1 4 4H7.5L10 6.5H16A1.5 1.5 0 0 1 17.5 8V14.5A1.5 1.5 0 0 1 16 16H4A1.5 1.5 0 0 1 2.5 14.5V7ZM2.5 8H17.5"/></symbol>
+<symbol id="g-side" viewBox="0 0 20 20"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><path d="M7.5 3.5V16.5"/></symbol>
+<symbol id="g-plus" viewBox="0 0 20 20"><path d="M10 4V16M4 10H16"/></symbol>
+<symbol id="g-cal" viewBox="0 0 20 20"><rect x="3" y="4.5" width="14" height="12" rx="2"/><path d="M3 8.5H17M7 2.5V5.5M13 2.5V5.5"/></symbol>
+<symbol id="g-search" viewBox="0 0 20 20"><circle cx="9" cy="9" r="5.5"/><path d="M13 13L17 17"/></symbol>
+<symbol id="g-grid" viewBox="0 0 20 20"><rect x="3" y="3" width="5.5" height="5.5" rx="1.2"/><rect x="11.5" y="3" width="5.5" height="5.5" rx="1.2"/><rect x="3" y="11.5" width="5.5" height="5.5" rx="1.2"/><rect x="11.5" y="11.5" width="5.5" height="5.5" rx="1.2"/></symbol>
+<symbol id="g-gear" viewBox="0 0 20 20"><circle cx="10" cy="10" r="2.5"/><path d="M10 2.5V4.5M10 15.5V17.5M2.5 10H4.5M15.5 10H17.5M4.7 4.7L6.1 6.1M13.9 13.9L15.3 15.3M4.7 15.3L6.1 13.9M13.9 6.1L15.3 4.7"/></symbol>
+<symbol id="g-help" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.5"/><path d="M7.8 7.8A2.2 2.2 0 1 1 10 10V11.5"/><circle cx="10" cy="14" r=".9" fill="currentColor" stroke="none"/></symbol>
+</defs></svg>
+
+<header class="top"><div class="wrap">
+  <div class="brand"><span class="logo"><svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="4.6"/><path d="M7 2.4V7L10 9"/></svg></span><span>23Hertz · 文档工作台</span></div>
+  <nav class="nav" aria-label="目录"><a href="#mock"><b>01</b>效果稿</a><a href="#motion"><b>02</b>动效</a><a href="#spec"><b>03</b>规范</a><a href="#prompt"><b>04</b>提示词</a><a href="#review"><b>05</b>复审</a><a href="23Hertz_右侧工作区_旧版问题与新版改进对照表.html">对照表 ↗</a></nav>
+  <div class="tools">
+    <div class="segd" role="group" aria-label="主题">
+      <button data-th="xuan" title="宣 · 默认浅色">宣</button><button data-th="ye" title="夜 · 深色">夜</button><button data-th="ji" title="霁 · 冷调浅色">霁</button><button data-th="su" title="素 · 高对比">素</button><button data-th="system" title="跟随系统：浅色→宣，深色→夜">系统</button>
+    </div>
+    <label class="sw"><input type="checkbox" id="rm"> 减少动态效果</label>
+  </div>
+</div></header>
+
+<main class="wrap">
+  <div class="hero">
+    <div class="eyebrow">右侧工作区第一轮 · v2 重新设计 · 2026-10-12</div>
+    <h1>文档工作台：内容是主角，工具退到边上</h1>
+    <p>本版完全推翻上一版视觉。基准不再是上一版 HTML 的配色，而是 23Hertz 真实源码：<code>ThemePalette</code> 四套主题（宣 / 夜 / 霁 / 素）、Inter + Noto Sans SC、JetBrains Mono、<code>UnifiedUiTokens.FileColors</code> 格式色，以及真实界面中的侧栏、标题区与输入框。页面里所有颜色都由同一份 Token 数据驱动；效果稿、动效与规范读取的是同一份数据。</p>
+    <div class="meta"><span>源码 <b>23Hertz_round1_20261008 · HEAD 980556557f0b</b>（含未提交成果）</span><span>候选 <b>execution-v11-candidate32</b></span><span>范围 <b>R1-00 – R1-12</b></span><span>状态 <b>仅设计，未施工</b></span></div>
+    <div class="princ">
+      <div><b>纸 · 墨 · 台</b><span>面板是纸，文件是纸上的内容，阅读画布是台面。容器只保留一层，不在面板里再套卡片。</span></div>
+      <div><b>墨即强调</b><span>沿用 <code>Accent = Ink</code>：选中靠加重和墨色，主操作用墨底按钮。蓝色只出现在键盘焦点和链接上。</span></div>
+      <div><b>颜色只给状态</b><span>警告、危险、成功各用一种语义色。文件格式色降为浅底小标，用来认出文件，而不是装饰。</span></div>
+      <div><b>不打断</b><span>AI 的请求、后台变化、反馈都在面板底部或边缘出现，不替换正在读的内容，不抢输入焦点。</span></div>
+    </div>
+  </div>
+
+  <!-- ================= 01 ================= -->
+  <section class="blk" id="mock">
+    <div class="sh"><span class="no">01</span><h2>完整交互效果稿</h2></div>
+    <p class="lede">窗口按 <b>1280 × 820 DIP、100% 系统缩放</b>复刻；左侧栏为右侧面板打开时的紧凑态（与真实软件一致）。“100%”模式下与真实 DIP 一一对应，可直接检查字号和图标；“200% 特写”用于检查图标线宽和对齐。外层预览缩放与面板内的阅读缩放互不影响：面板工具栏显示的永远是文件自身的缩放。</p>
+    <div class="scgroups" id="scg"></div>
+    <div class="sbar">
+      <div class="segd" role="group" aria-label="预览比例"><button data-sc-scale="fit">适应宽度</button><button data-sc-scale="1">100%</button><button data-sc-scale="2">200% 特写</button></div>
+      <button class="dbtn" id="agentBtn">模拟：AI 请求打开网页</button>
+      <button class="dbtn" id="resetBtn">重置</button>
+      <span class="sp"></span>
+      <label class="sw"><input type="checkbox" id="anT"> 规格标注</label>
+      <label class="sw"><input type="checkbox" id="slowT"> 慢速加载</label>
+    </div>
+    <div class="viewport" id="vp"><div class="vinner" id="vin"><div class="win" id="win"></div></div></div>
+    <div class="scale-note" id="scNote"></div>
+    <div class="cap box" id="cap"></div>
+  </section>
+
+  <!-- ================= 02 ================= -->
+  <section class="blk" id="motion">
+    <div class="sh"><span class="no">02</span><h2>完整动效稿</h2></div>
+    <p class="lede">桌面端的约束先于美感：右侧可能包含 WebView2（网页、HTML 预览）原生层，它不能参与透明度或位移合成，对它做宽度动画会导致重排和闪烁。因此面板<b>宽度一律瞬时变化</b>，动效只用于 Avalonia 自绘内容的透明度。所有时长都可以用页面顶部的“减少动态效果”归零，主题也可以随时切换核对。</p>
+    <div class="md-grid" id="mdg"></div>
+    <h3>动效数值表 <small>与上方演示读取同一份数据</small></h3>
+    <div class="tw"><table class="t" id="mtab"></table></div>
+  </section>
+
+  <!-- ================= 03 ================= -->
+  <section class="blk" id="spec">
+    <div class="sh"><span class="no">03</span><h2>工程级设计规范</h2></div>
+    <p class="lede">本节是本轮视觉的唯一依据，上一版第 03 节作废。所有颜色都引用 <code>ThemePalette</code> / <code>ThemeResources</code> / <code>UnifiedUiTokens</code> 中的真实 Token；本轮<b>不新增颜色 Token</b>，只改变组件绑定关系，并新增 3 个尺寸常量（见 3.4）。</p>
+
+    <h3>3.1 主题 Token 与组件映射 <small>随顶部主题切换实时变化</small></h3>
+    <div class="tok" id="tokGrid"></div>
+    <h3>3.2 文字对比度 <small>按当前主题实时计算（WCAG 2.x）</small></h3>
+    <div class="tw"><table class="t" id="ctab"></table></div>
+
+    <h3>3.3 字体与字阶</h3>
+    <div class="box typo" id="typo"></div>
+
+    <h3>3.4 面板结构、栅格与对齐</h3>
+    <div class="anat">
+      <div class="anatp" id="anat"></div>
+      <div class="tw"><table class="t" id="lay"></table></div>
+    </div>
+
+    <h3>3.5 图标 <small>16 网格 · 描边 1.5 · 圆头圆角 · 像素对齐</small></h3>
+    <div class="icg" id="icg"></div>
+
+    <h3>3.6 组件状态</h3>
+    <div class="stm" id="stm"></div>
+
+    <h3>3.7 文件身份系统 <small>格式标 · UnifiedUiTokens.FileColors</small></h3>
+    <div class="tw"><table class="t" id="ftab"></table></div>
+
+    <h3>3.8 各内容类型的阅读画布与工具栏</h3>
+    <div class="tw"><table class="t" id="ctypes"></table></div>
+
+    <h3>3.9 反馈体系：状态条 · 请求条 · 回执</h3>
+    <div class="tw"><table class="t" id="fbk"></table></div>
+
+    <h3>3.10 响应式、专注阅读与 DPI</h3>
+    <div class="tw"><table class="t" id="resp"></table></div>
+
+    <h3>3.11 键盘与焦点</h3>
+    <div class="tw"><table class="t" id="kbd"></table></div>
+
+    <h3>3.12 文案：加载、空状态、异常、反馈</h3>
+    <div class="tw"><table class="t" id="copy"></table></div>
+
+    <h3>3.13 组件复用与源码映射</h3>
+    <div class="tw"><table class="t" id="map"></table></div>
+  </section>
+
+  <!-- ================= 04 ================= -->
+  <section class="blk" id="prompt">
+    <div class="sh"><span class="no">04</span><h2>新版 Codex 统一开工提示词（v3）</h2></div>
+    <p class="lede">基于本文件第 01–03 节重写，取代上一版提示词。复制得到的是 Markdown 原文。</p>
+    <div class="sbar"><button class="dbtn pri" id="cpy">复制全文</button><button class="dbtn" id="dl">下载 .md</button><span class="scale-note" id="pst" style="margin:0"></span></div>
+    <article class="box md" id="pv"></article>
+  </section>
+
+  <!-- ================= 05 ================= -->
+  <section class="blk" id="review">
+    <div class="sh"><span class="no">05</span><h2>交付前复审：仍需注意的地方</h2></div>
+    <div class="box md review" id="rv"></div>
+  </section>
+  <div class="foot">23Hertz 文档工作台 · 右侧工作区第一轮 v2 · 2026-10-12 · 仅设计交付，不修改源码、不构建、不部署。</div>
+</main>
+<div class="dtoast" id="dt" role="status" aria-live="polite"></div>
+
+<script type="text/markdown" id="psrc">
+# 23Hertz 右侧工作区第一轮低中风险改进与 UI 重设计｜Codex 统一开工提示词（v3 · 2026-10-12）
+
+## 0. 授权、依据与总原则
+
+你是 23Hertz 施工工程师，负责实施本提示词列出的第一轮右侧工作区改进（功能修复 + 视觉重设计）。
+
+**依据文件**：`F:\codex harness\23Hertz_右侧面板设计交付_20261012\23Hertz_右侧工作区R1_v2_文档工作台设计交付.html`
+
+- 第 03 节“工程级设计规范”是**视觉唯一依据**。上一版 `23Hertz_右侧工作区R1_效果稿与开工提示词.html` 的第 03 节及其提示词**全部作废**，不得引用。
+- 第 01 节是交互依据，第 02 节是动效依据。三节读取同一份 Token 数据；如发现相互矛盾，以第 03 节表格为准，并在 ledger 记录。
+- 所有颜色必须绑定真实 Token：`ThemePalette`（宣 / 夜 / 霁 / 素）、`ThemeResources`、`UnifiedUiTokens`。**禁止写死十六进制颜色，禁止新增颜色 Token。**
+- 规范与源码现值冲突时，以源码为准并记录；设计稿中无法真实模拟的部分已在 HTML 中标注。
+
+**授权范围**：只改本提示词列出的 Desktop 源码与测试；可构建隔离候选；只在隔离数据下运行验证。
+
+**禁止事项**：
+- 替换 `23Hertz_Current/releases/*`；改动桌面快捷方式或 `Start-23Hertz.ps1`
+- 使用真实数据目录 `F:\codex harness\23Hertz-Data\Agent.codex-0.155.1`
+- 推送、部署、提交远程；对外发送消息
+- 页签化工作区、多窗口架构、文件版本体系、Host 协议重建、大范围底层重构
+
+**施工原则**：功能修复优先，视觉随组件一起落地；复用现有组件；编译通过不算完成；必须在真实 Windows 客户端中验收。
+
+## 1. 基线（W0，开工前完成并写入 `artifacts/rightpanel-r1/baseline.json`）
+
+- 源码：`F:\codex harness\23Hertz_round1_20261008`，detached HEAD `980556557f0b…`。`src/Hertz.Desktop` 有 492 个文件存在未提交改动，全仓约 1729 条 status。这些都是已验收成果，**严禁 reset / clean / checkout / stash 覆盖**。
+- 对本提示词涉及的每个文件，开工前和修改前都记录 SHA256；哈希变化说明有并行改动，先合并再改。
+- **并行任务**：同一源码树上还有一轮“执行过程 + 定时计划”设计升级（`23Hertz_设计升级交付_20261012`），可能触及 `TerminalOutputPanel` 等文件，必须逐文件合并，不得覆盖。
+- **换行符**：仓库 CRLF / LF 混用，保持每个文件原有换行符。
+- **行数锁**：`eng/architecture-size-baseline.json` 锁定 `MainWindowViewModel.cs`（3599 行）和 `MainWindow.axaml.cs`，**不得增加任何行**；新逻辑放入新 partial 或小类。`PreviewDockController.cs` 只加挂接点。
+- **冻结项**：输入框阴影与位移、左右区域色差（`ComposerSurfaceStyles.axaml`；`ThemePalette.cs` 中的 Composer*、SurfacePage、SurfaceRail）；唯一的橙色运行主控制 `#F5600F`；Enter / Shift+Enter；Tiptap + WebView2；中文 IME。**`ThemePalette.cs` 本轮不得修改。**
+
+## 2. 关键源码事实（已核对，不要重新调研）
+
+| 事实 | 位置 | 影响 |
+|---|---|---|
+| “展开”在常见窗口下不起作用：1280 / 1440 DIP 窗口中，`Resolve` 计算的 expanded 宽度等于 maximum，等于默认宽度 | `ObjectPanelMetrics.Resolve`、`PreviewDockController.TogglePreviewExpansion` | R1-05：改为“专注阅读” |
+| 阅读画布 `PreviewCanvasBrush` 写死为 #F3F3F1（偏暖）/ #202020 | `ThemeResources.cs:33` | R1-11 |
+| 文档画布内边距与页间距固定为 24 / 24 | `PreviewViewport.CanvasInset / PageGap` | R1-11 |
+| 唯一会在后台改变右侧内容的入口：Agent 工具 `agent_web-panel_open` | `WebPanelRequestObserver.cs:66-85` → `MainWindow.WebDock.cs:20-22` | R1-04 |
+| 打开本地文件时执行 `_close.Focus()`，会抢走输入焦点 | `FilePreviewPanel.cs:128` | R1-04 |
+| `OpenWebLinkAsync` 会关闭正在阅读的文件，await 之后的 `SaveWebDock()` 可能写入另一个会话 | `PreviewDockController.cs:150-157` | R1-04 |
+| 发送消息时 `BeginPolling()` 替换 `_taskPolling`，使引用被误判为“对话已切换” | `MainWindowViewModel.PreviewSnippets.cs`、`MainWindowViewModel.cs:2110/2303` | R1-01 |
+| `DistinctBy(path)` 保留同一路径的第一次交付快照 | `DeliveryShelf.cs:102` | R1-02 |
+| 核验失败后静默返回，用户点击毫无反应 | `DeliveryShelf.cs:130-133` | R1-02 |
+| 卡片与右侧头部使用两套格式色：左侧 `CompactArtifactInk.*`（饱和色），右侧 `FileFormatTile` 默认色 | `CompactArtifactStyles.axaml`、`UniversalContentPanel.cs:87` | R1-02 / R1-05 |
+| `GoToLine` 按 `FontSize × 1.3` 估算滚动，实际行高为 21 / 23 | `TextFileContentView.cs:140` | R1-03 |
+| 文件名换行导致头部跳动；执行记录面板从不调用 `SetIdentity`，却显示失效下拉 | `UniversalContentPanel.cs:52-66` | R1-05 |
+| 反馈 `_notice` 位于正文行内，出现时挤压正文且不消失 | `UniversalContentPanel.cs:77-79` | R1-00 |
+| 引用图标几何像汉字“刀” | `FilePreviewPanel.Selection.cs` | R1-05 |
+| 切换会话时只恢复网页面板的开合状态，文件预览被关闭 | `PreviewDockController.cs:81-93` | R1-07 |
+| 预览没有键盘翻页、Ctrl+滚轮缩放和查找 | `PreviewViewport.cs`、`TextFileContentView.cs` | R1-08 / R1-09 |
+| 非图片缩略图会为每张可见卡片立即生成，HTML 还会启动 Playwright | `DeliveryShelf.Artifacts.cs:272` | R1-10 |
+
+## 3. 范围、优先级与顺序
+
+| ID | 项目 | 优先级 | 风险 | 工程量 |
+|---|---|---|---|---|
+| R1-00 | 反馈体系：状态条（流内）、请求条（底部浮层）、回执（墨色短提示） | P0 | 低 | 小 |
+| R1-01 | 引用会话误判 | P0 | 低 | 小 |
+| R1-02 | 成果卡：取最新快照、已修改内联提示、状态文案、菜单统一、格式色统一、“正在右侧查看” | P0 | 低 | 中 |
+| R1-03 | 文本定位修正 + 行号栏 + 分段文案 | P0 | 低 | 小 |
+| R1-04 | Agent 打开请求的阅读保护、关闭意图、不抢焦点、迟到写入 | P0 | 中 | 中 |
+| R1-05 | 对象栏 / 阅读栏重构；专注阅读替代展开；四类面板统一；新引用图标；顶栏激活态 | P1 | 中低 | 中 |
+| R1-06 | 预览状态真实化：状态条、200 ms 加载门槛、错误卡、引用就绪 | P1 | 低 | 中 |
+| R1-07 | 切换会话恢复文件与页码（内存态） | P1 | 中 | 中 |
+| R1-11 | 阅读画布：画布 Token、内边距、页码浮标、缩放模式名、纸页边缘 | P1 | 低 | 小 |
+| R1-08 | 键盘与缩放（含缩放浮标） | P2 | 低 | 小 |
+| R1-09 | 文本查找 Ctrl+F | P2 | 低 | 中 |
+| R1-10 | 缩略图按需生成（实测） | P2 | 低 | 小 |
+| R1-12 | 关联定位：“在对话中定位”、切换列表按轮分组 | P2 | 中低 | 小–中 |
+
+**顺序**：W0 → R1-00 → R1-01 → R1-03 → R1-02 → R1-04 → R1-11 → R1-05 → R1-06 → R1-07 → R1-08 → R1-09 → R1-10 → R1-12 → 全量回归与证据包。
+
+**完成门槛**：P0、P1 必须全部完成并验收。P2 遇真实硬阻塞可单列未完成，不计入完成率。
+
+## 4. 逐项规格（视觉数值见 HTML 第 03 节）
+
+### R1-00 反馈体系
+- 新建 `Controls/PanelStatusStrip.cs`（流内状态条）和 `Controls/PanelNotice.cs`（底部浮层：请求条与回执两种变体），各约 120 行以内。
+- **状态条**：随内容一起出现，不会事后插入，用于说明当前视图。中性用 SurfaceSunken 底 + Ink2 字；警告用 WarningBackground 底 + Ink 字 + Warning 图标。最小高 36，左缘对齐线 20。
+- **请求条**：用于需要用户决定的事项，保持显示。SurfaceRaised 底 + Line 边 + ShadowFloat，圆角 10；主按钮为墨底 28 高（OnSolid 字），次按钮为透明。
+- **回执**：用于成功或信息提示，Ink 底 + OnSolid 字，34 高，圆角 8，底部居中；入场 120 ms，停留 2500 ms，退场 200 ms。
+- 替换 `FilePreviewPanel` 与 `TerminalOutputPanel` 中所有 `_notice` 赋值。浮层不参与布局；验收要求正文首行 `Bounds.Y` 在提示出现前后不变。
+
+### R1-01 引用误判
+- 在 `MainWindowViewModel.PreviewSnippets.cs` 新增“预览归属”判定：只比较 TaskId、Workspace、`_composerDraftGeneration`，不比较 polling。
+- `ShowFilePreviewAsync` 与 `ShowTerminal` 改用新判定；不改 `TaskPresentationSession`。
+
+### R1-02 成果卡
+1. 在 `DeliveryShelfData.LatestByPath` 中保留同一路径的最后一次交付快照。
+2. 核验失败时显示内联提示（WarningBackground），按钮为［查看当前文件］／［用当前文件继续修改］／［取消］。
+   - 执行路径：在 `ISourceDeliveryActionHost` 新增 `OpenChangedDeliveryAsync`，实现放在 `MainWindow.SourceDelivery.cs`。
+   - 预览时，面板顶部显示警告状态条：“正在显示文件的当前内容，与对话中该卡片交付时的内容不同。”
+   - 禁止标成“该卡片的版本”。
+3. 去掉常驻的“版本待核验”。元信息只显示“类型 · 大小”；异常时追加“· 交付后已修改”（Warning）或“· 文件已移动或删除”（Danger）。
+4. 卡片正在右侧预览时：3 px 墨色标记（沿用）+ 边框加深到 Ink 28% + 元信息追加“· 正在右侧查看”（Ink2 Medium），数据来自 `ResourcePreviewState`。
+5. **格式色统一**：卡片与右侧一律使用 `UnifiedUiTokens.FileColors`（FileTypeText / Tint / Border），废弃 `CompactArtifactInk.*` 的饱和色；卡片使用 36 px 格式标，右侧使用 28 px。
+6. **菜单**：成果卡菜单分四组（纯文字）——基于此文件继续修改 ／ 用默认应用打开 · 选择应用打开… · 在文件夹中显示 ／ 另存为… · 复制文件路径 ／ 核对是否被改动 · 刷新卡片预览 · 显示文件详情。“⋯”用矢量三点。
+
+### R1-03 文本定位、行号栏与分段
+- `GoToLine` 使用 `TextLayout.HitTestTextPosition`，失败时回退 `行序 × LineHeight`；定位提示改为“已定位到第 N 行”。
+- **新增行号栏**：`TextFileContentView` 左侧增加独立的行号 `TextBlock`，与正文同在一个 ScrollViewer、行高相同（21 / 23），不参与选区与复制；数字使用 Ink4、等宽字体、右对齐；当前定位行和选区所在行用 Ink。
+- 分段信息改为“分段 x / y · 第 a–b 行，共 n 行”，显示在阅读栏左侧。
+
+### R1-04 Agent 打开请求的阅读保护
+- 新建纯策略类 `Services/AgentPanelRequestPolicy.cs`。决策：
+  - 面板为空且本轮未被用户关闭 → 打开，不移动焦点。
+  - 目标在工作区外 → 一律进入待处理，绝不自动弹出确认框。
+  - 本轮用户已关闭 → 待处理。
+  - 当前显示网页 → 在网页面板内导航。
+  - 当前显示同一文件 → 待处理，按钮为“重新加载”。
+  - 当前显示其他内容 → 待处理。
+- **待处理的呈现**：面板可见时显示请求条“AI 请求打开 {名称}”，次行显示完整地址，按钮［打开］［忽略］；同时顶栏网页按钮出现 6×6 墨点。只保留最新一条。
+- **关闭意图**：用户关闭时设置，下一条用户消息或用户手动打开时清除；只存内存。
+- **焦点**：新增 `PreviewOpenOptions { TakeFocus, Note }`，Agent 发起的打开一律 `TakeFocus=false`。
+- **迟到写入**：`OpenWebLinkAsync` 在 await 前捕获会话键，之后若已变化则跳过 `SaveWebDock()`。
+- `WebPanelRequestObserver` 保留不重放历史；`WebPanelResumeChecks` 必须继续通过。
+
+### R1-05 对象栏与阅读栏（HTML 3.4 / 3.6 / 3.8）
+- **对象栏**（56 高，`PanelShell` 头部）：
+  - 左侧：格式标 28 → 文件名（15/20 SemiBold，单行中部省略）→ 元信息（12/16 Ink3：类型 · 大小 · 页数）。本对话文件数 ≥2 时，整个身份区可点击并显示 12 px 下拉箭头。
+  - 右侧只保留三个窗口操作：［专注阅读］［⋯］［×］。
+- **阅读栏**（40 高，位于对象栏之下）：
+  - 左侧放导航：分页、工作表、阅读 / 源码、记录页签、网页地址栏。
+  - 右侧放阅读工具：查找、引用、缩放。
+  - “在外部打开”“添加到对话”“在文件夹中显示”“复制文件路径”“另存为…”“在对话中定位”全部收进 ⋯ 菜单，并分组。
+- **专注阅读**（替代“展开”）：在 `ObjectPanelMetrics` 增加 `FocusReadingMaximum = 1040`。expanded 时 `Resolve` 返回 `new(true, Math.Min(available, 1040))`，复用现有叠层路径（遮罩、Tab 循环、`TitleRowMirror`、关闭即返回对话）。Esc 或再次点击退出。不改 640 / 440 / 360 / 72 / 4 等阈值。同步更新 `ObjectPanelWindowProbe` 等相关测试。
+- **新引用图标**（HTML 3.5 “引用到对话”）替换“刀”形几何；有选区时变为墨底按钮“引用所选 ↵”。
+- **四类面板统一**：执行记录面板改用对象栏 + 阅读栏页签，去掉失效下拉；图表面板改用 `PanelShell`；网页面板标题优先显示 `state.Title`，阅读栏为地址栏；粘贴文本面板对齐同一结构。
+- `PreviewButtons.Style` 改用 Token：hover = HoverBrush（Ink 4%），pressed = SurfaceStrong，selected = AccentBackground，focus = FocusRing 2 px，disabled = Ink5。删除未使用的 `PreviewHeader` 类。
+- **顶栏激活态**：`WebButton` / `ChangesButton` 在对应面板打开时使用 AccentBackground。
+- **窄面板**（<440）：缩放组收为一个下拉（内含放大、缩小），页码保留；对象栏不变。
+
+### R1-06 预览状态真实化
+- 状态条用于：简化视图、表格简化视图、页面预览未能生成、阅读视图说明、截断 / 缩放说明、交付后已修改。行尾操作［用默认应用打开］。
+- 修复“正在生成页面预览…”的残留（`FilePreviewPanel.cs:177/194`）。
+- **加载**：加载线立即出现（2 px，位于阅读栏下）；200 ms 内保持空白画布；超过 200 ms 才显示“正在准备预览”。
+- **错误卡**：格式标 + “无法在这里预览”（15/22）+ 原因（13/20）+ 路径（Mono 12 Ink3），按钮［重新加载］［用默认应用打开］［复制文件路径］。
+- **引用就绪**：有选区时显示墨底“引用所选”；无选区时为图标按钮，ToolTip 为“先选择文字，再引用到对话”。不禁用按钮。
+
+### R1-07 恢复阅读对象
+- 新建 `PreviewDockController.ReadingState.cs`：内存字典（LRU 32 条），记录会话键 → (Path, Page)。
+- 切换会话时捕获；切回时以 `TakeFocus=false` 恢复，并跳转到原页；每个 await 后校验会话键与路径。
+- 用户主动关闭时删除该会话的记录。不落盘。
+
+### R1-11 阅读画布
+- `ThemeResources.cs` 中 `PreviewCanvasBrush` 改为绑定主题：浅色主题（宣 / 霁 / 素）用 SurfaceSunken，夜主题用 SurfacePage。`OfficePreviewContentView` 表头单元格同步。
+- `PreviewViewport`：CanvasInset 24 → 20（专注阅读时 32）；PageGap 24 → 16。
+- 纸页边缘：浅色主题为 Hair 描边 + 0 1 3 阴影（Ink 6%）；夜主题只用描边、无阴影。纸页保持白色（文件真实外观，不反色）。
+- **页码浮标**：滚动时在画布底部居中显示“5 / 12”（Ink 86% 底 + OnSolid 字，26 高），入场 120 ms，停止滚动 800 ms 后 200 ms 退场；只在页数 > 1 时出现。
+- **缩放标签显示模式名**：适应宽度 / 适应页面 / 实际大小，手动缩放时显示百分比；ToolTip 始终显示精确百分比。
+
+### R1-08 键盘与缩放
+- PageDown / PageUp / Home / End 翻页（瞬时跳转）。
+- Ctrl+= / Ctrl+- / Ctrl+0 缩放；Ctrl+滚轮每格 ×1.1，以视口中心为锚点。
+- Ctrl+滚轮或快捷键缩放时显示缩放浮标（居中，800 ms）。
+- `ContentViewModes` 增加焦点环与 ← / → 切换；开工前检查是否与全局快捷键冲突。
+
+### R1-09 查找
+- 只在 `TextFileContentView`（含 Markdown / HTML / JSON 的源码模式）实现，查找栏高 44。
+- 不区分大小写，上限 10000；超过 1 MB 在后台查找。
+- Enter 下一个，Shift+Enter 上一个，Esc 只关闭查找栏；IME 组合中不响应。
+- 匹配高亮使用 Warning 系弱底，当前项加 1 px Warning 描边。
+
+### R1-10 缩略图按需生成
+- 非图片缩略图改为 ToolTip 打开时才生成。
+- 实测对比生成次数、Playwright 启动次数、UI 卡顿（`eng/Measure-DesktopResponsiveness.ps1`）。
+
+### R1-12 关联定位（P2）
+- ⋯ 菜单“在对话中定位”：复用会话目录现有的轮次跳转能力滚动到所属轮次，然后让卡片高亮一次（AccentBackground，1000 ms，不循环）。如果虚拟化导致无法可靠定位，就不提供此项并记录原因。
+- 文件切换列表按轮分组（本轮 / 更早），组标题 12 Ink3；数据来自 `TaskItems` 的 TurnId。
+
+## 5. 必须保留与禁区
+
+**必须保留**：
+- 输入框全部视觉与交互；左右色差；橙色运行主控制
+- 流式、Skills、MCP、审批、电脑操作接管与急停、附件、队列 / Steer、草稿、历史恢复
+- 预览安全限制（8 MiB / 20 MiB、CSP、sandbox、`WebPanelAddressPolicy`）
+- 用户主动打开工作区外路径时的二次确认
+- `SidePanelDismissService` 语义；`ObjectPanelMetrics` 阈值；`WebLayout` Version 4 格式；`DeliveryRecovery.Validate` 判定
+
+**不得改动**：
+- `Hertz.Host`、`Hertz.Contracts`、`Hertz.Persistence`、`WorkspaceHistory*`、Office 生成、`Hertz.Browser` 安全策略
+- `RichComposer/*`、Composer 样式、`ThemePalette.cs`、Provider / 路由 / Skills
+
+## 6. 施工纪律
+
+1. 修改任何文件前核对哈希，不覆盖并行成果。
+2. 复用 `PanelShell`、`MiddleEllipsisTextBlock`、`PanelLoadingLine`、`FileFormatTile`、`DeliveryRecovery`、`TaskPresentationSession`、`WebPanelRequestObserver`、`SidePanelDismissService`、`TitleRowMirror`。
+3. 不做无关重构，不加无关注释，不批量改格式。
+4. 每项改动复核上下游调用链：`ShowFilePreviewAsync` 的 5 处调用方、`RequestConversationFileActionAsync`、`ResourcePreviewState`、`ISourceDeliveryActionHost` 的实现与替身。
+5. 每完成一项，立即运行相关测试与 UiCapture 探针。
+6. **每 30 分钟保存检查点**：`artifacts/rightpanel-r1/checkpoint-<时间>.json` 与 `progress.json`。
+7. 硬阻塞只限外部条件缺失：记录证据后跳过，继续其他工作；本轮引起的问题必须修复。
+8. 不重复调研，不全仓扫描。
+9. **构建与候选**：测试构建输出与 TEMP 放在仓库之外，使用 `StageDevelopmentHost=false`；用 `eng/Publish-Preview.ps1` 发布到 `artifacts/rightpanel-r1-candidate<N>`；启动前设置 `HERTZ_DESKTOP_DATA_ROOT` 指向新的隔离目录；需要真实模型时，使用 `D:\23Hertz-round1-validation-20261008\live-stream980` 的副本。
+10. 只要有一项 P0 / P1 未验收，就不得宣布完成。
+
+## 7. 测试与验收
+
+**新增自动测试**（`tests/Hertz.Desktop.Tests`，每类一个文件，`Program.cs` 中各加一行注册）：
+- PreviewOwnerSessionChecks
+- DeliveryLatestAndChangedChecks
+- TextPreviewLocateChecks（含行号栏与正文对齐）
+- AgentPanelRequestPolicyChecks
+- ReadingRestoreChecks
+- FocusReadingLayoutChecks（`Resolve` 在 expanded 时返回叠层与 1040 上限；阈值不变）
+- TextFindChecks
+- ThumbnailLazyChecks
+- CanvasTokenChecks（四主题 `PreviewCanvasBrush` 映射）
+
+**UiCapture 扩展**：
+- `ContentPanelProbe`：对象栏 3 个操作、阅读栏内容按类型变化、窄面板收纳
+- `DeliveryShelfProbe`：内联提示、“正在右侧查看”
+- `WebPanelToolProbe`：焦点不被移走、不弹确认框
+- `FilePreviewNativeProbe`：键盘、缩放浮标、页码浮标、反馈不挤压正文
+- `ObjectPanelWindowProbe`：专注阅读
+
+**必须回归通过**：Desktop 全量（含 ArchitectureSizeBaseline、ThemeResource、DrawerDismiss、FilePreviewSave、LocalFilePreview、SourcesDelivery、ArtifactDeliveryPresentation、PreviewAttachmentReceipt、WebPanelResume）、Browser 测试、RichCore / Web 输入框测试。不得删除或放宽断言。
+
+**真实操作验收**（隔离候选 + 隔离数据 + 真实窗口；场景与 HTML 01 节一一对应）：
+
+| 编号 | 场景 | 通过条件 |
+|---|---|---|
+| S01 | PDF 适应宽度阅读 → 翻页 → 缩放 → 关闭 | 页码浮标与缩放标签正确；关闭后焦点回到卡片 |
+| S02 | 专注阅读进入 / 退出（1280、1440 DIP 窗口） | 宽度 = min(可用宽, 1040)；Esc 退出；对话区遮罩可点击返回 |
+| S03 | Word / PPT（转换失败）/ Excel / 图片 / Markdown / 代码 / HTML / JSON / 压缩包 / 网页 / 执行记录 / 图表 / 粘贴文本逐一打开 | 阅读栏与状态条符合 HTML 3.8；简化视图如实说明 |
+| S04 | 同一轮两次交付同名文件 | 卡片打开最终内容，不误报 |
+| S05 | 后续轮修改了早期交付的文件，点击旧卡片 | 内联提示 + 警告状态条；不伪造版本 |
+| S06 | 阅读时 AI 请求打开；IME 组合中 AI 请求打开 | 不切换、不抢焦点、不弹确认框；出现请求条和圆点 |
+| S07 | 主动关闭后 AI 再次请求 | 保持关闭；下一条消息后恢复默认 |
+| S08 | A 会话第 7 页 → B → A；快速往返五次 | 恢复第 7 页；不串内容；无迟到覆盖 |
+| S09 | 发送后在同一预览中引用 | 成功；行号与引用卡一致 |
+| S10 | 代码定位第 300 行、查找、Esc 顺序 | 定位准确；Esc 先关查找栏 |
+| S11 | 全键盘流程 | 焦点环可见，无陷阱 |
+| S12 | 900 / 840 DIP × 100/125/150/200% × 宣 / 夜 / 霁 / 素 | 关键操作可见可达；长文件名中部省略；四主题截图与 HTML 3.1 一致 |
+| S13 | 基础浏览 10 分钟 | Provider 请求计数不变 |
+| S14 | 左侧回归：流式、Skills、MCP、审批、电脑操作、附件、队列、草稿、历史、Enter | 全部正常；输入框阴影与色差与基线截图一致 |
+| S15 | 视觉统一：四类面板与卡片截图对照 HTML 第 03 节 | 字阶、图标、间距、状态一致 |
+
+**证据格式**：需求 ID、候选路径与 SHA256、源码指纹、窗口 DIP / 物理像素 / DPI / 主题、步骤、预期、实际、截图或日志、结论。
+
+**结论分类**：通过 / 未通过 / 替代验证 / 无法验证。物理 DPI 切换须由用户同意；未同意时只能记为“替代验证”。
+
+## 8. 延后项目（不得混入本轮）
+
+- 成果 / 修订身份体系、不可变字节、导出版本；类型化锚点与批量批注；修改回执；比较与恢复；条件提交与并发
+- 来源链、检查记录、数据血缘；视图状态落盘
+- 页签化工作区、多窗口；PDF 文字层与查找；高分辨率重渲染（放大后模糊）；划选后浮动引用按钮
+- 修改 `ObjectPanelMetrics` 阈值；Host / Desktop 协议重建；Office 原生编辑
+
+## 9. 交付物与完成判定
+
+1. **源码改动**：只限本提示词列出的范围。
+2. **候选**：`artifacts/rightpanel-r1-candidate<N>`，附 SHA256 与 manifest，标注 preview / dirty / 不可分发。
+3. **验收记录**：`artifacts/rightpanel-r1/` 下包括 baseline、progress、检查点、ledger（R1-00 至 R1-12）、截图（四主题）、日志、R1-10 性能数据。
+4. **最终报告**：逐项写明结论分类；不宣称超出证据的结论。
+
+正式替换安装包、推送、发布，均需用户另行明确授权。
+</script>
+
+<script>
+(()=>{
+"use strict";
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ic=(id,c="")=>`<svg class="ic ${c}" aria-hidden="true"><use href="#i-${id}"/></svg>`;
+const g=(id)=>`<svg class="ic s20" aria-hidden="true"><use href="#g-${id}"/></svg>`;
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const argb=h=>h.length===9?`rgba(${parseInt(h.slice(3,5),16)},${parseInt(h.slice(5,7),16)},${parseInt(h.slice(7,9),16)},${+(parseInt(h.slice(1,3),16)/255).toFixed(3)})`:h;
+
+/* ===== single source of truth: real ThemePalette values (ThemePalette.cs) ===== */
+const PAL={
+ xuan:{name:"宣",dark:false,SurfacePage:"#FAFAF8",SurfaceCanvas:"#FFFFFF",SurfaceRaised:"#FFFFFF",SurfaceSunken:"#F1F1F3",SurfaceStrong:"#E7E7EB",SurfaceRail:"#F6F5F2",Scrim:"#591A1815",Ink:"#19191C",Ink2:"#4E4E56",Ink3:"#606069",Ink4:"#666670",Ink5:"#241A1815",OnSolid:"#FFFFFF",Line:"#221A1815",Hair:"#121A1815",AccentBackground:"#ECECF1",Link:"#2463A6",Success:"#14795D",SuccessBackground:"#E7F4F0",Warning:"#8F6009",WarningBackground:"#FBF2E3",Danger:"#BE352B",DangerBackground:"#FBEBE9",FocusRing:"#245BCD",SendSocket:"#DEDDD9",ComposerEdge:"#33121215"},
+ ye:{name:"夜",dark:true,SurfacePage:"#121110",SurfaceCanvas:"#1B1B1F",SurfaceRaised:"#222227",SurfaceSunken:"#242429",SurfaceStrong:"#2E2E35",SurfaceRail:"#151413",Scrim:"#99000000",Ink:"#F3F3F6",Ink2:"#D3D3DA",Ink3:"#BDBDC7",Ink4:"#ACACB8",Ink5:"#26F4F2EE",OnSolid:"#17171B",Line:"#1FF4F2EE",Hair:"#12F4F2EE",AccentBackground:"#1AF4F2EE",Link:"#7DB7F0",Success:"#46B58A",SuccessBackground:"#1A46B58A",Warning:"#D6A55C",WarningBackground:"#1AD6A55C",Danger:"#E8695F",DangerBackground:"#1AE8695F",FocusRing:"#8DB7FF",SendSocket:"#232328",ComposerEdge:"#4DF4F4F5"},
+ ji:{name:"霁",dark:false,SurfacePage:"#F3F5F8",SurfaceCanvas:"#FFFFFF",SurfaceRaised:"#FFFFFF",SurfaceSunken:"#EEF1F5",SurfaceStrong:"#E1E7EE",SurfaceRail:"#F7F9FB",Scrim:"#590F1419",Ink:"#0F1419",Ink2:"#48535D",Ink3:"#5E6872",Ink4:"#67717B",Ink5:"#240F1419",OnSolid:"#FFFFFF",Line:"#220F1419",Hair:"#120F1419",AccentBackground:"#E9EDF2",Link:"#2463A6",Success:"#0E7490",SuccessBackground:"#E3F2F6",Warning:"#8A6212",WarningBackground:"#FAF2E2",Danger:"#B3261E",DangerBackground:"#FAE9E7",FocusRing:"#245BCD",SendSocket:"#DDE3EB",ComposerEdge:"#330F1419"},
+ su:{name:"素",dark:false,SurfacePage:"#F2F2F2",SurfaceCanvas:"#FFFFFF",SurfaceRaised:"#FFFFFF",SurfaceSunken:"#F2F2F2",SurfaceStrong:"#E2E2E2",SurfaceRail:"#F2F2F2",Scrim:"#66000000",Ink:"#000000",Ink2:"#2B2B2B",Ink3:"#4A4A4A",Ink4:"#6B6B6B",Ink5:"#9A9A9A",OnSolid:"#FFFFFF",Line:"#B8B8B8",Hair:"#D6D6D6",AccentBackground:"#EBEBEB",Link:"#004B87",Success:"#00553C",SuccessBackground:"#E4F1EC",Warning:"#6A4500",WarningBackground:"#F8F0DF",Danger:"#9A0011",DangerBackground:"#FBE9EB",FocusRing:"#245BCD",SendSocket:"#DCDCDC",ComposerEdge:"#66000000"}
+};
+/* UnifiedUiTokens.FileColors: [lightText, lightTint, lightBorder, darkText, darkTint, darkBorder] */
+const FC={Web:["#A5492A","#FBEFEA","#F0D6CB","#E9A085","#3A2A24","#553A30"],Doc:["#3D5AA8","#EEF2FB","#D6DEF3","#9DB3EE","#262B3A","#343D56"],Code:["#8A6212","#FAF3E2","#EEDDB5","#E0BE72","#35301F","#4D4429"],Data:["#2E7568","#E8F4F0","#C8E3DA","#7CC8B7","#1F332E","#2B4A42"],Slides:["#A3456A","#FAEEF2","#EFD3DE","#E79BB7","#382630","#523545"],Pdf:["#A33B32","#FAEDEB","#EFD2CE","#EC9A8F","#3A2523","#553431"],Media:["#6A4FA3","#F3F0FA","#DDD5F0","#B9A5EC","#2C2839","#403A54"],Other:["#625F59","#F0F0EE","#DDDCDA","#C5C1BA","#2B2B29","#3B3B38"]};
+/* ThemeResources.cs */
+const RES={light:{TextSelection:"#DCE5EE",CodeKeyword:"#4D5279",CodeString:"#405E48",CodeComment:"#66635F",CodeNumber:"#545C75"},dark:{TextSelection:"#405368",CodeKeyword:"#BFC6EC",CodeString:"#BAD2BC",CodeComment:"#BEBBB5",CodeNumber:"#C7CADB"}};
+let THEME="xuan";
+function applyTheme(code){
+  const sys=code==="system";const t=sys?(matchMedia("(prefers-color-scheme: dark)").matches?"ye":"xuan"):code;
+  THEME=t;const p=PAL[t],r=p.dark?RES.dark:RES.light,R=document.documentElement.style;
+  const set=(k,v)=>R.setProperty(k,argb(v));
+  set("--page",p.SurfacePage);set("--canvas",p.SurfaceCanvas);set("--raised",p.SurfaceRaised);set("--sunken",p.SurfaceSunken);set("--strong",p.SurfaceStrong);set("--rail",p.SurfaceRail);set("--scrim",p.Scrim);
+  set("--ink",p.Ink);set("--ink2",p.Ink2);set("--ink3",p.Ink3);set("--ink4",p.Ink4);set("--ink5",p.Ink5);set("--onsolid",p.OnSolid);set("--line",p.Line);set("--hair",p.Hair);
+  set("--accent-bg",p.AccentBackground);set("--link",p.Link);set("--success",p.Success);set("--success-bg",p.SuccessBackground);set("--warning",p.Warning);set("--warning-bg",p.WarningBackground);set("--danger",p.Danger);set("--danger-bg",p.DangerBackground);set("--focus",p.FocusRing);set("--socket",p.SendSocket);set("--cedge",p.ComposerEdge);
+  R.setProperty("--hover",`color-mix(in srgb, ${argb(p.Ink)} ${p.dark?6:4}%, transparent)`);
+  R.setProperty("--reader",argb(p.dark?p.SurfacePage:p.SurfaceSunken));
+  R.setProperty("--tsel",r.TextSelection);R.setProperty("--ckw",r.CodeKeyword);R.setProperty("--cstr",r.CodeString);R.setProperty("--ccom",r.CodeComment);R.setProperty("--cnum",r.CodeNumber);
+  R.setProperty("--hit",`color-mix(in srgb, ${p.Warning} ${p.dark?26:18}%, transparent)`);R.setProperty("--hitcur",`color-mix(in srgb, ${p.Warning} ${p.dark?48:36}%, transparent)`);
+  R.setProperty("--page-edge",p.dark?`0 0 0 1px ${argb(p.Line)}`:`0 0 0 1px ${argb(p.Hair)}, 0 1px 3px rgba(26,24,21,.06)`);
+  R.setProperty("--float",p.dark?"0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.45)":"0 1px 2px rgba(0,0,0,.05),0 8px 24px rgba(0,0,0,.08)");
+  R.setProperty("--cshadow",p.dark?"inset 0 1px 1px rgba(255,255,255,.15),inset 0 -1px 1px rgba(0,0,0,.25),0 3px 0 rgba(0,0,0,.6),0 8px 15px rgba(0,0,0,.35)":"inset 0 1px 1px rgba(255,255,255,.76),inset 0 -1px 1px rgba(18,18,21,.12),0 3px 0 rgba(18,18,21,.25),0 8px 15px rgba(18,18,21,.14)");
+  document.documentElement.style.colorScheme=p.dark?"dark":"light";
+  $$("[data-th]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.th===code)));
+  store.set("hz-v2-theme",code);
+  if(window.__spec)window.__spec();
+  if(window.__render)window.__render();
+}
+$$("[data-th]").forEach(b=>b.addEventListener("click",()=>applyTheme(b.dataset.th)));
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{if((store.get("hz-v2-theme")||"system")==="system")applyTheme("system")});
+const rm=$("#rm");rm.checked=matchMedia("(prefers-reduced-motion: reduce)").matches;document.documentElement.classList.toggle("reduce",rm.checked);
+rm.addEventListener("change",()=>document.documentElement.classList.toggle("reduce",rm.checked));
+const reduced=()=>rm.checked;
+
+/* ===== format identity ===== */
+const KIND={pdf:["Pdf","PDF"],doc:["Doc","DOC"],slides:["Slides","PPT"],sheet:["Data","XLS"],csv:["Data","CSV"],image:["Media","IMG"],code:["Code","PY"],md:["Doc","MD"],html:["Web","HTM"],json:["Code","JSN"],zip:["Other","ZIP"],web:["Web","WEB"],log:["Other","LOG"],dia:["Media","DGM"],txt:["Other","TXT"]};
+function tag(kind,size=28){const [cat,lab]=KIND[kind]||KIND.txt;const c=FC[cat],d=PAL[THEME].dark;const fs=size>=36?11:size>=28?9:8;
+  return `<span class="ft" style="width:${size}px;height:${size}px;background:${d?c[4]:c[1]};color:${d?c[3]:c[0]};box-shadow:inset 0 0 0 1px ${d?c[5]:c[2]};font-size:${fs}px">${lab}</span>`}
+const midE=n=>{const d=n.lastIndexOf(".");const cut=Math.max(0,(d>0?d:n.length)-5);return `<span class="mid"><span class="h">${esc(n.slice(0,cut))}</span><span class="t">${esc(n.slice(cut))}</span></span>`};
+
+/* ===== data ===== */
+const F={
+ rep:{n:"客户回访报告.docx",k:"doc",type:"Word 文档",size:"86 KB",turn:1,dir:"交付 › 2026-10-09",changed:true},
+ q3:{n:"Q3 销售简报.pdf",k:"pdf",type:"PDF 文档",size:"2.4 MB",pages:12,turn:2,dir:"交付 › 2026-10-11"},
+ deck:{n:"渠道复盘_第三季度_管理层汇报终版.pptx",k:"slides",type:"PowerPoint 演示文稿",size:"5.1 MB",turn:2,dir:"交付 › 2026-10-11",failed:true},
+ xls:{n:"Q3 区域数据.xlsx",k:"sheet",type:"Excel 工作簿",size:"148 KB",turn:2,dir:"交付 › 2026-10-11"},
+ img:{n:"区域营收对比.png",k:"image",type:"PNG 图片",size:"212 KB",turn:2,dir:"交付 › charts",dim:"1600 × 1000"},
+ code:{n:"report_builder.py",k:"code",type:"Python 源代码",size:"48 KB",turn:2,dir:"scripts"},
+ md:{n:"简报说明.md",k:"md",type:"Markdown 文档",size:"3.2 KB",turn:2,dir:"交付 › 2026-10-11"},
+ zip:{n:"原始数据包.zip",k:"zip",type:"ZIP 压缩包",size:"2.8 MB",turn:2,dir:"交付 › 2026-10-11"},
+ html:{n:"landing.html",k:"html",type:"HTML 网页",size:"18 KB",turn:1,dir:"site",sess:"B"},
+ json:{n:"site.config.json",k:"json",type:"JSON 数据",size:"2 KB",turn:1,dir:"site",sess:"B"},
+ missing:{n:"九月回访原始录音整理.docx",k:"doc",type:"Word 文档",size:"—",turn:1,dir:"交付 › 2026-10-09",gone:true}
+};
+const SHELF2=["q3","deck","xls","code","img","md","zip"];
+const CODE=["from dataclasses import dataclass","from pathlib import Path","import csv","","# 汇总 Q3 各区域销售数据，生成简报所需的表格与图表","","@dataclass","class RegionSummary:","    region: str","    revenue: float","    target: float","    orders: int","","    @property","    def attainment(self) -> float:","        return self.revenue / self.target if self.target else 0.0","","    @property","    def avg_order(self) -> float:","        return self.revenue / self.orders if self.orders else 0.0","","","def load_rows(path: Path) -> list[dict]:",'    with path.open(encoding="utf-8-sig") as f:',"        return list(csv.DictReader(f))","","","def summarize(rows: list[dict]) -> list[RegionSummary]:","    buckets: dict[str, RegionSummary] = {}","    for row in rows:",'        region = row["region"].strip()','        revenue = float(row["revenue"] or 0)','        target = float(row["target"] or 0)',"        item = buckets.setdefault(region, RegionSummary(region, 0.0, 0.0, 0))","        item.revenue += revenue","        item.target += target","        item.orders += 1","    return sorted(buckets.values(), key=lambda s: s.revenue, reverse=True)","","","def top_regions(items: list[RegionSummary], n: int = 3) -> list[RegionSummary]:","    # 按 revenue 排序后取前 n 个区域，用于第 2 页的重点区域","    ranked = sorted(items, key=lambda s: s.revenue, reverse=True)","    return ranked[:n]","","def growth(current: float, previous: float) -> float:","    if previous == 0:","        return 0.0","    return (current - previous) / previous","","","def build_table(items: list[RegionSummary]) -> list[list[str]]:",'    header = ["区域", "revenue", "目标", "达成率"]',"    body = [",'        [s.region, f"{s.revenue:,.0f}", f"{s.target:,.0f}", f"{s.attainment:.1%}"]',"        for s in items","    ]","    return [header, *body]","","",'if __name__ == "__main__":','    rows = load_rows(Path("data/q3_sales.csv"))',"    summary = summarize(rows)","    for line in build_table(top_regions(summary)):",'        print("\\t".join(line))'];
+const SEL=[41,45];
+
+/* ===== state ===== */
+const MAXW=504,MINW=360;
+let S;const keep={an:false,slow:false,scale:"fit"};
+const fresh=()=>({sess:"A",
+ A:{open:true,view:"file",file:"q3",page:3,zoom:{m:"width",f:1},mode:"read",closed:false,tab:0},
+ B:{open:true,view:"web",file:null,page:1,zoom:{m:"width",f:1},mode:"read",closed:false,tab:0},
+ w:MAXW,focus:false,ov900:false,picker:false,menu:false,zmenu:false,cardMenu:null,find:null,sel:false,
+ toast:null,req:null,pending:null,cardNote:null,repState:null,loading:false,lcard:false,note:null,
+ running:false,chips:[],composer:"",agentRow:false,shelfOpen:false,flash:null,changes:false,scen:"pdf"});
+S=fresh();
+const cur=()=>S[S.sess];
+const winW=()=>S.ov900?900:1280;
+const avail=()=>winW()-60;
+const pw=()=>S.ov900?avail():S.focus?Math.min(avail(),1040):S.w;
+const narrow=()=>!S.ov900&&!S.focus&&pw()<440;
+const floating=()=>S.ov900||S.focus;
+
+/* ===== window skeleton ===== */
+const W=$("#win");
+function frame(){
+ W.innerHTML=`<div class="wctl"><span><svg viewBox="0 0 10 10"><path d="M0 5H10"/></svg></span><span><svg viewBox="0 0 10 10"><rect x=".5" y=".5" width="9" height="9"/></svg></span><span><svg viewBox="0 0 10 10"><path d="M0 0L10 10M10 0L0 10"/></svg></span></div>
+ <nav class="rail" id="rl"></nav>
+ <div class="main" id="mn"><div class="mh" id="mh"></div><div class="tr" id="tr"></div>
+  <div class="comp"><div class="cb" data-spec="冻结：输入框阴影、色差与交互"><div class="chips" id="chips"></div><div class="in" id="cin"></div><div class="bar"><span>${g("plus")}</span><span>${ic("folder")}Q3-briefing</span><span>${ic("lock","s14")}允许修改 ${ic("chev","s12")}</span><span class="sp"></span><span>Hertz Vision Pro · 思考：高 ${ic("chev","s12")}</span><button class="send" id="send" aria-label="发送">继续</button></div></div><div class="disc">任何模型都存在认知边界，重要信息请独立核验</div></div>
+  <div class="scrim" id="scrim" data-act="unfocus"></div></div>
+ <div class="split" id="sp" role="separator" aria-orientation="vertical" aria-label="调整右侧面板宽度" tabindex="0"></div>
+ <section class="pn" id="pn" aria-label="右侧工作区"></section>`;
+}
+frame();
+
+function rail(){
+ $("#rl").innerHTML=`<button class="rb" aria-label="展开侧栏">${g("side")}</button><button class="rb" aria-label="新对话">${g("plus")}</button><button class="rb" aria-label="定时计划">${g("cal")}</button><button class="rb" aria-label="搜索">${g("search")}</button><button class="rb" aria-label="能力">${g("grid")}</button>
+ <div style="height:1px;width:24px;background:var(--hair);margin:8px 0"></div>
+ <button class="ses ${S.sess==="A"?"on":""}" data-act="sess:A" title="Q3 销售简报整理">Q3${S.running?'<i class="dot"></i>':""}</button><button class="ses ${S.sess==="B"?"on":""}" data-act="sess:B" title="官网首页改版评审">官</button>
+ <span class="sp"></span><button class="rb" aria-label="设置">${g("gear")}</button><button class="rb" aria-label="帮助">${g("help")}</button>`;
+}
+function head(){
+ const c=cur(),web=c.open&&c.view==="web";
+ $("#mh").innerHTML=`<div class="tt">${S.sess==="A"?"Q3 销售简报整理":"官网首页改版评审"}</div><div class="ts">${S.sess==="A"?"Q3-briefing":"site"}</div>
+ <div class="acts"><button class="ha" aria-label="更多">${ic("more")}</button><button class="ha" aria-label="上下文"><svg class="ring" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="var(--line)" stroke-width="1.6"/><path d="M8 2A6 6 0 0 1 13.9 9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>上下文</button><span class="hsep"></span>
+ <button class="ha ${S.changes?"on":""}" data-act="changes" aria-label="文件与改动" title="文件与改动">${g("files")}</button>
+ <button class="ha ${web?"on":""} ${S.pending?"pending":""}" data-act="webbtn" data-spec="顶栏 36 · 激活 AccentBackground · 待处理点 6" aria-label="${S.pending?"AI 请求打开："+esc(S.pending.host):"网页面板"}" title="${S.pending?"AI 请求打开："+esc(S.pending.host):"网页面板"}">${g("globe")}<span class="pd"></span></button></div>`;
+}
+function card(id){
+ const f=F[id],c=cur();const sel=S.sess==="A"&&c.open&&c.view==="file"&&c.file===id;
+ let st="";if(id==="rep"&&S.repState==="changed")st=` <span class="w">· 交付后已修改</span>`;if(sel)st+=` <span class="on">· 正在右侧查看</span>`;
+ const note=S.cardNote===id?`<div class="dnote" role="status">${ic("warn")}<div><div>此文件在交付后已被修改，当前内容与这张卡片记录的不同。</div><div class="ac"><button class="lk" data-act="cview">查看当前文件</button><button class="lk" data-act="crev">用当前文件继续修改</button><button class="lk q" data-act="ccancel">取消</button></div></div></div>`:"";
+ const menu=S.cardMenu===id?`<div class="fly" style="right:4px;top:calc(100% - 2px);min-width:220px" role="menu"><button class="mi" data-act="crev">基于此文件继续修改</button><div class="msep"></div><button class="mi" data-act="noop">用默认应用打开</button><button class="mi" data-act="noop">选择应用打开…</button><button class="mi" data-act="noop">在文件夹中显示</button><div class="msep"></div><button class="mi" data-act="noop">另存为…</button><button class="mi" data-act="copy">复制文件路径</button><div class="msep"></div><button class="mi" data-act="verify:${id}">核对是否被改动</button><button class="mi" data-act="noop">刷新卡片预览</button><button class="mi" data-act="noop">显示文件详情</button></div>`:"";
+ return `<div class="dc ${sel?"sel":""} ${S.flash===id?"flash":""}" id="card-${id}" ${id==="q3"?'data-spec="成果卡 440 · 圆角 12 · 格式标 36"':""}><span class="mk"></span><div class="row"><button class="op" data-act="card:${id}" aria-label="预览 ${esc(f.n)}" title="${esc(f.n)}">${tag(f.k,36)}<span class="lb"><span class="nm">${esc(f.n)}</span><span class="mt">${f.type} · ${f.size}${st}</span></span></button><button class="ib" data-act="cmore:${id}" aria-label="文件操作">${ic("more")}</button></div>${note}${menu}</div>`;
+}
+function trans(){
+ const t=$("#tr"),top=t.scrollTop;
+ if(S.sess==="A"){
+  const vis=S.shelfOpen?SHELF2:SHELF2.slice(0,4);
+  t.innerHTML=`<div class="col"><div class="um"><div>把 9 月客户回访整理成一份报告，标出高风险客户。</div></div>
+  <div class="am">已整理 26 位客户的回访记录，按满意度和续约意向分组，标出 4 位高风险客户及跟进建议。</div><div class="shelf">${card("rep")}</div>
+  <div class="um"><div>基于报告和 Q3 数据做一份销售简报，再出一版渠道复盘 PPT，数据和脚本一起给我。</div></div>
+  <div class="am">已完成。简报共 12 页，第 3 页是核心指标；渠道复盘 18 页。脚本从 <code>data/q3_sales.csv</code> 汇总区域数据，原始数据已打包。</div>
+  <div class="shelf">${vis.map(card).join("")}${S.shelfOpen?"":`<button class="more-row" data-act="shelf">还有 ${SHELF2.length-4} 个文件 ›</button>`}</div>
+  <div class="chg">另外改动了 2 个文件 › <span class="a">+148</span><span class="d">−12</span></div>
+  ${S.agentRow?`<div class="trow">${ic("globe","s14")}已请求在网页面板打开 research.example.com</div>`:""}</div>`;
+ }else{
+  t.innerHTML=`<div class="col"><div class="um"><div>本地起一下首页改版，在右侧打开给我看，配置也贴出来。</div></div><div class="am">开发服务器已在 5173 端口运行，首页已在右侧网页面板打开。首屏改为单栏主视觉，次要入口收进页脚。</div><div class="trow">${ic("globe","s14")}已请求在网页面板打开 localhost:5173</div><div class="shelf">${card("html")}${card("json")}</div></div>`;
+ }
+ t.scrollTop=top;
+}
+function comp(){
+ $("#chips").innerHTML=S.chips.map(c=>`<span class="qc">${ic(c.i)}<b>${esc(c.t)}</b></span>`).join("");
+ const ci=$("#cin");ci.textContent=S.composer||"继续交代下一件事…";ci.classList.toggle("has",!!S.composer);
+ const s=$("#send");s.className="send"+(S.running?" run":"");s.innerHTML=S.running?"<i></i>":"继续";s.setAttribute("aria-label",S.running?"暂停（运行主控制）":"发送");
+}
+
+/* ===== panel ===== */
+function zoomLabel(c){const z=c.zoom;return z.m==="width"?"适应宽度":z.m==="page"?"适应页面":z.m==="actual"?"实际大小":Math.round(z.f*100)+"%"}
+function pageW(c){const inset=S.focus?32:20;const fit=pw()-inset*2-8;const z=c.zoom;
+ if(z.m==="width")return fit;if(z.m==="page"){const h=820-40-56-40-inset*2;return Math.min(fit,h*612/792)}if(z.m==="actual")return 816;return Math.round(fit*z.f)}
+function pct(c){return Math.round(pageW(c)/816*100)}
+function objHeader(){
+ const c=cur();let idn;
+ const kindOf={web:["web","2026 Q3 渠道与零售趋势 · 示例研究","research.example.com"],rec:["log","运行 python report_builder.py","执行记录 · 已完成 · 2.1 s"],dia:["dia","Q3 数据处理流程","图表 · Mermaid 流程图"],pasted:["txt","粘贴的文本","1,284 字 · 来自输入框附件"],empty:["txt","文件预览",""]};
+ if(c.view==="file"){const f=F[c.file];const multi=true;
+  let m=S.loading?"正在读取文件…":`${f.type} · ${f.size}`;if(!S.loading&&f.pages)m+=` · ${f.pages} 页`;if(!S.loading&&f.dim)m+=` · ${f.dim}`;if(f.gone)m="Word 文档 · 文件不可访问";
+  idn=`<button class="idn ${S.picker?"open":""}" data-act="picker" aria-haspopup="listbox" aria-expanded="${S.picker}" title="切换到本对话的其他文件" data-spec="格式标 28 · 名称 15/20 · 元信息 12/16">${tag(f.k)}<span class="idl"><span class="n">${midE(f.n)}${ic("chev","s12")}</span><span class="m">${m}</span></span></button>`;
+ }else{let [k,n,m]=kindOf[c.view];if(c.view==="web"&&S.sess==="B"){n="官网首页 · 改版预览";m="localhost:5173"}
+  idn=`<div class="idn">${tag(k)}<span class="idl"><span class="n">${midE(n)}</span>${m?`<span class="m">${esc(m)}</span>`:""}</span></div>`}
+ const fbtn=S.ov900?"":`<button class="ib ${S.focus?"on":""}" data-act="focus" aria-label="${S.focus?"退出专注阅读":"专注阅读"}" title="${S.focus?"退出专注阅读 · Esc":"专注阅读"}" data-spec="32 · 图形 16 · 圆角 6">${ic(S.focus?"unfocus":"focus")}</button>`;
+ return `<div class="pstrip"></div><div class="oh" data-spec="对象栏 56 · 左 20 右 12">${idn}<div class="oa">${fbtn}<button class="ib ${S.menu?"on":""}" data-act="menu" aria-label="更多操作" aria-haspopup="menu" aria-expanded="${S.menu}" title="更多操作">${ic("more")}</button><button class="ib" data-act="close" aria-label="${floating()?"返回对话":"关闭"}" title="${floating()?"返回对话 · Esc":"关闭"}">${ic("close")}</button></div></div>`;
+}
+function quoteCtl(){return S.sel?`<button class="qbtn" data-act="quote" title="把选中的文字加入输入框（不会立即发送）">${ic("quote")}引用所选 <kbd>↵</kbd></button>`:`<button class="ib" data-act="quote" aria-label="引用" title="先选择文字，再引用到对话">${ic("quote")}</button>`}
+function zoomCtl(c){const n=narrow();
+ return n?`<button class="dd ${S.zmenu?"open":""}" data-act="zmenu" title="缩放 · 当前 ${pct(c)}%">${zoomLabel(c)}${ic("chev","s12")}</button>`
+ :`<button class="ib" data-act="zout" aria-label="缩小 Ctrl+-" title="缩小 · Ctrl+-">${ic("minus")}</button><button class="dd ${S.zmenu?"open":""}" data-act="zmenu" title="缩放 · 当前 ${pct(c)}%" data-spec="缩放标签：显示模式名">${zoomLabel(c)}${ic("chev","s12")}</button><button class="ib" data-act="zin" aria-label="放大 Ctrl+=" title="放大 · Ctrl+=">${ic("plus")}</button>`}
+function readBar(){
+ const c=cur();if(S.loading)return `<div class="rb2"></div>`;
+ const pager=(p,n)=>`<button class="ib" data-act="prev" aria-label="上一页" ${p<=1?'aria-disabled="true"':""}>${ic("prev")}</button><span class="pgf"><input id="pgin" value="${p}" aria-label="页码" inputmode="numeric"><span class="of">/ ${n}</span></span><button class="ib" data-act="next" aria-label="下一页" ${p>=n?'aria-disabled="true"':""}>${ic("next")}</button>`;
+ const modes=(a,b)=>`<div class="seg" role="tablist"><button class="${c.mode==="read"?"on":""}" data-act="mode:read">${a}</button><button class="${c.mode==="source"?"on":""}" data-act="mode:source">${b}</button></div>`;
+ const spec='data-spec="阅读栏 40 · 左导航 右工具"';
+ if(c.view==="web")return `<div class="rb2" ${spec}><button class="ib" aria-label="后退">${ic("back")}</button><button class="ib" aria-label="前进" aria-disabled="true">${ic("fwd")}</button><button class="ib" aria-label="刷新">${ic("reload")}</button><div class="addr">${ic("lock","s12")}<span><b>${S.sess==="B"?"localhost:5173":"research.example.com"}</b>${S.sess==="B"?"/":"/reports/2026-q3"}</span></div><button class="ib" aria-label="在默认浏览器打开" title="在默认浏览器打开">${ic("ext")}</button></div>`;
+ if(c.view==="rec")return `<div class="rb2" ${spec}><div class="tabs" role="tablist">${["输出","命令","操作记录","原始记录"].map((t,i)=>`<button class="${c.tab===i?"on":""}" data-act="tab:${i}">${t}</button>`).join("")}</div><span class="sp"></span>${quoteCtl()}</div>`;
+ if(c.view==="dia")return `<div class="rb2" ${spec}><span style="color:var(--ink3);margin-left:8px">7 个节点 · 6 条连线</span><span class="sp"></span><button class="ib" aria-label="缩小">${ic("minus")}</button><button class="dd">适应面板${ic("chev","s12")}</button><button class="ib" aria-label="放大">${ic("plus")}</button></div>`;
+ if(c.view==="pasted")return `<div class="rb2" ${spec}><span style="color:var(--ink3);margin-left:8px">纯文本 · 42 行</span><span class="sp"></span>${quoteCtl()}<button class="ib t" data-act="copy">${ic("copy")}复制全文</button></div>`;
+ if(c.view==="empty")return "";
+ const f=F[c.file];if(f.gone)return "";
+ const findB=`<button class="ib ${S.find?"on":""}" data-act="find" aria-label="查找 Ctrl+F" title="查找 · Ctrl+F">${ic("find")}</button>`;
+ if(f.k==="pdf")return `<div class="rb2" ${spec}>${pager(c.page,f.pages)}<span class="sp"></span>${zoomCtl(c)}</div>`;
+ if(f.k==="image")return `<div class="rb2" ${spec}><span style="color:var(--ink3);margin-left:8px" class="tn">${f.dim}</span><span class="sp"></span>${zoomCtl(c)}</div>`;
+ if(f.k==="code")return `<div class="rb2" ${spec}><span style="color:var(--ink3);margin-left:8px" class="tn">分段 1 / 3 · 第 1–412 行，共 1,180 行</span><span class="sp"></span>${findB}${quoteCtl()}</div>`;
+ if(f.k==="md")return `<div class="rb2" ${spec}>${modes("阅读","源码")}<span class="sp"></span>${c.mode==="source"?findB:""}${quoteCtl()}</div>`;
+ if(f.k==="html")return `<div class="rb2" ${spec}>${modes("预览","源码")}<span class="sp"></span>${c.mode==="source"?findB:""}${c.mode==="source"?quoteCtl():""}</div>`;
+ if(f.k==="json")return `<div class="rb2" ${spec}>${modes("结构","源码")}<span class="sp"></span>${c.mode==="source"?findB:""}${quoteCtl()}</div>`;
+ if(f.k==="sheet")return `<div class="rb2" ${spec}><button class="dd" title="切换工作表">工作表：Q3 汇总${ic("chev","s12")}</button><span style="color:var(--ink3)" class="tn">3 个工作表 · 8 行 × 6 列</span><span class="sp"></span></div>`;
+ if(f.k==="zip")return `<div class="rb2" ${spec}><span style="color:var(--ink3);margin-left:8px" class="tn">9 项 · 解压后 6.2 MB</span><span class="sp"></span><button class="ib t" data-act="unzip">${ic("box")}解压并添加到对话</button></div>`;
+ if(f.k==="doc")return `<div class="rb2" ${spec}><button class="dd" title="跳到章节">章节：一、总体情况${ic("chev","s12")}</button><span class="sp"></span>${quoteCtl()}</div>`;
+ if(f.k==="slides")return `<div class="rb2" ${spec}><span style="color:var(--ink3);margin-left:8px">5 个页面的提取文字</span><span class="sp"></span>${quoteCtl()}</div>`;
+ return "";
+}
+function strip(){
+ const c=cur();if(S.loading)return "";
+ if(S.note)return `<div class="ss w" data-spec="状态条 · 警告">${ic("warn")}<span class="x">${esc(S.note)}</span></div>`;
+ if(c.view!=="file")return "";const f=F[c.file];
+ const op=`<button class="lk" data-act="noop">用默认应用打开</button>`;
+ if(f.failed)return `<div class="ss" data-spec="状态条 ≥36 · 左缘 20">${ic("info")}<span class="x">页面预览未能生成，当前为简化视图：只显示提取的文字，原排版、图片和图表未显示。</span>${op}</div>`;
+ if(f.k==="sheet")return `<div class="ss">${ic("info")}<span class="x">表格简化视图：公式显示为文字、不会计算；点击单元格查看完整内容。</span>${op}</div>`;
+ if(f.k==="doc"&&!f.gone)return `<div class="ss">${ic("info")}<span class="x">阅读视图：按段落显示，原分页与页眉页脚可能与 Word 不同。</span>${op}</div>`;
+ return "";
+}
+function findBar(){if(!S.find)return "";const {n,i}=fcalc();
+ return `<div class="fb" data-spec="查找栏 44"><div class="fi">${ic("find","s14")}<input id="fin" value="${esc(S.find.q)}" placeholder="在文件中查找" aria-label="在文件中查找"><span class="cnt" aria-live="polite">${n?`${i+1} / ${n}`:(S.find.q?"无结果":"")}</span></div><button class="ib" data-act="fprev" aria-label="上一个 Shift+Enter" ${n?"":'aria-disabled="true"'}>${ic("up")}</button><button class="ib" data-act="fnext" aria-label="下一个 Enter" ${n?"":'aria-disabled="true"'}>${ic("down")}</button><button class="ib" data-act="fclose" aria-label="关闭查找 Esc">${ic("close")}</button></div>`}
+function fcalc(){const q=(S.find&&S.find.q||"").toLowerCase(),h=[];if(q)CODE.forEach((l,li)=>{let p=0;const lo=l.toLowerCase();while((p=lo.indexOf(q,p))>=0){h.push([li,p]);p+=q.length}});const n=h.length;let i=S.find?S.find.i:0;i=n?((i%n)+n)%n:0;if(S.find)S.find.i=i;return{h,n,i}}
+const KW=new Set("from import as class def return if else for in with lambda not and or None True False self while try except raise yield pass".split(" "));
+function codeView(){
+ const {h,i}=S.find?fcalc():{h:[],i:0},ql=S.find?S.find.q.length:0;let gut="",tx="";
+ CODE.forEach((line,li)=>{const cls=new Array(line.length).fill("");const ci=line.indexOf("#");let so=null;
+  for(let k=0;k<line.length;k++){const ch=line[k];if(so){cls[k]="s";if(ch===so)so=null;continue}if(ch==='"'||ch==="'"){so=ch;cls[k]="s";continue}if(ch==="#"&&k===ci){for(let j=k;j<line.length;j++)cls[j]="cm";break}}
+  line.replace(/\b[A-Za-z_]+\b/g,(m,o)=>{if(KW.has(m)&&!cls[o])for(let j=0;j<m.length;j++)cls[o+j]="k";return m});
+  line.replace(/\b\d+(\.\d+)?\b/g,(m,o)=>{if(!cls[o])for(let j=0;j<m.length;j++)cls[o+j]="nb";return m});
+  const mk=new Array(line.length).fill(0);h.forEach(([hl,hp],hi)=>{if(hl===li)for(let j=hp;j<hp+ql;j++)mk[j]=hi===i?2:1});
+  let out="",k=0;while(k<line.length){let j=k;while(j<line.length&&cls[j]===cls[k]&&mk[j]===mk[k])j++;let sg=esc(line.slice(k,j));if(cls[k])sg=`<span class="${cls[k]}">${sg}</span>`;if(mk[k])sg=`<mark class="${mk[k]===2?"cur":""}">${sg}</mark>`;out+=sg;k=j}
+  const no=li+1,sel=S.sel&&no>=SEL[0]&&no<=SEL[1];
+  gut+=`<span class="${sel?"on":""}">${no}</span>`;tx+=`<span class="l ${sel?"sel":""}" data-line="${no}">${out||" "}</span>`});
+ return `<div class="code" role="document" aria-label="代码内容"><div class="gt" aria-hidden="true">${gut}</div><div class="tx">${tx}</div></div>`;
+}
+const PT=["Q3 销售简报","目录","核心指标","区域拆分 · 华东","区域拆分 · 华南","区域拆分 · 华北","渠道结构","重点客户","高风险客户跟进","产品线表现","Q4 目标","附录：口径说明"];
+const PARA=["第三季度整体营收 4,820 万元，同比增长 12.4%，目标达成率 97%。华东与华南贡献了 61% 的营收，华北受两家连锁客户延迟回款影响，达成率低于预期。","线上渠道占比提升至 41%，自营小程序复购率 28%，为各渠道最高；经销商数量精简 12% 后，头部 20% 经销商贡献 68% 营收。","建议第四季度优先保障高风险客户的配送时效，并将新增预算向自营与社区门店倾斜。"];
+function pdfPage(n){const bars=[62,80,48,92,70,56,84].map((h,i)=>`<i style="height:${Math.max(24,(h+n*7+i*11)%96)}%"></i>`).join("");
+ return `<div class="pg" data-page="${n}"><div class="ph"><span>23Hertz · 销售简报</span><span>2026 Q3</span></div><h5>${PT[n-1]}</h5><div class="sub">数据截至 2026-09-30 · 单位：万元</div>${n%2?`<div class="kp"><div><small>营收</small><b>${(4820+n*37).toLocaleString()}</b></div><div><small>目标达成</small><b>${92+n%7}%</b></div><div><small>订单数</small><b>${(1260+n*23).toLocaleString()}</b></div></div>`:""}<div class="bars">${bars}</div><div class="bl"><span>华东</span><span>华南</span><span>华北</span><span>西南</span><span>华中</span><span>东北</span><span>西北</span></div>${PARA.map(p=>`<p>${p}</p>`).join("")}<table class="pt"><tr><th>区域</th><th>营收</th><th>目标</th><th>达成率</th></tr>${[["华东","1,486","1,450","102.5%"],["华南","1,452","1,500","96.8%"],["华北","986","1,120","88.0%"],["西南","402","380","105.8%"]].map(r=>`<tr>${r.map(x=>`<td>${x}</td>`).join("")}</tr>`).join("")}</table>${n%2?"":`<p>${PARA[0]}</p>`}<div class="pf">${n} / 12</div></div>`}
+function body(){
+ const c=cur();
+ if(c.view==="web")return S.sess==="A"?`<div class="web"><div class="wn"><b>示例研究</b><span>报告</span><span>数据</span><span>订阅</span></div><div class="hb"><h5>2026 Q3 渠道与零售趋势</h5><p>线上渠道占比继续提升，社区团购增速放缓，品牌自营小程序在复购上表现突出。</p></div><div class="gc"><div><b>线上占比 41%</b>同比提升 5.2 个百分点</div><div><b>复购率 28%</b>自营渠道领先</div><div><b>客单价 ¥186</b>环比持平</div><div><b>新客成本 +9%</b>较 Q2 上升</div></div></div>`:`<div class="web"><div class="wn"><b>23Hertz</b><span>产品</span><span>价格</span><span>文档</span></div><div class="hb" style="padding:72px 28px 40px"><h5>把复杂的工作，交给一个安静的助手</h5><p>文件、网页与电脑操作，在同一个对话里完成。</p></div><div class="gc"><div><b>文件</b>交付即可预览</div><div><b>网页</b>边看边问</div></div></div>`;
+ if(c.view==="rec"){const T=[`<span class="dim">$ python report_builder.py</span>\n区域\trevenue\t目标\t达成率\n华东\t1,486\t1,450\t102.5%\n华南\t1,452\t1,500\t96.8%\n华北\t  986\t1,120\t88.0%\n\n<span class="ok">退出码 0 · 用时 2.1 s</span>`,`python report_builder.py`,`工作目录 Q3-briefing\n开始 2026-10-11 16:42:08\n结束 2026-10-11 16:42:10\n沙箱：工作区可写`,`{"type":"command","status":"completed","exit_code":0,…}`];return `<div class="rec">${T[c.tab]}</div>`}
+ if(c.view==="dia")return `<div class="img"><svg viewBox="0 0 560 300" width="560" style="box-shadow:none;background:transparent">${[["读取 CSV",20,30],["清洗区域名",20,130],["汇总营收",200,80],["计算达成率",380,30],["排序取前 3",380,130],["生成表格",200,220],["写入简报",380,220]].map(([t,x,y])=>`<g><rect x="${x}" y="${y}" width="150" height="44" rx="8" fill="var(--canvas)" stroke="var(--line)"/><text x="${x+75}" y="${y+27}" text-anchor="middle" font-size="13" fill="var(--ink)" font-family="Inter,Noto Sans SC">${t}</text></g>`).join("")}<g fill="none" stroke="var(--ink4)" stroke-width="1.5" marker-end="url(#ah)"><path d="M95 74V130"/><path d="M170 152H200V124"/><path d="M350 102H380V74"/><path d="M455 74V130"/><path d="M380 152H275V220"/><path d="M350 242H380"/></g><defs><marker id="ah" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L8 4L0 8Z" fill="var(--ink4)"/></marker></defs></svg></div>`;
+ if(c.view==="pasted")return `<div class="read"><p>客户反馈汇总（9 月）：</p><p>1. 华南两家连锁客户反馈配送时效下降，平均延迟 1.6 天；</p><p>2. 华北一家客户对新版合同第 7 条付款周期有异议；</p><p>3. 线上渠道的复购客户对会员积分规则满意度较高。</p><p style="color:var(--ink3)">……（共 42 行）</p></div>`;
+ if(c.view==="empty")return `<div class="empty"><div class="in">${tag("txt",36)}<h6>点击回复中的文件，在这里查看内容</h6><p>支持 PDF、Word、Excel、PowerPoint、图片、代码、Markdown、HTML、JSON 与压缩包；不支持的格式会提示用默认应用打开。</p></div></div>`;
+ if(S.loading)return S.lcard?`<div class="lcard"><div class="in"><h6>正在准备预览</h6><p>正在读取文件。大型文档首次打开需要几秒，之后会复用缓存。</p></div></div>`:"";
+ const f=F[c.file];
+ if(f.gone)return `<div class="errc"><div class="in">${tag(f.k,36)}<h6>无法在这里预览</h6><p>文件已移动或删除。对话中的记录仍然保留，但磁盘上找不到这个文件。</p><div class="path">D:\\Q3-briefing\\交付\\2026-10-09\\${esc(f.n)}</div><div class="ac"><button class="btn2" data-act="noop">重新加载</button><button class="btn2" data-act="copy">复制文件路径</button></div></div></div>`;
+ if(f.k==="pdf"){let h=`<div class="pages" style="--pgw:${pageW(c)}px">`;for(let n=1;n<=f.pages;n++)h+=pdfPage(n);return h+"</div>"}
+ if(f.k==="code")return codeView();
+ if(f.k==="doc")return `<div class="paper"><h4>客户回访报告（9 月）</h4><p class="mut">回访 26 位客户 · 整理日期 2026-10-09</p><h6>一、总体情况</h6><p>本月共回访 26 位重点客户，整体满意度 4.3 / 5，较 8 月提升 0.2。续约意向明确的客户 17 位，观望 5 位，存在流失风险 4 位。</p><h6>二、高风险客户</h6><p>华南区两家连锁客户反馈配送时效下降；华北区一家客户对新版合同条款有异议，需要法务协同。</p><h6>三、建议动作</h6><p>两周内完成高风险客户的上门回访，配送问题由运营牵头给出时效承诺，合同异议由销售与法务联合答复。</p></div>`;
+ if(f.k==="slides")return `<div class="read"><h4>渠道复盘 · 第三季度</h4>${["渠道复盘概览","线上渠道：增长来源","线下门店：坪效变化","经销商结构调整","Q4 渠道策略"].map((t,i)=>`<div class="slide"><small>第 ${i+1} 页</small><h6 style="margin-top:2px">${t}</h6><p>${["本季度渠道总营收 4,820 万元，线上占比 41%。","自营小程序复购率 28%，为各渠道最高。","一线城市门店坪效下降 6%，社区店上升 3%。","经销商数量精简 12%，头部 20% 贡献 68% 营收。","聚焦自营与社区店，收缩低效经销商。"][i]}</p></div>`).join("")}</div>`;
+ if(f.k==="sheet"){const rows=[["华东",1486,1450,"102.5%",412,"✓"],["华南",1452,1500,"96.8%",398,""],["华北",986,1120,"88.0%",276,""],["西南",402,380,"105.8%",121,"✓"],["华中",318,330,"96.4%",98,""],["东北",112,140,"80.0%",41,""],["西北",64,80,"80.0%",22,""]];
+  return `<div class="sheet"><table><thead><tr><th class="rh"></th>${["A · 区域","B · 营收（万元）","C · 目标","D · 达成率","E · 订单","F · 达标"].map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r,i)=>`<tr class="${i===2?"cur":""}"><td class="rh">${i+2}</td><td>${r[0]}</td><td class="n">${r[1].toLocaleString()}</td><td class="n">${r[2].toLocaleString()}</td><td class="n">${r[3]}</td><td class="n">${r[4]}</td><td>${r[5]}</td></tr>`).join("")}<tr><td class="rh">9</td><td><b>合计</b></td><td class="n"><b>4,820</b></td><td class="n"><b>5,000</b></td><td class="n"><b>96.4%</b></td><td class="n"><b>1,368</b></td><td></td></tr></tbody></table></div>`}
+ if(f.k==="image"){const w=pageW(c);return `<div class="img"><svg viewBox="0 0 800 500" width="${Math.min(w,1600)}"><rect width="800" height="500" fill="#fff"/><text x="40" y="56" font-size="22" font-weight="700" fill="#1d1d1f" font-family="Inter,Noto Sans SC">各区域 Q3 营收对比（万元）</text>${[1486,1452,986,402,318,112,64].map((v,i)=>`<rect x="${60+i*100}" y="${440-v/1600*330}" width="56" height="${v/1600*330}" rx="3" fill="${i%2?"#a1a1a6":"#1d1d1f"}"/><text x="${88+i*100}" y="466" text-anchor="middle" font-size="14" fill="#6e6e73" font-family="Noto Sans SC">${["华东","华南","华北","西南","华中","东北","西北"][i]}</text><text x="${88+i*100}" y="${430-v/1600*330}" text-anchor="middle" font-size="13" fill="#1d1d1f" font-family="Inter">${v}</text>`).join("")}<line x1="40" y1="440" x2="760" y2="440" stroke="#d2d2d7"/></svg></div>`}
+ if(f.k==="md")return c.mode==="read"?`<div class="read"><h4>简报说明</h4><p>本简报汇总 2026 年第三季度各区域销售数据，所有金额单位为万元，口径与财务月报一致。</p><h6>文件清单</h6><ul><li>Q3 销售简报.pdf：12 页，管理层阅读版</li><li>渠道复盘…终版.pptx：18 页，汇报用</li><li>report_builder.py：可重复生成数据表</li></ul><h6>口径</h6><table><tr><th>指标</th><th>定义</th></tr><tr><td>营收</td><td>含税确认收入</td></tr><tr><td>达成率</td><td>营收 ÷ 季度目标</td></tr></table></div>`:`<div class="rec" style="font-size:13px">${esc("# 简报说明\n\n本简报汇总 2026 年第三季度各区域销售数据，所有金额单位为万元，口径与财务月报一致。\n\n## 文件清单\n\n- Q3 销售简报.pdf：12 页，管理层阅读版\n- 渠道复盘…终版.pptx：18 页，汇报用\n- report_builder.py：可重复生成数据表\n\n## 口径\n\n| 指标 | 定义 |\n|---|---|\n| 营收 | 含税确认收入 |\n| 达成率 | 营收 ÷ 季度目标 |")}</div>`;
+ if(f.k==="html")return c.mode==="read"?`<div class="web"><div class="wn"><b>23Hertz</b><span>产品</span><span>价格</span><span>文档</span></div><div class="hb" style="padding:64px 28px 32px"><h5>把复杂的工作，交给一个安静的助手</h5><p>文件、网页与电脑操作，在同一个对话里完成。</p></div></div>`:`<div class="rec">${esc('<!doctype html>\n<html lang="zh-CN">\n<head>\n  <meta charset="utf-8">\n  <title>23Hertz</title>\n  <link rel="stylesheet" href="./styles.css">\n</head>\n<body>\n  <header class="nav">…</header>\n  <main class="hero">\n    <h1>把复杂的工作，交给一个安静的助手</h1>\n  </main>\n</body>\n</html>')}</div>`;
+ if(f.k==="json")return c.mode==="read"?`<div class="json"><span class="tg">▾</span>{<div class="ind"><span class="tg"></span><span class="k">"site"</span>: <span class="s">"23hertz"</span>,<br><span class="tg">▾</span><span class="k">"theme"</span>: {<div class="ind"><span class="tg"></span><span class="k">"mode"</span>: <span class="s">"light"</span>,<br><span class="tg"></span><span class="k">"accent"</span>: <span class="s">"ink"</span></div>},<br><span class="tg">▸</span><span class="k">"pages"</span>: [ <span style="color:var(--ink3)">4 项</span> ],<br><span class="tg"></span><span class="k">"port"</span>: <span class="nb">5173</span></div>}</div>`:`<div class="rec">${esc('{\n  "site": "23hertz",\n  "theme": { "mode": "light", "accent": "ink" },\n  "pages": ["/", "/pricing", "/docs", "/about"],\n  "port": 5173\n}')}</div>`;
+ if(f.k==="zip")return `<div class="zip"><div class="zr h"><span></span><span>名称</span><span class="s">大小</span><span class="d">修改时间</span></div>${[["folder","raw/","—","10-11 15:20"],["doc","q3_sales.csv","1.9 MB","10-11 15:18"],["doc","q2_sales.csv","1.7 MB","10-11 15:18"],["doc","targets_2026.xlsx","96 KB","10-08 09:02"],["doc","region_map.json","4 KB","10-02 11:40"],["doc","README.txt","2 KB","10-11 15:20"]].map(([i,n,s,d])=>`<div class="zr">${ic(i)}<span>${n}</span><span class="s">${s}</span><span class="d">${d}</span></div>`).join("")}</div>`;
+ return "";
+}
+function overlays(){
+ let h="";
+ if(S.req)h+=`<div class="ov"><div class="req" role="alert" data-spec="请求条 · ≤480 · 圆角 10">${ic("globe")}<div class="x">AI 请求打开 ${esc(S.req.host)}<small>${esc(S.req.url)}</small></div><button class="pbtn" data-act="ropen">打开</button><button class="qbt" data-act="rignore">忽略</button></div></div>`;
+ else if(S.toast)h+=`<div class="ov"><div class="toast ${S.toast.out?"out":""}" role="status">${ic(S.toast.k==="e"?"err":"ok")}${esc(S.toast.t)}</div></div>`;
+ return h;
+}
+function flyouts(){
+ const c=cur();let h="";
+ if(S.picker){const groups=[["本轮交付 · 第 2 轮",SHELF2],["更早 · 第 1 轮",["rep"]]];
+  h+=`<div class="fly" style="left:12px;top:92px;width:360px;max-height:420px;overflow:auto" role="listbox" data-spec="切换列表 360 · 行 ≥44 · 按轮分组">`+groups.map(([t,ids])=>`<div class="gh"><span>${t}</span><span class="tn">${ids.length}</span></div>`+ids.map(id=>{const f=F[id],on=c.view==="file"&&c.file===id;return `<button class="pr ${on?"cur":""}" role="option" aria-selected="${on}" data-act="pick:${id}" title="${esc(f.n)}">${tag(f.k,24)}<span class="pl"><span class="pt">${midE(f.n)}</span><span class="pf">${esc(f.dir)}</span></span>${on?ic("check"):""}</button>`}).join("")).join("")+`</div>`}
+ if(S.menu){const isFile=c.view==="file";
+  h+=`<div class="fly" style="right:12px;top:92px;min-width:240px" role="menu" data-spec="菜单 · 项 32 · 最小宽 240">`+(isFile?`<button class="mi" data-act="noop">${ic("ext")}用默认应用打开</button><button class="mi" data-act="attach">${ic("attach")}添加到对话</button><button class="mi" data-act="locate">${ic("locate")}在对话中定位</button><div class="msep"></div><button class="mi" data-act="noop">${ic("folder")}在文件夹中显示</button><button class="mi" data-act="copy">${ic("copy")}复制文件路径</button><button class="mi" data-act="noop">${ic("save")}另存为…</button>`:c.view==="web"?`<button class="mi" data-act="noop">${ic("ext")}在默认浏览器打开</button><button class="mi" data-act="copy">${ic("copy")}复制网址</button><div class="msep"></div><button class="mi" data-act="noop">${ic("minus")}缩小网页<kbd>Ctrl+-</kbd></button><button class="mi" data-act="noop">${ic("plus")}放大网页<kbd>Ctrl+=</kbd></button>`:`<button class="mi" data-act="copy">${ic("copy")}复制全部内容</button><button class="mi" data-act="locate">${ic("locate")}在对话中定位</button>`)+`</div>`}
+ if(S.zmenu){const items=[["width","适应宽度",""],["page","适应页面","Ctrl+0"],["actual","实际大小","100%"]];
+  h+=`<div class="fly" style="right:12px;top:132px;min-width:220px" role="menu">`+(narrow()?`<button class="mi" data-act="zin">${ic("plus")}放大<kbd>Ctrl+=</kbd></button><button class="mi" data-act="zout">${ic("minus")}缩小<kbd>Ctrl+-</kbd></button><div class="msep"></div>`:"")+items.map(([m,t,k])=>`<button class="mi" data-act="zm:${m}">${c.zoom.m===m?ic("check"):'<span style="width:16px"></span>'}${t}${k?`<kbd>${k}</kbd>`:""}</button>`).join("")+`<div class="msep"></div><div class="gh"><span>当前</span><span class="tn">${pct(c)}%</span></div></div>`}
+ return h;
+}
+function panel(keepScroll=true){
+ const c=cur(),P=$("#pn"),old=$("#cv"),key=S.sess+c.view+(c.file||"")+c.mode+(S.loading?"L":"");
+ const prev=old&&P.dataset.k===key?old.scrollTop:null;
+ const flat=c.view!=="file"||S.loading||!["pdf","image"].includes(F[c.file]&&F[c.file].k)&&!["doc"].includes(F[c.file]&&F[c.file].k);
+ P.innerHTML=objHeader()+readBar()+`<div class="ld ${S.loading?"on":""}"></div>`+strip()+findBar()+`<div class="cv ${flat&&c.view!=="dia"?"flat":""}" id="cv" tabindex="0" aria-label="阅读画布" data-spec="${c.view==="file"&&F[c.file]&&F[c.file].k==="pdf"?"阅读画布 SurfaceSunken · 内边距 "+(S.focus?32:20)+" · 页距 16":""}">${body()}</div><div class="pfi" id="pfi"></div><div class="zhud" id="zhud"></div>`+overlays()+flyouts();
+ P.dataset.k=key;const cv=$("#cv");
+ if(prev!==null&&keepScroll)cv.scrollTop=prev;
+ if(S.jump){const p=cv.querySelector(`[data-page="${S.jump}"]`);if(p)cv.scrollTop=p.offsetTop-(S.focus?32:20);S.jump=null}
+ if(S.findScroll){const m=cv.querySelector("mark.cur");if(m)cv.scrollTop=m.closest(".l").offsetTop-cv.clientHeight/3;S.findScroll=false}
+ if(S.selScroll){const l=cv.querySelector(`[data-line="${SEL[0]}"]`);if(l)cv.scrollTop=l.offsetTop-80;S.selScroll=false}
+ cv.addEventListener("scroll",onScroll,{passive:true});
+ const pi=$("#pgin");if(pi)pi.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();const v=parseInt(pi.value,10),n=F[c.file].pages;if(v>0)go(Math.min(n,v));else pi.value=c.page}});
+ const fi=$("#fin");if(fi){fi.addEventListener("input",()=>{clearTimeout(S.ft);S.ft=setTimeout(()=>{S.find.q=fi.value;S.find.i=0;S.findScroll=true;panel();const n=$("#fin");n.focus();n.setSelectionRange(n.value.length,n.value.length)},150)});
+  fi.addEventListener("keydown",e=>{if(e.isComposing)return;if(e.key==="Enter"){e.preventDefault();S.find.i+=e.shiftKey?-1:1;S.findScroll=true;panel();$("#fin").focus()}else if(e.key==="Escape"){e.preventDefault();e.stopPropagation();S.find=null;panel();$("#cv").focus()}})}
+}
+let pfT=null;
+function onScroll(e){
+ const c=cur();if(c.view!=="file"||F[c.file].k!=="pdf")return;
+ const cv=e.currentTarget,mid=cv.scrollTop+cv.clientHeight/2;let p=1;$$(".pg",cv).forEach(el=>{if(el.offsetTop<=mid)p=+el.dataset.page});
+ if(p!==c.page){c.page=p;const pi=$("#pgin");if(pi&&document.activeElement!==pi)pi.value=p;$$('[data-act="prev"]').forEach(x=>p<=1?x.setAttribute("aria-disabled","true"):x.removeAttribute("aria-disabled"));$$('[data-act="next"]').forEach(x=>p>=12?x.setAttribute("aria-disabled","true"):x.removeAttribute("aria-disabled"))}
+ const f=$("#pfi");if(!f)return;f.textContent=`${p} / ${F[c.file].pages}`;f.classList.add("on");clearTimeout(pfT);pfT=setTimeout(()=>f.classList.remove("on"),800);
+}
+let zT=null;function hud(){const z=$("#zhud");if(!z)return;z.textContent=`${pct(cur())}%`;z.classList.add("on");clearTimeout(zT);zT=setTimeout(()=>z.classList.remove("on"),800)}
+function layout(){
+ const c=cur();W.classList.toggle("closed",!c.open);W.classList.toggle("float",floating()&&c.open);W.classList.toggle("focus",S.focus);W.classList.toggle("annot",keep.an);
+ W.style.width=winW()+"px";W.style.setProperty("--pw",pw()+"px");
+ const vp=$("#vp"),vin=$("#vin"),inner=vp.clientWidth-40;let s=keep.scale==="fit"?Math.max(.3,Math.min(1,inner/winW())):+keep.scale;
+ vp.classList.toggle("fit",keep.scale==="fit");vin.style.transform=`scale(${s})`;vin.style.width=winW()+"px";vin.style.height=820+"px";
+ vin.style.marginRight=(winW()*s-winW())+"px";vin.style.marginBottom=(820*s-820)+"px";W._s=s;
+ $("#scNote").textContent=keep.scale==="fit"?(s<1?`当前按 ${Math.round(s*100)}% 显示以适应页面宽度；检查细节请切到 100%（与真实 DIP 一致）。`:"当前即 100%，与真实 DIP 一一对应。"):keep.scale==="1"?"100%：与真实软件在 100% 系统缩放下的 DIP 一一对应，可横向滚动。":"200% 特写：用于检查图标线宽、对齐和焦点环。";
+ $$("[data-sc-scale]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.scScale===keep.scale)));
+}
+function render(o={}){rail();head();trans();comp();panel(o.keep!==false);layout();caption()}
+window.__render=()=>{if(W.isConnected)render()};
+
+/* ===== toast / request ===== */
+let tT=null;
+function toast(t,k){clearTimeout(tT);S.req=null;S.toast={t,k};panel();tT=setTimeout(()=>{if(!S.toast)return;S.toast.out=true;panel();setTimeout(()=>{S.toast=null;panel()},reduced()?0:200)},2500)}
+
+/* ===== actions ===== */
+let ltok=0;
+function openFile(id,o={}){
+ const fs=F[id].sess||"A";if(S.sess!==fs)S.sess=fs;const c=cur();c.open=true;c.view="file";c.file=id;c.closed=false;c.zoom={m:"width",f:1};c.mode="read";
+ S.picker=S.menu=S.zmenu=false;S.find=null;S.sel=false;S.note=o.note||null;S.req=null;S.toast=null;S.cardMenu=null;
+ if(F[id].gone){S.loading=false;render({keep:false});return}
+ const tk=++ltok;S.loading=true;S.lcard=false;render({keep:false});
+ setTimeout(()=>{if(tk===ltok&&S.loading){S.lcard=true;panel(false)}},200);
+ setTimeout(()=>{if(tk!==ltok)return;S.loading=false;S.lcard=false;c.page=o.page||1;S.jump=c.page>1?c.page:null;if(o.sel){S.sel=true;S.selScroll=true}if(o.find){S.find={q:o.find,i:0};S.findScroll=true}render({keep:false});o.after&&o.after()},o.instant?0:(keep.slow||o.slow?1400:140));
+}
+function go(p){const c=cur();c.page=p;S.jump=p;panel();const f=$("#pfi");if(f){f.textContent=`${p} / ${F[c.file].pages}`;f.classList.add("on");clearTimeout(pfT);pfT=setTimeout(()=>f.classList.remove("on"),800)}}
+function zoom(m,f){const c=cur();if(m==="in"||m==="out"){const now=pageW(c)/(pw()-(S.focus?32:20)*2-8);c.zoom={m:"manual",f:Math.min(4,Math.max(.25,now*(m==="in"?1.25:.8)))}}else if(m==="wheel"){const now=pageW(c)/(pw()-(S.focus?32:20)*2-8);c.zoom={m:"manual",f:Math.min(4,Math.max(.25,now*f))}}else c.zoom={m,f:1};S.zmenu=false;panel();hud()}
+function close(user){const c=cur();if(S.focus){S.focus=false;render();return}c.open=false;if(user)c.closed=true;S.picker=S.menu=S.zmenu=false;S.find=null;S.req=null;S.toast=null;S.note=null;render()}
+function agent(){
+ const c=cur();S.agentRow=true;S.running=true;const req={host:"research.example.com",url:"https://research.example.com/reports/2026-q3"};
+ if(!c.open&&!c.closed){c.open=true;c.view="web";render({keep:false});return}
+ if(c.open&&c.view==="web"){render();return}
+ S.pending=req;S.req=c.open?req:null;S.toast=null;render();
+}
+function openPending(){const c=cur();S.pending=null;S.req=null;c.open=true;c.view="web";c.closed=false;S.find=null;S.sel=false;S.note=null;render({keep:false})}
+function sess(k){if(S.sess===k)return;S.picker=S.menu=S.zmenu=false;S.find=null;S.sel=false;S.req=null;S.pending=null;S.toast=null;S.cardMenu=null;S.note=null;S.focus=false;S.sess=k;const c=cur();if(c.view==="file"&&c.page>1)S.jump=c.page;render({keep:false})}
+function locate(id){S.menu=false;if(SHELF2.indexOf(id)>=4)S.shelfOpen=true;S.flash=id;render();const el=$("#card-"+id),t=$("#tr");if(el&&t)t.scrollTop=el.offsetTop-t.clientHeight/3;setTimeout(()=>{S.flash=null;const e=$("#card-"+id);e&&e.classList.remove("flash")},1000)}
+const A={
+ noop(){S.menu=false;S.cardMenu=null;render()},
+ picker(){S.picker=!S.picker;S.menu=S.zmenu=false;panel()},menu(){S.menu=!S.menu;S.picker=S.zmenu=false;panel()},zmenu(){S.zmenu=!S.zmenu;S.menu=S.picker=false;panel()},
+ close(){close(true)},focus(){S.focus=!S.focus;S.menu=false;render({keep:false})},unfocus(){S.focus=false;render()},
+ prev(){const c=cur();if(c.page>1)go(c.page-1)},next(){const c=cur();if(c.page<F[c.file].pages)go(c.page+1)},
+ zin(){zoom("in")},zout(){zoom("out")},
+ find(){if(S.find){S.find=null;panel();return}S.find={q:"",i:0};panel();$("#fin").focus()},
+ fnext(){S.find.i++;S.findScroll=true;panel()},fprev(){S.find.i--;S.findScroll=true;panel()},fclose(){S.find=null;panel();$("#cv").focus()},
+ quote(){if(!S.sel){toast("先选择文字，再引用到对话");return}S.chips.push({i:"quote",t:`${F[cur().file]?F[cur().file].n:"执行记录"} · 第 ${SEL[0]}–${SEL[1]} 行`});comp();toast(`已加入输入框（第 ${SEL[0]}–${SEL[1]} 行），发送前可在引用卡里核对`)},
+ attach(){S.menu=false;const f=F[cur().file];if(f&&!S.chips.some(c=>c.t===f.n))S.chips.push({i:"attach",t:f.n});comp();toast("已添加到输入框；发送后才交给 AI 处理")},
+ copy(){S.menu=false;S.cardMenu=null;trans();toast("文件路径已复制")},
+ unzip(){toast("已解压到暂存目录，9 个文件已添加到输入框")},
+ locate(){const c=cur();if(c.view==="file")locate(c.file);else{S.menu=false;panel()}},
+ ropen(){openPending()},rignore(){S.req=null;S.pending=null;render()},
+ webbtn(){const c=cur();if(S.pending){openPending();return}if(c.open&&c.view==="web"){close(true);return}c.open=true;c.view="web";c.closed=false;S.note=null;render({keep:false})},
+ changes(){S.changes=!S.changes;head()},shelf(){S.shelfOpen=true;trans()},
+ cview(){S.cardNote=null;S.repState="changed";openFile("rep",{note:"正在显示文件的当前内容，与对话中该卡片交付时的内容不同。"})},
+ crev(){S.cardNote=null;S.cardMenu=null;S.repState="changed";if(!S.chips.some(c=>c.t==="客户回访报告.docx"))S.chips.push({i:"attach",t:"客户回访报告.docx"});S.composer="请基于附件“客户回访报告.docx”继续修改，使用当前附件内容，不沿用旧版本的检查结论；另存为新文件并核对结果，保留原件。我的修改要求：";render()},
+ ccancel(){S.cardNote=null;trans()}
+};
+function act(a){
+ if(A[a])return A[a]();const [k,v]=a.split(":");
+ if(k==="sess")return sess(v);if(k==="pick")return openFile(v);if(k==="zm")return zoom(v);if(k==="mode"){cur().mode=v;S.find=null;panel(false);return}if(k==="tab"){cur().tab=+v;panel(false);return}
+ if(k==="card"){S.cardMenu=null;if(F[v].changed){S.cardNote=v;S.repState="changed";trans();return}return openFile(v)}
+ if(k==="cmore"){S.cardMenu=S.cardMenu===v?null:v;trans();return}
+ if(k==="verify"){S.cardMenu=null;if(v==="rep"){S.repState="changed";S.cardNote="rep";trans()}else toast("核对完成：与交付时一致（只核对是否被改动，不代表内容已审核）");return}
+}
+W.addEventListener("click",e=>{const t=e.target.closest("[data-act]");if(!t){if(S.picker||S.menu||S.zmenu||S.cardMenu){S.picker=S.menu=S.zmenu=false;S.cardMenu=null;render()}return}act(t.dataset.act)});
+W.addEventListener("keydown",e=>{
+ if(e.isComposing)return;const inP=e.target.closest&&e.target.closest("#pn");const c=cur();
+ if(e.key==="Escape"){if(S.picker||S.menu||S.zmenu){e.preventDefault();S.picker=S.menu=S.zmenu=false;panel();return}if(S.find){e.preventDefault();S.find=null;panel();$("#cv").focus();return}if(inP||S.focus){e.preventDefault();close(true)}return}
+ if(!inP)return;const isIn=e.target.tagName==="INPUT";
+ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="f"&&c.view==="file"&&(F[c.file].k==="code"||c.mode==="source")){e.preventDefault();if(!S.find)S.find={q:"",i:0};panel();$("#fin").focus();return}
+ if(e.key==="Enter"&&S.sel&&!isIn){e.preventDefault();A.quote();return}
+ if(isIn||c.view!=="file")return;const f=F[c.file];
+ if(f.k==="pdf"){const n=f.pages;
+  if(e.key==="PageDown"){e.preventDefault();if(c.page<n)go(c.page+1)}else if(e.key==="PageUp"){e.preventDefault();if(c.page>1)go(c.page-1)}else if(e.key==="Home"){e.preventDefault();go(1)}else if(e.key==="End"){e.preventDefault();go(n)}}
+ if(["pdf","image"].includes(f.k)&&(e.ctrlKey||e.metaKey)){if(e.key==="="||e.key==="+"){e.preventDefault();zoom("in")}else if(e.key==="-"){e.preventDefault();zoom("out")}else if(e.key==="0"){e.preventDefault();zoom("page")}}
+ if(["PageDown","PageUp","Home","End"].includes(e.key))setTimeout(()=>{const cv=$("#cv");cv&&cv.focus()},0);
+});
+W.addEventListener("wheel",e=>{if(!(e.ctrlKey||e.metaKey))return;const cv=e.target.closest("#cv");if(!cv)return;const c=cur();if(c.view!=="file"||!["pdf","image"].includes(F[c.file].k))return;e.preventDefault();zoom("wheel",e.deltaY<0?1.1:1/1.1)},{passive:false});
+(()=>{const sp=$("#sp");let x0=0,w0=0,d=false;
+ sp.addEventListener("pointerdown",e=>{d=true;x0=e.clientX;w0=S.w;sp.setPointerCapture(e.pointerId);sp.classList.add("drag");e.preventDefault()});
+ sp.addEventListener("pointermove",e=>{if(!d)return;const wn=narrow();S.w=Math.round(Math.min(MAXW,Math.max(MINW,w0-(e.clientX-x0)/(W._s||1))));layout();if(wn!==narrow())panel();else{const pg=$(".pages");if(pg)pg.style.setProperty("--pgw",pageW(cur())+"px")}});
+ const up=()=>{if(d){d=false;sp.classList.remove("drag");render()}};sp.addEventListener("pointerup",up);sp.addEventListener("pointercancel",up);
+ sp.addEventListener("keydown",e=>{if(e.key==="ArrowLeft"||e.key==="ArrowRight"){e.preventDefault();S.w=Math.min(MAXW,Math.max(MINW,S.w+(e.key==="ArrowLeft"?16:-16)));render()}});
+})();
+
+/* ===== scenarios ===== */
+let scTok=0;const later=(fn,ms)=>{const k=scTok;setTimeout(()=>{if(k===scTok)fn()},ms)};
+const SC=[
+ ["阅读","pdf","PDF · 适应宽度",()=>{S.A.page=3;S.jump=3},"文档默认适应宽度；页码与缩放在阅读栏，缩放标签直接写“适应宽度”。滚动时画布底部出现页码浮标。","R1-11 · R1-05","适应宽度时页宽 = 面板宽 − 2×20 − 滚动条，1280 窗口下约 456 DIP。画布改用 SurfaceSunken（冷中性），纸页只用发丝描边和极弱投影。","S01：页码浮标、缩放标签、键盘翻页正确。"],
+ ["阅读","focus","专注阅读（替代“展开”）",()=>{S.focus=true;S.A.page=3;S.jump=3},"专注阅读把面板扩到 min(可用宽, 1040)，对话区加遮罩；页面宽约 968 DIP，正文接近实际阅读字号。Esc、点遮罩或 ⤡ 即可退出。","R1-05 · R1-11","真实源码中“展开”在 1280 / 1440 窗口下宽度不变（Resolve 的 expanded = maximum = 默认宽），等于无效按钮。专注阅读复用现有叠层路径，不改阈值。","S02：进入 / 退出、Esc、遮罩点击、焦点循环。"],
+ ["阅读","docx","Word · 阅读视图",()=>{openFile("rep",{instant:true});S.repState=null},"Word 用纸张式阅读视图：白纸居中、最大宽 680、15/26 正文；状态条说明这是按段落重排的阅读视图。","R1-06","OfficePreviewReader 是重排阅读，不是分页渲染，必须如实说明，不能假装是原版式。","S03：状态条存在；引用可用。"],
+ ["阅读","pptfail","PPT · 页面预览未生成",()=>openFile("deck",{instant:true}),"页面转换失败时，状态条明确写出“当前为简化视图”，并给出“用默认应用打开”。长文件名中部省略，扩展名始终可见。","R1-06","转换失败后以前会残留“正在生成页面预览…”，而且保真说明藏在 ⋯ 菜单。","S03 · 卡片不显示“生成失败”。"],
+ ["阅读","xlsx","Excel · 工作表",()=>openFile("xls",{instant:true}),"阅读栏左侧是工作表选择；表格首行冻结、数字右对齐、等宽数字；表头和行号使用 SurfaceSunken。","R1-05 · R1-06","表格是二维对象，导航应是“工作表”，不是“页码”。","S03。"],
+ ["阅读","image","图片",()=>openFile("img",{instant:true}),"图片默认适应面板，缩放组与 PDF 相同；元信息显示像素尺寸。","R1-05","沿用 ImagePreviewAdapter 与 PreviewViewport，只改画布与工具位置。","S03。"],
+ ["阅读","md","Markdown · 阅读 / 源码",()=>openFile("md",{instant:true}),"阅读 / 源码切换放在阅读栏左侧（分段控件）；源码模式才出现查找。阅读正文 15/26，最大宽 680。","R1-05","真实截图中“阅读 | 源码”单独占一行、与头部按钮割裂；现在归入阅读栏。","S03。"],
+ ["阅读","code","代码 · 行号与引用",()=>openFile("code",{instant:true,sel:true}),"新增行号栏（Ink4、等宽、右对齐、不参与复制）。有选区时，阅读栏右侧变为墨底“引用所选 ↵”，Enter 也可引用。","R1-03 · R1-06 · R1-01","以前引用提示“第 42–48 行”，但界面上没有行号，用户无法对照。","S09：引用卡行号与行号栏一致。"],
+ ["阅读","find","查找 Ctrl+F",()=>openFile("code",{instant:true,find:"revenue"}),"查找栏高 44，输入框为 Sunken 底；匹配用 Warning 系弱底，当前项加描边。Enter / Shift+Enter 跳转，Esc 只关闭查找栏。","R1-09","高亮使用语义色而不是蓝色，避免与焦点、链接混淆。","S10。"],
+ ["阅读","html","HTML · 预览 / 源码",()=>{S.sess="B";openFile("html",{instant:true})},"HTML 预览在受控 WebView2 中运行（不做透明度动画）；源码模式复用代码阅读器。","R1-05","WebView2 原生层不能参与合成，所以这里不做淡入。","S03。"],
+ ["阅读","json","JSON · 结构 / 源码",()=>{S.sess="B";openFile("json",{instant:true})},"结构视图带折叠箭头和缩进线；源码模式可查找。","R1-05","沿用 JsonContentView。","S03。"],
+ ["阅读","zip","压缩包",()=>openFile("zip",{instant:true}),"目录列表：名称、大小、修改时间；阅读栏右侧是“解压并添加到对话”（沿用现有导入能力）。","R1-05","沿用 ArchiveDirectoryView 与 ImportPreviewArchiveAsync。","S03。"],
+ ["阅读","web","网页面板",()=>{S.A.view="web"},"标题显示页面标题，元信息显示域名；阅读栏是地址栏（锁、域名加粗）。顶栏网页按钮处于激活态。","R1-05","以前标题恒为“网页”，页面标题只出现在 ToolTip。","S03。"],
+ ["阅读","rec","执行记录",()=>{S.A.view="rec"},"执行记录与文件共用对象栏和阅读栏：页签为输出 / 命令 / 操作记录 / 原始记录，没有失效下拉。","R1-05","TerminalOutputPanel 以前显示“切换会话文件”下拉但无法使用，“关闭”还是文字按钮。","S03 · S15。"],
+ ["阅读","dia","图表",()=>{S.A.view="dia"},"图表面板改用同一对象栏（以前是独立的 13 号小标题）；阅读栏放缩放。","R1-05","PreviewDockController.Diagram 自建头部，与其他面板不一致。","S15。"],
+ ["阅读","pasted","粘贴文本",()=>{S.A.view="pasted"},"粘贴文本面板对齐同一结构：对象栏 + 阅读栏（引用、复制全文）+ 阅读正文。","R1-05","统一结构，降低学习成本。","S15。"],
+ ["状态","loading","加载 · 200 ms 门槛",()=>openFile("code",{instant:true,after(){later(()=>openFile("q3",{slow:true}),600)}}),"切换后对象栏立即换成新文件名，加载线立即出现；200 ms 内画布保持空白，超过 200 ms 才出现“正在准备预览”。","R1-06","小文件不闪；加载期间不残留旧文件内容，防止看错文件。","加载中不可能看到上一个文件的内容。"],
+ ["状态","error","无法预览",()=>openFile("missing"),"错误卡：格式标 + “无法在这里预览” + 真实原因 + 路径，按钮为“重新加载”和“复制文件路径”。","R1-06","原错误卡标题 18 号，层级过重。","文案与原因一一对应。"],
+ ["状态","empty","空面板",()=>{S.A.view="empty"},"空状态说明能看什么、不能看什么时怎么办，不放插画。","R1-06","空状态也是说明书。","—"],
+ ["协同","picker","文件切换 · 按轮分组",()=>{S.picker=true},"点击文件名打开切换列表：按轮分组（本轮 / 更早），每行有格式标、名称、目录，当前项加粗并打勾。","R1-05 · R1-12","以前是按对话顺序平铺，同名文件无法区分。","切换后标题、内容、卡片标记一致。"],
+ ["协同","menu","更多菜单",()=>{S.menu=true},"⋯ 菜单只放低频操作，分两组；第一组为“用默认应用打开 / 添加到对话 / 在对话中定位”。","R1-05","把五六个同权重的图标从头部移走，头部只剩专注、更多、关闭。","每项真实生效，有回执。"],
+ ["协同","agent","AI 请求打开 · 不打断",()=>{S.running=true;later(agent,300)},"正在读 PDF 时 AI 请求打开网页：内容不动、焦点不动；底部出现请求条，顶栏网页按钮出现墨点。","R1-04","原链路会关闭正在读的文件，还会执行 _close.Focus() 抢走焦点。","S06。"],
+ ["协同","closed","关闭后 AI 再请求",()=>{S.running=true;S.A.open=false;S.A.closed=true;later(agent,300)},"本轮用户已关闭面板：AI 的请求只体现为顶栏墨点和 ToolTip；点网页按钮才打开。","R1-04","尊重用户刚刚的关闭选择。","S07。"],
+ ["协同","changed","交付后已修改",()=>{S.cardNote="rep";S.repState="changed"},"旧卡片显示“· 交付后已修改”，并出现内联提示。查看当前文件后，面板顶部是警告状态条（流内，不遮挡）。","R1-02","以前核验失败后静默返回，点击毫无反应。","S05：不伪造“该卡片版本”。"],
+ ["协同","locate","在对话中定位",()=>{openFile("md",{instant:true,after(){S.menu=true;panel()}})},"打开 ⋯ →“在对话中定位”：对话滚动到对应卡片，卡片高亮一次（AccentBackground，1000 ms），面板仍保持打开。","R1-12","右侧与左侧的关联以前只能靠找。","高亮只出现一次，不循环。"],
+ ["协同","restore","切换会话 · 恢复位置",()=>{S.A.page=7;S.jump=7;later(()=>sess("B"),900);later(()=>sess("A"),2100)},"在 A 读到第 7 页 → 切到 B（显示 B 自己的网页）→ 回到 A，自动恢复同一文件的第 7 页，不移动焦点。","R1-07","只存内存，不落盘。","S08。"],
+ ["布局","narrow","窄面板 380",()=>{S.w=380;S.zmenu=true},"面板宽度小于 440 时，缩放组收为一个“适应宽度 ▾”下拉（内含放大、缩小）；对象栏仍是三个操作。可拖动分隔线体验。","R1-05","窄面板优先保住文件名和翻页。","S12。"],
+ ["布局","overlay","900 DIP 叠层",()=>{S.ov900=true},"900 DIP 窗口下进入叠层：面板铺满对话区，关闭即“返回对话”，不显示专注按钮。","R1-05","沿用 ObjectPanelMetrics 判定，阈值不变。","S12：100 / 125 / 150 / 200%。"]
+];
+function scenarios(){
+ const groups=[...new Set(SC.map(s=>s[0]))];
+ $("#scg").innerHTML=groups.map(gp=>`<div class="scg"><span>${gp}</span>${SC.filter(s=>s[0]===gp).map(s=>`<button class="chip" data-sc="${s[1]}" aria-pressed="${S.scen===s[1]}">${s[2]}</button>`).join("")}</div>`).join("");
+}
+function caption(){const s=SC.find(x=>x[1]===S.scen)||SC[0];$("#cap").innerHTML=`<div class="h">${esc(s[2])} <span class="pill n">${esc(s[5])}</span></div><div><h4>呈现</h4><p>${esc(s[4])}</p></div><div><h4>设计理由与源码</h4><p>${esc(s[6])}</p></div><div><h4>工程项</h4><p>${esc(s[5])}</p></div><div><h4>验收</h4><p>${esc(s[7])}</p></div>`}
+function run(id){clearTimeout(tT);ltok++;scTok++;S=fresh();S.scen=id;const s=SC.find(x=>x[1]===id);scenarios();s[3]();if(!S.jump&&S.sess==="A"&&S.A.view==="file"&&S.A.page>1&&!S.loading)S.jump=S.A.page;if(!S.loading)render({keep:false})}
+$("#scg").addEventListener("click",e=>{const b=e.target.closest("[data-sc]");if(b)run(b.dataset.sc)});
+$("#agentBtn").addEventListener("click",agent);$("#resetBtn").addEventListener("click",()=>run("pdf"));
+$("#anT").addEventListener("change",e=>{keep.an=e.target.checked;layout()});
+$("#slowT").addEventListener("change",e=>{keep.slow=e.target.checked});
+$$("[data-sc-scale]").forEach(b=>b.addEventListener("click",()=>{keep.scale=b.dataset.scScale;layout();if(keep.scale==="2"){const vp=$("#vp");vp.scrollLeft=vp.scrollWidth}}));
+window.addEventListener("resize",layout);if(window.ResizeObserver)new ResizeObserver(layout).observe($("#vp"));
+
+/* ===== motion data (shared by demos & spec) ===== */
+const MO=[
+ ["M1","面板打开 / 关闭","点击卡片、网页按钮、关闭、Esc","宽度：瞬时；Avalonia 内容 opacity 0→1","0 / 120 ms","CubicEaseOut","新的打开请求立即替换；关闭后不再渐入","宽度仍为瞬时，透明度为 0；WebView2 内容从不淡入"],
+ ["M2","文件切换","切换列表、点击另一张卡片","对象栏文字：瞬时；旧内容立即清空；新内容 opacity","0 / 120 ms","CubicEaseOut","新的切换使旧加载令牌作废，不会渐入旧内容","直接显示"],
+ ["M3","内容加载","读取开始","加载线循环（沿用 PanelLoadingLine）；200 ms 后加载卡片 opacity","门槛 200 ms + 120 ms","CubicEaseOut","200 ms 内完成则不出现加载卡片","加载线改为静态满宽弱条；门槛保留"],
+ ["M4","分页","滚动、翻页按钮、PageDown / PageUp","页面位置：瞬时跳转；页码浮标 opacity","入 120 · 停 800 · 出 200 ms","CubicEaseOut","持续滚动会重置 800 ms 计时","浮标直接出现和消失"],
+ ["M5","缩放","−/+、Ctrl+滚轮、Ctrl+= / - / 0","页面尺寸：瞬时并以视口中心为锚点；缩放浮标 opacity","入 120 · 停 800 · 出 200 ms","CubicEaseOut","连续缩放只更新数字，不叠加浮标","浮标直接出现和消失"],
+ ["M6","菜单展开","⋯、缩放标签、文件名、卡片 ⋯","Flyout opacity（无位移、无缩放）","100 ms","CubicEaseOut","再次点击、Esc 或点击外部立即关闭，不做退场动画","0 ms"],
+ ["M7","选中关联","打开卡片对应文件；⋯ → 在对话中定位","卡片标记 opacity 120 ms；定位后卡片背景 AccentBackground 停 350 ms 再淡出","1000 ms（单次）","CubicEaseOut","再次定位会重新开始；从不循环","只保留 2 px 描边提示"],
+ ["M8","AI 请求打开","agent_web-panel_open 完成且被暂缓","请求条 opacity；顶栏墨点 opacity","160 / 120 ms","CubicEaseOut","新请求替换旧请求；点击打开或忽略后立即消失","0 ms"],
+ ["M9","成功 / 错误反馈","复制、引用、添加、另存失败等","回执 opacity：入 120 · 停 2500 · 出 200；错误请求条保持显示","见左","CubicEaseOut","新回执替换旧回执并重新计时","0 ms；回执仍在 2500 ms 后消失"],
+ ["M10","悬停与焦点","指针进入、键盘 Tab","按钮背景 80 ms；焦点环瞬时出现（不做动画）","80 / 0 ms","CubicEaseOut","—","悬停 0 ms"]
+];
+function motion(){
+ $("#mtab").innerHTML=`<tr><th>编号</th><th>组件</th><th>触发</th><th>变化属性</th><th>时长</th><th>缓动</th><th>取消规则</th><th>减少动态效果</th></tr>`+MO.map(r=>`<tr>${r.map(x=>`<td>${esc(x)}</td>`).join("")}</tr>`).join("");
+ const spec=r=>`<div class="mspec"><b>触发</b><span>${r[2]}</span><b>属性</b><span>${r[3]}</span><b>时长</b><span>${r[4]} · ${r[5]}</span><b>取消</b><span>${r[6]}</span><b>减少动态</b><span>${r[7]}</span></div>`;
+ const mp=(title,meta,bodyHtml,extra="")=>`<div class="mini"><div class="mc"><i style="width:70%"></i><i style="width:90%"></i><i style="width:55%"></i><i style="width:80%"></i></div><div class="mp">${extra}<div class="oh">${tag("pdf",24)}<span class="idl"><span class="n">${title}</span><span class="m">${meta}</span></span><div class="oa"><button class="ib">${ic("more")}</button><button class="ib">${ic("close")}</button></div></div><div class="cv" style="position:relative">${bodyHtml}</div></div></div>`;
+ const page=`<div style="padding:12px;display:flex;justify-content:center"><div style="width:86%;aspect-ratio:612/792;background:#fff;box-shadow:var(--page-edge)"></div></div>`;
+ const D={
+  M1:{st:`<div class="mini" id="d1"><div class="mc"><i style="width:70%"></i><i style="width:90%"></i><i style="width:55%"></i><i style="width:80%"></i></div><div class="mp" id="d1p" style="display:none"><div class="oh">${tag("pdf",24)}<span class="idl"><span class="n">Q3 销售简报.pdf</span><span class="m">PDF · 12 页</span></span></div><div class="cv" id="d1c">${page}</div></div></div>`,bt:`<button class="dbtn" data-m="d1o">打开面板</button><button class="dbtn" data-m="d1c">关闭</button><button class="dbtn" data-m="d1w">打开网页（WebView2，无淡入）</button>`},
+  M2:{st:mp(`<span id="d2n">Q3 销售简报.pdf</span>`,"PDF · 12 页",`<div id="d2c">${page}</div>`,`<div class="ld" id="d2l" style="position:absolute;top:44px;left:0;right:0;margin:0"></div>`),bt:`<button class="dbtn" data-m="d2f">快速切换（140 ms）</button><button class="dbtn" data-m="d2s">慢速切换（1200 ms）</button>`},
+  M3:{st:mp("渠道复盘.pptx","正在读取文件…",`<div id="d3c"></div>`,`<div class="ld" id="d3l" style="position:absolute;top:44px;left:0;right:0;margin:0"></div>`),bt:`<button class="dbtn" data-m="d3ok">加载成功</button><button class="dbtn" data-m="d3e">转换失败</button>`},
+  M4:{st:mp("Q3 销售简报.pdf","PDF · 12 页",`<div id="d4c" style="height:100%;overflow:auto"><div style="padding:12px;display:flex;flex-direction:column;align-items:center;gap:12px">${Array.from({length:12},(_,i)=>`<div style="width:86%;aspect-ratio:612/792;background:#fff;box-shadow:var(--page-edge);display:grid;place-items:center;color:#a1a1a6;font-size:11px">${i+1}</div>`).join("")}</div></div><div class="pfi" id="d4f"></div>`),bt:`<button class="dbtn" data-m="d4n">下一页（瞬时）</button><span class="scale-note" style="margin:0;align-self:center">或直接滚动画布</span>`},
+  M5:{st:mp("区域营收对比.png","PNG · 1600 × 1000",`<div style="display:grid;place-items:center;height:100%"><div id="d5i" style="width:120px;aspect-ratio:8/5;background:#fff;box-shadow:var(--page-edge)"></div></div><div class="zhud" id="d5h"></div>`),bt:`<button class="dbtn" data-m="d5o">缩小</button><button class="dbtn" data-m="d5i">放大</button>`},
+  M6:{st:mp("Q3 销售简报.pdf","PDF · 12 页",page,`<div id="d6m"></div>`),bt:`<button class="dbtn" data-m="d6">打开 / 关闭 ⋯ 菜单</button>`},
+  M7:{st:`<div class="mini"><div class="mc" style="gap:10px"><div class="dc" id="d7c" style="width:100%"><span class="mk"></span><div class="row"><button class="op" data-m="d7s">${tag("pdf",28)}<span class="lb"><span class="nm" style="font-size:13px">Q3 销售简报.pdf</span><span class="mt" id="d7m" style="font-size:12px">PDF 文档 · 2.4 MB</span></span></button></div></div><i style="width:70%"></i><i style="width:85%"></i></div><div class="mp"><div class="oh">${tag("pdf",24)}<span class="idl"><span class="n" id="d7n">—</span><span class="m">点击左侧卡片</span></span></div><div class="cv">${page}</div></div></div>`,bt:`<button class="dbtn" data-m="d7s">选中卡片</button><button class="dbtn" data-m="d7l">在对话中定位</button>`},
+  M8:{st:mp("Q3 销售简报.pdf","PDF · 12 页",page,`<div style="position:absolute;right:8px;top:-2px;transform:translateY(-100%)"></div>`)+`<button class="ha" id="d8b" style="position:absolute;left:12px;top:12px;z-index:3;background:var(--canvas)" aria-label="网页面板">${g("globe")}<span class="pd"></span></button><div class="ov" id="d8o" style="left:46%"></div>`,bt:`<button class="dbtn" data-m="d8">AI 请求打开</button><button class="dbtn" data-m="d8x">清除</button>`},
+  M9:{st:mp("report_builder.py","Python · 48 KB",`<div class="ov" id="d9o"></div>`),bt:`<button class="dbtn" data-m="d9ok">成功回执</button><button class="dbtn" data-m="d9e">另存失败</button>`},
+  M10:{st:`<div style="padding:24px;display:flex;flex-direction:column;gap:16px"><div style="display:flex;gap:4px;align-items:center;background:var(--canvas);border:1px solid var(--hair);border-radius:10px;padding:6px 8px;width:max-content"><button class="ib">${ic("prev")}</button><span class="pgf"><input value="5" aria-label="页码"><span class="of">/ 12</span></span><button class="ib">${ic("next")}</button><span class="vs"></span><button class="ib">${ic("minus")}</button><button class="dd">适应宽度${ic("chev","s12")}</button><button class="ib">${ic("plus")}</button><span class="vs"></span><button class="ib">${ic("focus")}</button><button class="ib">${ic("more")}</button><button class="ib">${ic("close")}</button></div><div style="font-size:13px;color:var(--ink2)">把指针移到按钮上看悬停（80 ms），按 Tab 看焦点环（瞬时、2 px FocusRing）。</div><div style="display:flex;gap:8px"><button class="pbtn">打开</button><button class="qbt">忽略</button><button class="btn2">重新加载</button></div></div>`,bt:""}
+ };
+ $("#mdg").innerHTML=MO.map(r=>{const d=D[r[0]];return `<div class="box mdx"><h4><span class="pill">${r[0]}</span>${r[1]}</h4><div class="mstage">${d.st}</div>${d.bt?`<div class="mrow">${d.bt}</div>`:""}${spec(r)}</div>`}).join("");
+ const T={};const later=(k,ms,f)=>{clearTimeout(T[k]);T[k]=setTimeout(f,ms)};
+ $("#mdg").addEventListener("click",e=>{const b=e.target.closest("[data-m]");if(!b)return;const m=b.dataset.m;
+  if(m==="d1o"||m==="d1w"){const p=$("#d1p"),c=$("#d1c");p.style.display="flex";c.classList.remove("fadein");void c.offsetWidth;if(m==="d1o"){c.innerHTML=page;c.classList.add("fadein")}else c.innerHTML=`<div class="web" style="padding:16px;font-size:12px"><b>示例网页</b><br>WebView2 原生层：不参与透明度合成，直接显示</div>`}
+  if(m==="d1c"){$("#d1p").style.display="none"}
+  if(m==="d2f"||m==="d2s"){const slow=m==="d2s";$("#d2n").textContent=slow?"渠道复盘_第三季度.pptx":"report_builder.py";const c=$("#d2c"),l=$("#d2l");c.innerHTML="";l.classList.add("on");
+   later("d2a",200,()=>{if(l.classList.contains("on"))c.innerHTML=`<div class="lcard" style="position:relative;height:150px"><div class="in" style="width:auto"><h6>正在准备预览</h6><p>正在读取文件…</p></div></div>`});
+   later("d2b",slow?1200:140,()=>{l.classList.remove("on");c.innerHTML=`<div class="fadein">${page}</div>`})}
+  if(m==="d3ok"||m==="d3e"){const c=$("#d3c"),l=$("#d3l");c.innerHTML="";l.classList.add("on");later("d3a",200,()=>{c.innerHTML=`<div class="lcard" style="position:relative;height:150px"><div class="in" style="width:auto"><h6>正在准备预览</h6><p>首次打开需要几秒</p></div></div>`});
+   later("d3b",1100,()=>{l.classList.remove("on");c.innerHTML=m==="d3ok"?`<div class="fadein">${page}</div>`:`<div class="fadein"><div class="ss" style="border-bottom:1px solid var(--hair)">${ic("info")}<span class="x">页面预览未能生成，当前为简化视图。</span></div><div class="read" style="padding:12px 14px;font-size:12px;line-height:20px"><b>渠道复盘概览</b><br>本季度渠道总营收 4,820 万元…</div></div>`})}
+  if(m==="d4n"){const c=$("#d4c"),pgs=$$("#d4c [style*=aspect-ratio]");const cur2=Math.min(pgs.length-1,Math.round(c.scrollTop/(pgs[0].offsetHeight+12))+1);c.scrollTop=pgs[cur2].offsetTop-12}
+  if(m==="d5i"||m==="d5o"){const i=$("#d5i"),w=Math.max(60,Math.min(260,i.offsetWidth*(m==="d5i"?1.25:.8)));i.style.width=w+"px";const h=$("#d5h");h.textContent=Math.round(w/200*100)+"%";h.classList.add("on");later("d5",800,()=>h.classList.remove("on"))}
+  if(m==="d6"){const host=$("#d6m");host.innerHTML=host.innerHTML?"":`<div class="fly" style="right:8px;top:44px;min-width:180px"><button class="mi">${ic("ext")}用默认应用打开</button><button class="mi">${ic("attach")}添加到对话</button><div class="msep"></div><button class="mi">${ic("copy")}复制文件路径</button></div>`}
+  if(m==="d7s"){$("#d7c").classList.add("sel");$("#d7m").innerHTML=`PDF 文档 · 2.4 MB <span class="on">· 正在右侧查看</span>`;$("#d7n").textContent="Q3 销售简报.pdf"}
+  if(m==="d7l"){const c=$("#d7c");c.classList.remove("flash");void c.offsetWidth;c.classList.add("flash")}
+  if(m==="d8"){$("#d8b").classList.add("pending");$("#d8o").innerHTML=`<div class="req" style="max-width:100%">${ic("globe")}<div class="x">AI 请求打开 research.example.com<small>https://research.example.com/…</small></div><button class="pbtn">打开</button><button class="qbt">忽略</button></div>`}
+  if(m==="d8x"){$("#d8b").classList.remove("pending");$("#d8o").innerHTML=""}
+  if(m==="d9ok"){const o=$("#d9o");o.innerHTML=`<div class="toast">${ic("ok")}文件路径已复制</div>`;later("d9",2500,()=>{const t=o.querySelector(".toast");if(t){t.classList.add("out");setTimeout(()=>{if(t.parentNode)t.remove()},reduced()?0:200)}})}
+  if(m==="d9e"){clearTimeout(T.d9);$("#d9o").innerHTML=`<div class="req e" style="max-width:100%">${ic("err")}<div class="x">另存失败：没有此位置的写入权限<small>请换一个位置再试。</small></div><button class="qbt" onclick="this.closest('.req').remove()">关闭</button></div>`}
+ });
+ const d4=$("#d4c");let t4=null;d4.addEventListener("scroll",()=>{const pgs=$$("#d4c [style*=aspect-ratio]");const p=Math.min(12,Math.round(d4.scrollTop/(pgs[0].offsetHeight+12))+1);const f=$("#d4f");f.textContent=`${p} / 12`;f.classList.add("on");clearTimeout(t4);t4=setTimeout(()=>f.classList.remove("on"),800)},{passive:true});
+}
+
+/* ===== spec builders ===== */
+function lum(hex){const m=hex.replace("#","");const v=[0,2,4].map(i=>parseInt(m.substr(i,2),16)/255).map(c=>c<=.03928?c/12.92:Math.pow((c+.055)/1.055,2.4));return .2126*v[0]+.7152*v[1]+.0722*v[2]}
+function flat(fg,bg){if(fg.length!==9)return fg;const a=parseInt(fg.slice(1,3),16)/255;const f=[3,5,7].map(i=>parseInt(fg.substr(i,2),16)),b=[1,3,5].map(i=>parseInt(bg.substr(i,2),16));return "#"+f.map((c,i)=>Math.round(c*a+b[i]*(1-a)).toString(16).padStart(2,"0")).join("")}
+function cr(fg,bg){const a=lum(flat(fg,bg)),b=lum(bg);return (Math.max(a,b)+.05)/(Math.min(a,b)+.05)}
+function spec(){
+ const p=PAL[THEME],dk=p.dark;
+ const TK=[["SurfacePage","对话区底 · 叠层遮罩下的页"],["SurfaceRail","侧栏（冻结：左右色差）"],["SurfaceCanvas","面板底 · 标题行镜像 · 文本阅读底"],["SurfaceRaised","请求条 · 菜单 · 卡片"],["SurfaceSunken",dk?"分段控件轨道 · 输入框 · 状态条":"阅读画布 · 分段轨道 · 状态条"],["SurfaceStrong","按钮按下"],["Ink","正文 · 主操作底 · 选中标记 · 回执底"],["Ink2","次级文字 · 状态条文字"],["Ink3","元信息 · 图标常态"],["Ink4","行号 · 下拉箭头 · 快捷键"],["Ink5","禁用图标"],["OnSolid","墨底按钮与回执上的文字"],["Line","卡片 / 菜单 / 请求条边框"],["Hair","面板分隔 · 阅读栏分隔 · 纸页描边"],["AccentBackground","选中项 · 激活的顶栏按钮 · 定位高亮"],["Link","链接（仅链接）"],["FocusRing","键盘焦点环 2 px（唯一的蓝色控件反馈）"],["Warning","警告图标 · 查找高亮的基色"],["WarningBackground","警告状态条 · 卡片内联提示"],["Danger","错误图标 · 文件已移动或删除"],["Success","成功语义（回执中不着色）"]];
+ $("#tokGrid").innerHTML=TK.map(([k,u])=>`<div class="box tk"><span class="sw2"><i style="background:${argb(p[k])}"></i></span><span><b>${k}</b><small>${p[k]}</small><em>${u}</em></span></div>`).join("")+
+  `<div class="box tk"><span class="sw2"><i style="background:${dk?p.SurfacePage:p.SurfaceSunken}"></i></span><span><b>PreviewCanvasBrush（改绑）</b><small>${dk?"→ SurfacePage":"→ SurfaceSunken"}</small><em>原为写死的 #F3F3F1 / #202020</em></span></div>`+
+  `<div class="box tk"><span class="sw2"><i style="background:#F5600F"></i></span><span><b>运行主控制（冻结）</b><small>#F5600F</small><em>只属于输入区；右侧工作区禁止使用</em></span></div>`;
+ const bgC=p.SurfaceCanvas,bgS=p.SurfaceSunken;
+ const pairs=[["正文 Ink / 面板底",p.Ink,bgC,4.5],["次级 Ink2 / 面板底",p.Ink2,bgC,4.5],["元信息 Ink3 / 面板底",p.Ink3,bgC,4.5],["行号 Ink4 / 面板底",p.Ink4,bgC,4.5],["状态条 Ink2 / Sunken",p.Ink2,bgS,4.5],["回执 OnSolid / Ink",p.OnSolid,p.Ink,4.5],["警告文字 Ink / WarningBackground",p.Ink,flat(p.WarningBackground,bgC),4.5],["焦点环 FocusRing / 面板底（非文字 3:1）",p.FocusRing,bgC,3],["禁用 Ink5 / 面板底（不承载文字）",p.Ink5,bgC,0]];
+ $("#ctab").innerHTML=`<tr><th>组合（主题：${p.name}）</th><th>前景</th><th>背景</th><th>对比度</th><th>要求</th><th>结果</th></tr>`+pairs.map(([n,f,b,req])=>{const v=cr(f,flat(b,"#FFFFFF"));return `<tr><td>${n}</td><td><code>${f}</code></td><td><code>${b}</code></td><td class="tn"><b>${v.toFixed(2)} : 1</b></td><td>${req?req+" : 1":"不要求（只用于图标）"}</td><td>${!req?'<span class="pill">装饰</span>':v>=req?'<span class="pill r">达标</span>':'<span class="pill w">不达标</span>'}</td></tr>`}).join("");
+ $("#typo").innerHTML=[["对象栏文件名","15/20 · SemiBold 600","HertzPanelTitleSize","font-size:15px;line-height:20px;font-weight:600","渠道复盘_第三季度_管理层汇报终版.pptx"],["元信息","12/16 · Regular · Ink3","UiSmallSize · HertzMetaLine","font-size:12px;line-height:16px;color:var(--ink3)","PDF 文档 · 2.4 MB · 12 页"],["阅读栏 · 菜单 · 按钮","13/20 · Regular（选中 500）","UiCaptionSize","font-size:13px;line-height:20px","适应宽度　5 / 12　用默认应用打开"],["状态条 · 请求条 · 回执","13/20","UiCaptionSize","font-size:13px;line-height:20px;color:var(--ink2)","页面预览未能生成，当前为简化视图。"],["分组标题 · 计数","12/16 · Ink3 · 等宽数字","UiSmallSize","font-size:12px;color:var(--ink3);font-variant-numeric:tabular-nums","本轮交付 · 第 2 轮　7"],["阅读正文（Word / Markdown / 粘贴文本）","15/26 · 最大行宽 680","ContentBodySize","font-size:15px;line-height:26px","两周内完成高风险客户的上门回访。"],["代码 · 记录","13/21 · JetBrains Mono","ContentCodeSize","font-family:var(--mono);font-size:13px;line-height:21px","return self.revenue / self.target"],["错误卡标题","15/22 · SemiBold","HertzPanelTitleSize","font-size:15px;line-height:22px;font-weight:600","无法在这里预览"],["成果卡名称（左侧）","15/21 · Medium","RichLinkFontSize 的对话阅读档","font-size:15px;line-height:21px;font-weight:500","客户回访报告.docx"]].map(([a,b,c,st,s])=>`<div><small>${a}<br>${b}</small><span style="${st}">${s}</span><small><code>${c}</code></small></div>`).join("")+`<div><small>字体</small><span>Inter + Noto Sans SC（<code>FontText</code> / <code>FontConversation</code>）；等宽 JetBrains Mono（<code>FontMono</code>）。数字一律使用等宽数字（tnum）。</span><small>禁止新增字号；14 号只保留在对话正文。</small></div>`;
+ $("#anat").innerHTML=`<div class="gl" style="left:20px"></div><div class="gl" style="right:20px;left:auto"></div><div class="pstrip" style="background:var(--canvas)"></div><div class="oh">${tag("pdf")}<span class="idl" style="margin-left:4px"><span class="n">Q3 销售简报.pdf ${ic("chev","s12")}</span><span class="m">PDF 文档 · 2.4 MB · 12 页</span></span><span style="flex:1"></span><div class="oa"><button class="ib">${ic("focus")}</button><button class="ib">${ic("more")}</button><button class="ib">${ic("close")}</button></div></div><div class="rb2"><button class="ib">${ic("prev")}</button><span class="pgf"><input value="3" aria-label="页码"><span class="of">/ 12</span></span><button class="ib">${ic("next")}</button><span class="sp"></span><button class="ib">${ic("minus")}</button><button class="dd">适应宽度${ic("chev","s12")}</button><button class="ib">${ic("plus")}</button></div><div class="ss">${ic("info")}<span class="x">状态条：仅在视图不是原样渲染时出现</span></div><div class="cv" style="height:300px;position:relative"><div class="pages" style="--pgw:456px">${pdfPage(3)}</div><div class="ov"><div class="toast">${ic("ok")}文件路径已复制</div></div></div>
+  <span class="dim" style="top:0">标题行 40</span><span class="dim" style="top:52px">对象栏 56</span><span class="dim" style="top:100px">阅读栏 40</span><span class="dim" style="top:138px">状态条 ≥36</span><span class="dim" style="top:190px">画布 · 内边距 20 · 页距 16</span><span class="dim" style="bottom:56px">回执 · 距底 12</span>`;
+ $("#lay").innerHTML=`<tr><th>元素</th><th>规格</th><th>来源 / 改动</th></tr>`+[["面板宽","默认 clamp(窗口 × 0.46, 480, 900)，上限 min(窗口/2, 可用 − 716)；1280 窗口 = 504","ObjectPanelMetrics（不改）"],["专注阅读","min(可用宽, 1040)，右对齐叠层，对话区 Scrim","新增常量 FocusReadingMaximum = 1040"],["左缘对齐线 x = 20","格式标、阅读栏首个图标的图形、状态条图标、纸页左边都落在 20","HertzPanelHeaderInset；阅读栏内边距 12 + 按钮内留 8"],["右缘对齐线","关闭图标的图形右缘距面板右边 20","对象栏右内边距 12"],["标题行","40（窗口控制区，镜像面板底色）","TitleRowMirror（沿用）"],["对象栏","56；格式标 28；名称与元信息两行；间距 12","HertzPanelHeaderHeight（沿用）"],["阅读栏","40；按钮 32；组内间距 4；组间 1×16 Hair 分隔，左右各 6","新增"],["状态条","最小高 36；内边距 8,12,8,20；图标 16","新增 PanelStatusStrip"],["查找栏","44；输入框 30，圆角 8","新增"],["画布内边距","20（专注阅读 32）；页距 16","PreviewViewport：CanvasInset 24→20、PageGap 24→16"],["纸页","白色；浅色主题为 Hair 描边 + 0 1 3 Ink 6%；夜主题仅 Line 描边","ThemeResources"],["浮层边距","请求条与回执距面板边 12；请求条最大宽 480","新增 PanelNotice"],["圆角","按钮 6 · 分段 8 / 6 · 菜单与请求条 10 · 回执 8 · 卡片 12 · 纸页 0","统一"],["栅格","8 DIP 基线，4 DIP 细分；所有尺寸为 4 的倍数（发丝线除外）","—"]].map(r=>`<tr>${r.map(x=>`<td>${x}</td>`).join("")}</tr>`).join("");
+ const IC=[["focus","专注阅读","替代“展开”；四角收拢，与“退出”成对","新增"],["unfocus","退出专注阅读","四角向内","新增"],["quote","引用到对话","一对引号 + 下方两条文字线，取代像“刀”的旧几何","新增"],["more","更多","实心三点 r = 1.25","统一"],["close","关闭 / 返回对话","8 × 8 交叉","统一"],["ext","用默认应用打开","箭头出框；框带 1.5 圆角","统一"],["find","查找","圆 r = 4.5 + 柄","新增"],["prev","上一页 / 后退","8 高 V 形","统一"],["next","下一页 / 前进","同上","统一"],["minus","缩小","8 宽","统一"],["plus","放大","8 × 8","统一"],["chev","下拉","12 px 使用","统一"],["check","当前项","切换列表与菜单","新增"],["info","说明","状态条","新增"],["warn","警告","卡片提示与警告状态条","新增"],["err","错误","请求条（错误）","新增"],["ok","成功","回执","新增"],["locate","在对话中定位","文字行 + 向下箭头","新增"],["attach","添加到对话","施工时优先复用输入框附件按钮几何","复用"],["folder","在文件夹中显示","—","统一"],["copy","复制","双层圆角矩形","新增"],["save","另存为…","—","复用"],["box","解压并添加到对话","立方体","新增"],["globe","网页","16 版本；顶栏沿用 20 版本","复用"],["lock","安全地址","地址栏","新增"],["reload","刷新 / 重新加载","—","统一"]];
+ $("#icg").innerHTML=IC.map(([id,n,s,st])=>`<div class="box icc"><span class="icz">${ic(id)}</span><span><b>${n} <span class="pill ${st==="新增"?"n":st==="复用"?"r":""}">${st}</span></b><small>${s}</small><span style="display:inline-flex;gap:8px;margin-top:6px;align-items:center;color:var(--ink3)"><svg class="ic real"><use href="#i-${id}"/></svg><small style="display:inline">16 px 实际大小</small></span></span></div>`).join("");
+ const H=["组件","常态","悬停","按下","键盘焦点","选中 / 开启","禁用","加载 / 就绪"];
+ const R=(n,f)=>`<div class="r">${n}</div>`+["","f-h","f-p","f-f","on","dis","ld"].map(s=>`<div>${f(s)}</div>`).join("");
+ $("#stm").innerHTML=H.map(h=>`<div class="h">${h}</div>`).join("")+
+  R("图标按钮 32",s=>s==="dis"?`<button class="ib" aria-disabled="true" tabindex="-1">${ic("next")}</button>`:s==="ld"?`<span style="font-size:11px;color:var(--ink3)">—</span>`:`<button class="ib ${s}" tabindex="-1">${ic("focus")}</button>`)+
+  R("引用（无 / 有选区）",s=>s==="ld"?`<button class="qbtn" tabindex="-1">${ic("quote")}引用所选 <kbd>↵</kbd></button>`:s==="dis"?`<span style="font-size:11px;color:var(--ink3)">不禁用</span>`:`<button class="ib ${s}" tabindex="-1">${ic("quote")}</button>`)+
+  R("下拉标签",s=>s==="dis"||s==="ld"?`<span style="font-size:11px;color:var(--ink3)">—</span>`:`<button class="dd ${s==="on"?"open":s}" tabindex="-1">适应宽度${ic("chev","s12")}</button>`)+
+  R("分段控件",s=>s==="dis"||s==="ld"?`<span style="font-size:11px;color:var(--ink3)">—</span>`:`<div class="seg" style="margin:0"><button class="${s==="on"?"on":""}" tabindex="-1">阅读</button><button class="${s==="f-h"?"f-h":s==="f-p"?"f-p":s==="f-f"?"f-f":""}" tabindex="-1">源码</button></div>`)+
+  R("主按钮（墨）",s=>s==="dis"?`<button class="pbtn" style="opacity:.4" tabindex="-1">打开</button>`:s==="ld"?`<span style="font-size:11px;color:var(--ink3)">—</span>`:`<button class="pbtn" style="${s==="f-h"?"opacity:.9":s==="f-p"?"opacity:.8":s==="f-f"?"box-shadow:0 0 0 2px var(--raised),0 0 0 4px var(--focus)":""}" tabindex="-1">打开</button>`)+
+  R("次按钮",s=>s==="dis"?`<button class="btn2" style="opacity:.4" tabindex="-1">重新加载</button>`:s==="ld"?`<span style="font-size:11px;color:var(--ink3)">—</span>`:`<button class="btn2 ${s==="on"?"":s}" tabindex="-1">重新加载</button>`)+
+  R("顶栏按钮 36",s=>s==="dis"?`<span style="font-size:11px;color:var(--ink3)">—</span>`:s==="ld"?`<button class="ha pending" tabindex="-1" style="background:var(--canvas)">${g("globe")}<span class="pd"></span></button>`:`<button class="ha ${s}" tabindex="-1">${g("globe")}<span class="pd"></span></button>`)+
+  R("切换列表行",s=>s==="dis"||s==="ld"?`<span style="font-size:11px;color:var(--ink3)">—</span>`:`<button class="pr ${s==="on"?"cur":s}" tabindex="-1" style="min-height:40px">${tag("pdf",20)}<span class="pl"><span class="pt">Q3 简报</span></span>${s==="on"?ic("check"):""}</button>`);
+ $("#ftab").innerHTML=`<tr><th>格式标</th><th>类别（FileColors）</th><th>文件</th><th>规则</th></tr>`+[["pdf","Pdf","PDF"],["doc","Doc","DOC / DOCX / MD（Markdown 归入 Doc）"],["slides","Slides","PPT / PPTX"],["sheet","Data","XLS / XLSX / CSV"],["code","Code","PY / JS / CS / JSON 等"],["html","Web","HTML / 网页面板"],["image","Media","PNG / JPG / 图表"],["zip","Other","ZIP / 执行记录 / 纯文本 / 未知"]].map(([k,c,n])=>`<tr><td>${tag(k)} ${tag(k,36)}</td><td><code>${c}</code></td><td>${n}</td><td>浅色主题用 Text / Tint / Border；夜主题用 dark 三值。2–4 个字母，JetBrains Mono 700；尺寸 24 / 28 / 36，字号 8 / 9 / 11。</td></tr>`).join("");
+ $("#ctypes").innerHTML=`<tr><th>类型</th><th>阅读栏左</th><th>阅读栏右</th><th>画布</th><th>状态条</th><th>源码</th></tr>`+[["PDF / PPT 页面","‹ 页码 / 总数 ›","− 适应宽度 ▾ +","Sunken + 白纸，适应宽度","—","PdfPagePreviewView"],["Word","章节 ▾（多节时）","引用","Sunken + 白纸列（680）","阅读视图说明","OfficePreviewContentView"],["PPT 转换失败 / 文档提取","页面数说明","引用","面板底，阅读宽 680","页面预览未能生成 / 简化视图","DocumentContentView"],["Excel","工作表 ▾ · 尺寸","—","面板底，冻结表头","表格简化视图（解析通道）","TableContentView / Office 阅读"],["图片","像素尺寸","− 适应 ▾ +","Sunken，适应页面","缩放说明（如有）","ImagePreviewAdapter"],["代码 / 文本","分段 · 行区间","查找 · 引用","面板底 + 行号栏","截断说明（如有）","TextFileContentView"],["Markdown / HTML / JSON","阅读|源码 / 预览|源码 / 结构|源码","源码时查找 · 引用","面板底；HTML 预览为 WebView2","—","Markdown/Html/JsonContentView"],["压缩包","项数 · 解压后大小","解压并添加到对话","面板底，列表行 40","—","ArchiveDirectoryView"],["网页","后退 · 前进 · 刷新 · 地址栏","默认浏览器打开","WebView2","加载失败原因","WebDockPanel"],["执行记录","输出 / 命令 / 操作记录 / 原始记录","引用","面板底，Mono 13/21","—","TerminalOutputPanel"],["图表","节点数","− 适应面板 ▾ +","Sunken","—","DiagramRenderer"],["粘贴文本","行数","引用 · 复制全文","面板底，15/26","—","PastedTextPanel"],["加载 / 错误 / 空","—","—","面板底","—","FilePreviewPanel.Feedback"]].map(r=>`<tr>${r.map((x,i)=>`<td>${i===5?`<code>${x}</code>`:esc(x)}</td>`).join("")}</tr>`).join("");
+ $("#fbk").innerHTML=`<tr><th>类型</th><th>何时使用</th><th>位置与样式</th><th>寿命</th><th>例子</th></tr>`+[["状态条（流内）","说明当前视图本身的事实","阅读栏下方，随内容一起出现；中性 Sunken + Ink2，警告 WarningBackground + Ink","与当前文件共存","简化视图 · 交付后已修改 · 截断说明"],["请求条（浮层）","需要用户决定，或出错需要处理","底部距边 12，Raised + Line + 浮起阴影，圆角 10，主按钮为墨底","直到用户处理或被替换","AI 请求打开 · 另存失败"],["回执（浮层）","操作已完成的确认","底部居中，Ink 底 + OnSolid 字，34 高，圆角 8","2500 ms 后自动消失","已复制 · 已加入输入框 · 已添加附件"],["卡片内联提示","与某张左侧卡片相关","卡片内底部，WarningBackground","直到取消或执行","此文件在交付后已被修改"]].map(r=>`<tr>${r.map(x=>`<td>${x}</td>`).join("")}</tr>`).join("");
+ $("#resp").innerHTML=`<tr><th>条件</th><th>表现</th></tr>`+[["面板宽 ≥ 440","阅读栏完整：分页、缩放组（− 标签 +）、查找、引用"],["360 – 439","缩放组收为“适应宽度 ▾”下拉（含放大、缩小）；页码保留；对象栏不变"],["专注阅读","宽 = min(可用宽, 1040)；画布内边距 32；对话区 Scrim；Tab 在面板内循环；Esc 退出"],["叠层（maximum < 360）","面板铺满对话区；关闭 = 返回对话；不显示专注按钮"],["DPI","所有尺寸以 DIP 定义；发丝线始终为 1 物理像素（UseLayoutRounding）；验收按 900 / 840 DIP × 100 / 125 / 150 / 200% 记录物理像素"],["900 DIP","100% = 900 px，125% = 1125 px，150% = 1350 px，200% = 1800 px → 叠层"],["1280 DIP","停靠 504；专注 1040"]].map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("");
+ $("#kbd").innerHTML=`<tr><th>按键</th><th>行为</th><th>条件</th></tr>`+[["PageDown / PageUp / Home / End","翻页（瞬时）","焦点在画布、页数 > 1"],["Ctrl+= · Ctrl+- · Ctrl+0","放大 · 缩小 · 适应页面","PDF、图片"],["Ctrl+滚轮","每格 ×1.1，以视口中心为锚点","指针在画布上"],["Ctrl+F · Enter · Shift+Enter","查找 · 下一个 · 上一个","文本、代码、源码模式；IME 组合中不响应"],["Enter（有选区）","引用所选","焦点在画布"],["Esc","依次关闭：菜单 → 查找栏 → 专注阅读 → 面板","IME 组合中不响应"],["Tab 顺序","对象栏身份 → 专注 → ⋯ → 关闭 → 阅读栏 → 画布 → 浮层按钮","叠层与专注阅读时在面板内循环"],["焦点环","FocusRing 2 px，瞬时出现","所有可聚焦控件"],["打开时的焦点","用户发起：保持现状；AI 发起：不移动焦点","PreviewOpenOptions.TakeFocus"]].map(r=>`<tr>${r.map(x=>`<td>${x}</td>`).join("")}</tr>`).join("");
+ $("#copy").innerHTML=`<tr><th>场景</th><th>文案</th><th>位置</th></tr>`+[["空面板","点击回复中的文件，在这里查看内容","画布"],["加载 > 200 ms","正在准备预览 · 正在读取文件。大型文档首次打开需要几秒，之后会复用缓存。","画布"],["文件不存在","无法在这里预览 · 文件已移动或删除。对话中的记录仍然保留，但磁盘上找不到这个文件。","错误卡"],["不支持的格式","无法在这里预览 · 暂不支持预览此类型，可以用默认应用打开。","错误卡"],["转换失败","页面预览未能生成，当前为简化视图：只显示提取的文字，原排版、图片和图表未显示。","状态条"],["表格解析","表格简化视图：公式显示为文字、不会计算；点击单元格查看完整内容。","状态条"],["Word 阅读","阅读视图：按段落显示，原分页与页眉页脚可能与 Word 不同。","状态条"],["交付后已修改","正在显示文件的当前内容，与对话中该卡片交付时的内容不同。","状态条（警告）"],["AI 请求","AI 请求打开 {名称}（次行为完整地址）［打开］［忽略］","请求条"],["引用成功","已加入输入框（第 a–b 行），发送前可在引用卡里核对","回执"],["无选区引用","先选择文字，再引用到对话","ToolTip / 回执"],["附件","已添加到输入框；发送后才交给 AI 处理","回执"],["复制","文件路径已复制","回执"],["定位","（无文字，卡片高亮一次）","左侧卡片"],["另存失败","另存失败：没有此位置的写入权限 · 请换一个位置再试。","请求条（错误）"]].map(r=>`<tr><td>${r[0]}</td><td><b style="font-weight:500">${esc(r[1])}</b></td><td>${r[2]}</td></tr>`).join("");
+ $("#map").innerHTML=`<tr><th>设计组件</th><th>源码</th><th>处理方式</th></tr>`+[["面板外壳 / 对象栏","PanelShell · UniversalContentPanel","改造：身份区、三操作"],["阅读栏","PreviewToolbar · PreviewPagination · ContentViewModes","重排：左导航 / 右工具"],["专注阅读","ObjectPanelMetrics.Resolve · PreviewDockController.ResizeWebDock · TitleRowMirror","复用叠层路径 + 1040 上限"],["按钮","PreviewButtons.Style","改为 Token 绑定"],["格式标","FileFormatTile（UseCompactPalette=false）","左右统一 FileColors"],["状态条","新 PanelStatusStrip","新增（约 120 行）"],["请求条 / 回执","新 PanelNotice","新增（约 120 行）"],["页码浮标 / 缩放浮标","PreviewViewport 内 overlay","新增（小）"],["行号栏","TextFileContentView","新增独立 TextBlock"],["查找栏","TextFileContentView","新增"],["错误 / 加载 / 空","FilePreviewPanel.Feedback","改造"],["成果卡","DeliveryShelf.* · ConversationArtifactView · CompactArtifact","改造"],["切换列表","UniversalContentPanel.RebuildFiles","改造：按轮分组"],["网页面板","WebDockPanel · PreviewPanelFrame","改造：标题、阅读栏"],["执行记录","TerminalOutputPanel · ExecutionToolRecordBinding","改造：对象栏 + 页签"],["图表","PreviewDockController.Diagram","改用 PanelShell"],["阅读画布色","ThemeResources.PreviewCanvasBrush","改绑 Token"]].map(r=>`<tr><td>${r[0]}</td><td><code>${r[1]}</code></td><td>${r[2]}</td></tr>`).join("");
+}
+window.__spec=()=>{try{spec()}catch(e){console.error(e)}};
+
+/* ===== prompt & review ===== */
+function md(src){const il=s=>esc(s).replace(/`([^`]+)`/g,"<code>$1</code>").replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>");const L=src.split("\n");let h="",i=0;
+ while(i<L.length){const l=L[i];let m;
+  if(/^\|/.test(l)){const rows=[];while(i<L.length&&/^\|/.test(L[i])){rows.push(L[i]);i++}const cells=r=>r.replace(/^\||\|$/g,"").split("|").map(c=>c.trim());h+="<table><thead><tr>"+cells(rows[0]).map(c=>`<th>${il(c)}</th>`).join("")+"</tr></thead><tbody>"+rows.slice(2).map(r=>"<tr>"+cells(r).map(c=>`<td>${il(c)}</td>`).join("")+"</tr>").join("")+"</tbody></table>";continue}
+  if((m=l.match(/^(#{1,3})\s+(.*)/))){h+=`<h${m[1].length}>${il(m[2])}</h${m[1].length}>`;i++;continue}
+  if(/^\s*([-*]|\d+\.)\s+/.test(l)){const o=/^\d+\./.test(l.trim());let b="";while(i<L.length&&/^\s*([-*]|\d+\.)\s+/.test(L[i])){const ind=L[i].match(/^\s*/)[0].length;b+=`<li class="${ind>=2?"l2":""}">${il(L[i].replace(/^\s*([-*]|\d+\.)\s+/,""))}</li>`;i++}h+=o?`<ol>${b}</ol>`:`<ul>${b}</ul>`;continue}
+  if(!l.trim()){i++;continue}h+=`<p>${il(l)}</p>`;i++}return h}
+const src=$("#psrc").textContent.replace(/^\n/,"");
+$("#pv").innerHTML=md(src);$("#pst").textContent=`约 ${src.length.toLocaleString()} 字符 · Markdown`;
+const dt=t=>{const e=$("#dt");e.textContent=t;e.classList.add("on");setTimeout(()=>e.classList.remove("on"),1800)};
+$("#cpy").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(src);dt("已复制提示词全文")}catch(e){const ta=document.createElement("textarea");ta.value=src;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");dt("已复制提示词全文")}catch(_){dt("复制失败，请手动选择")}ta.remove()}});
+$("#dl").addEventListener("click",()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([src],{type:"text/markdown;charset=utf-8"}));a.download="23Hertz_右侧工作区R1_v3_Codex开工提示词.md";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)});
+$("#rv").innerHTML=md(`以真实用户视角逐页复看后，下面这些问题仍然存在，或必须在施工时盯住：
+
+- **窄面板下 PDF 正文仍然偏小**：504 DIP 面板适应宽度时，10.5 pt 正文约 7.8 DIP。这是物理限制，设计用“专注阅读”解决，而不是放大假页面。施工时必须确认专注阅读的入口足够显眼（对象栏第一个操作）。
+- **高倍缩放会发糊**：PdfPagePreviewView 按固定分辨率栅格化，放大后会模糊。本轮只如实保留，已列入延后项，不要用 CSS 式放大掩盖。
+- **夜主题下纸页仍是白色**：这是文件的真实外观，刻意不反色；画布改用 SurfacePage 来降低刺眼感。如果用户反馈刺眼，后续可评估“降低纸页亮度”的可选项，本轮不做。
+- **左侧侧栏底色（SurfaceRail #F6F5F2）略暖**：属于冻结的左右色差，本轮不得修改；右侧画布已改为冷中性的 SurfaceSunken，避免整体发黄。
+- **引用入口仍需两步**：先选字，再点或按 Enter。“划选后在选区旁浮出按钮”更快，但需要选区坐标追踪，风险偏高，列为后续。
+- **“在对话中定位”依赖会话目录的轮次跳转**：如果虚拟化列表无法可靠滚动到目标，必须不提供该项，而不是滚动到大致位置。
+- **字体**：本 HTML 通过网络加载 Inter / Noto Sans SC / JetBrains Mono；离线打开会退回系统字体，观感略有差异，以软件内置字体为准。
+- **无法在 HTML 中真实模拟的部分**：WebView2 网页内容、PDF 栅格化清晰度、IME 组合、物理 DPI。效果稿只示意布局，验收必须在真实客户端完成。`);
+
+/* ===== boot ===== */
+applyTheme(store.get("hz-v2-theme")||"system");
+scenarios();motion();spec();
+S.jump=3;render({keep:false});
+})();
+</script>
+</body>
+</html>
