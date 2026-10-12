@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>右侧工作区改进对照表</title>
+<meta name="description" content="23Hertz 右侧工作区：上一版效果稿的 UI 问题、成因、新版方案与验收方式逐项对照">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;600&display=swap">
+<style>
+:root{--page:#FAFAF8;--canvas:#FFFFFF;--sunken:#F1F1F3;--ink:#19191C;--ink2:#4E4E56;--ink3:#606069;--hair:rgba(26,24,21,.07);--line:rgba(26,24,21,.133);--focus:#245BCD;--link:#2463A6;--warn:#8F6009;--ok:#14795D;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--page:#121110;--canvas:#1B1B1F;--sunken:#242429;--ink:#F3F3F6;--ink2:#D3D3DA;--ink3:#BDBDC7;--hair:rgba(244,242,238,.07);--line:rgba(244,242,238,.12);--focus:#8DB7FF;--link:#7DB7F0;--warn:#D6A55C;--ok:#46B58A;color-scheme:dark}}
+:root[data-theme="dark"]{--page:#121110;--canvas:#1B1B1F;--sunken:#242429;--ink:#F3F3F6;--ink2:#D3D3DA;--ink3:#BDBDC7;--hair:rgba(244,242,238,.07);--line:rgba(244,242,238,.12);--focus:#8DB7FF;--link:#7DB7F0;--warn:#D6A55C;--ok:#46B58A;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font:14px/1.65 "Inter","Noto Sans SC","Segoe UI","Microsoft YaHei UI",sans-serif}
+.wrap{max-width:1280px;margin:0 auto;padding:48px 32px 64px}
+h1{font-size:28px;line-height:1.25;margin:0 0 10px;font-weight:650;letter-spacing:-.01em}
+p.l{color:var(--ink2);margin:0 0 8px;max-width:880px}
+.meta{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 28px}
+.meta span,.meta a{font-size:12px;padding:3px 10px;border-radius:99px;border:1px solid var(--line);color:var(--ink2);background:var(--canvas);text-decoration:none}
+.meta a:hover{color:var(--ink)}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.filters button{height:30px;padding:0 12px;border-radius:8px;border:1px solid var(--hair);background:var(--canvas);color:var(--ink2);font:inherit;font-size:13px;cursor:pointer}
+.filters button[aria-pressed="true"]{background:var(--ink);color:var(--page);border-color:var(--ink)}
+.filters button:focus-visible{outline:none;box-shadow:0 0 0 2px var(--focus)}
+.tw{overflow-x:auto;border:1px solid var(--hair);border-radius:12px;background:var(--canvas)}
+table{width:100%;border-collapse:collapse;font-size:13px;line-height:1.6;min-width:980px}
+th{text-align:left;font-size:12px;font-weight:600;color:var(--ink2);background:var(--sunken);position:sticky;top:0}
+th,td{padding:10px 14px;border-bottom:1px solid var(--hair);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td:first-child{color:var(--ink3);font-variant-numeric:tabular-nums;white-space:nowrap}
+td b{font-weight:600}
+.cat{display:inline-block;font-size:11px;padding:0 7px;line-height:18px;border-radius:99px;border:1px solid var(--line);color:var(--ink2);white-space:nowrap;margin-top:4px}
+.r{display:inline-block;font-size:11px;padding:0 7px;line-height:18px;border-radius:99px;white-space:nowrap;color:var(--link);border:1px solid color-mix(in srgb,var(--link) 40%,transparent)}
+code{font-family:"JetBrains Mono",Consolas,monospace;font-size:12px;background:var(--sunken);padding:1px 5px;border-radius:4px}
+.foot{margin-top:24px;font-size:12px;color:var(--ink3)}
+@media (max-width:640px){.wrap{padding:32px 16px 48px}h1{font-size:23px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>旧版 UI 问题与新版设计改进对照表</h1>
+  <p class="l">对象：上一版交付的《23Hertz_右侧工作区R1_效果稿与开工提示词.html》（已被否决）。每一项都写明问题、产生原因、新版方案和验收方式；新版方案对应《23Hertz_右侧工作区R1_v2_文档工作台设计交付.html》中的章节和工程项。</p>
+  <div class="meta"><span>2026-10-12</span><span id="count"></span><a href="23Hertz_右侧工作区R1_v2_文档工作台设计交付.html">打开新版设计交付 ↗</a></div>
+  <div class="filters" id="flt" role="group" aria-label="分类筛选"></div>
+  <div class="tw"><table><thead><tr><th>#</th><th style="width:20%">旧版问题</th><th style="width:20%">产生原因</th><th style="width:28%">新版方案</th><th style="width:20%">验收方式</th><th>工程项</th></tr></thead><tbody id="tb"></tbody></table></div>
+  <div class="foot">仅设计交付。验收方式中的“真实客户端”项目必须在隔离候选上实测，本表不代表任何一项已通过。</div>
+</div>
+<script>
+const R=[
+["配色","整体偏米黄、暖灰，画布浑浊（#ECEBE7 画布、#F4F4F2 页底、#F1F0EC 侧栏）","以上一版自己调的颜色为基准，没有读取真实 ThemePalette；同时把 PreviewCanvasBrush 的暖灰 #F3F3F1 当成了设计方向","全部颜色由 ThemePalette 四套主题（宣 / 夜 / 霁 / 素）驱动；阅读画布改绑 SurfaceSunken（浅色）/ SurfacePage（夜）；HTML 中颜色与真实 Token 同源","四主题下逐项截图与 v2 第 3.1 节对照；源码中不再出现写死的画布色","R1-11"],
+["配色","深色只是简单反转","没有单独设计夜主题的层级关系","夜主题单独设计：画布比面板更深（SurfacePage），纸页保持白色但只用描边、不用阴影，浮层阴影加深","夜主题截图对照；纸页与画布对比舒适、无刺眼光晕","R1-11"],
+["配色","文件格式色两套：左侧卡片饱和（CompactArtifactInk），右侧另一套，同一文件颜色不同","两个组件各自引用不同色板","统一使用 UnifiedUiTokens.FileColors 的 Text / Tint / Border，并设计“格式标”（浅底、细边、等宽缩写）","同一文件在左卡片、右头部、切换列表中颜色一致","R1-02 · R1-05"],
+["阅读","PDF 页面过小，大片画布浪费","两层缩放叠加：外层原型缩放到约 0.7，内部又适应宽度；再加上画布内边距 24","效果稿提供 100% 与 200% 预览；画布内边距 24→20，页距 24→16；新增“专注阅读”（最宽 1040），页宽从约 456 增到约 968","100% 预览下页宽为 456 DIP（1280 窗口）；专注阅读下为 968；真实客户端测量页宽","R1-11 · R1-05"],
+["阅读","“展开”按钮在常见窗口下不起作用","ObjectPanelMetrics.Resolve 中 expanded 宽度 = maximum，而 1280 / 1440 窗口下 maximum 正好等于默认宽度","用“专注阅读”取代：复用现有叠层路径，宽度 = min(可用宽, 1040)，对话区加遮罩，Esc 退出","FocusReadingLayoutChecks；1280 / 1440 窗口实测宽度变化","R1-05"],
+["阅读","缩放显示“72%”，用户不知道含义","直接显示内部缩放比例","缩放标签显示模式名：适应宽度 / 适应页面 / 实际大小；手动缩放时才显示百分比；ToolTip 始终显示精确值","标签与当前模式一致；菜单中当前模式打勾","R1-11"],
+["阅读","翻页没有连续感，看不出自己读到哪页","页码只在顶部工具栏","滚动时画布底部出现页码浮标（入 120 · 停 800 · 出 200 ms）；翻页瞬时跳转，避免栅格化中间页","动效稿 M4；真实客户端滚动观察","R1-11"],
+["阅读","PDF 示意页是灰条，无法判断真实可读性","用装饰线条代替文字","示意页使用真实字号（10.5 pt 正文按页宽换算），如实呈现窄面板下文字偏小，并用专注阅读解决","100% 预览下肉眼可读性判断；复审章节如实说明","—"],
+["阅读","代码没有行号，引用提示“第 42–48 行”却无法对照","TextFileContentView 没有行号栏","新增独立行号栏：Ink4、等宽、右对齐、不参与复制；选区所在行号加深","引用卡行号与行号栏一致；复制内容不含行号","R1-03"],
+["头部","头部 5–6 个图标同等权重，没有主次","把所有操作平铺在头部","对象栏只保留三个窗口操作（专注、更多、关闭）；导航和阅读工具移到阅读栏；低频操作收进 ⋯","对象栏按钮数 = 3；ContentPanelProbe","R1-05"],
+["头部","引用图标像汉字“刀”","沿用旧几何（两个折线）","重新设计“引用到对话”：一对引号 + 两条文字线；有选区时变为墨底“引用所选 ↵”","200% 特写检查；用户辨识测试","R1-05 · R1-06"],
+["头部","文件名换行导致头部高度跳动","UniversalContentPanel 设置了 TextWrapping=Wrap","单行中部省略（MiddleEllipsisTextBlock），扩展名始终可见，完整名称放 ToolTip","切换长短文件名时头部高度恒为 56","R1-05"],
+["头部","执行记录头部有失效的“切换会话文件”下拉，“关闭”还是文字按钮","TerminalOutputPanel 复用文件头部却从不调用 SetIdentity","执行记录、图表、网页、粘贴文本统一使用对象栏 + 阅读栏；只有文件数 ≥2 时身份区才可点击","四类面板截图对照","R1-05"],
+["头部","顶栏网页 / 文件与改动按钮看不出是否已打开","没有激活态","打开时使用 AccentBackground；AI 请求被暂缓时显示 6 px 墨点","顶栏状态与面板一致","R1-05 · R1-04"],
+["工具","阅读 / 源码切换单独占一行，与头部割裂","面板宽度小于 600 时被挤到独立一行","阅读栏统一布局：左侧放导航（分页、工作表、阅读|源码、页签、地址栏），右侧放工具（查找、引用、缩放）","各内容类型阅读栏符合 v2 第 3.8 节","R1-05"],
+["工具","窄面板下工具拥挤","没有收纳规则","面板 <440 时缩放组收为“适应宽度 ▾”下拉，内含放大、缩小；对象栏不变","360–439 DIP 下关键操作可达","R1-05"],
+["工具","按钮颜色写死（#12777777 等），焦点只靠灰底","PreviewButtons.Style 自带颜色","全部绑定 Token：hover = Ink 4%，按下 = SurfaceStrong，选中 = AccentBackground，焦点 = FocusRing 2 px，禁用 = Ink5","状态矩阵对照 v2 第 3.6 节；键盘巡检","R1-05"],
+["反馈","通知插在正文中，挤压内容且永不消失","_notice 位于正文 Grid 行内","三类反馈：状态条（流内，说明视图本身）、请求条（底部，需要决定）、回执（墨底，2.5 秒后自动消失）","正文首行 Bounds.Y 不变；回执自动消失","R1-00"],
+["反馈","保真说明（简化视图）藏在 ⋯ 菜单","把说明当作菜单里的信息","移到状态条，随内容一起出现并给出“用默认应用打开”","转换失败、表格、Word 阅读三种状态条文案准确","R1-06"],
+["反馈","加载时闪一下加载卡片","每次切换都立即显示加载卡片","加载线立即出现，加载卡片 200 ms 后才出现，期间画布保持空白、不残留旧文件","快 / 慢两种加载实测；动效稿 M2、M3","R1-06"],
+["反馈","错误卡标题 18 号，层级过重","使用 UiPanelTitleSize","错误卡 15/22 + 原因 13/20 + 路径 Mono 12；按钮“重新加载”“复制文件路径”","错误场景截图","R1-06"],
+["协同","AI 请求会打断阅读、抢走焦点","OpenWebLinkAsync 关闭文件预览；FilePreviewPanel 执行 _close.Focus()","请求条 + 顶栏墨点；Agent 发起的打开不移动焦点；工作区外路径不自动弹确认","S06：阅读与 IME 不被打断","R1-04"],
+["协同","主动关闭后又被 AI 重新打开","没有关闭意图","本轮关闭意图只存内存；下一条用户消息后清除","S07","R1-04"],
+["协同","卡片与右侧面板关联弱","只有 3 px 选中标记","卡片元信息追加“· 正在右侧查看”，边框加深；⋯ 菜单“在对话中定位”让卡片高亮一次","选中与定位实测；高亮不循环","R1-02 · R1-12"],
+["协同","文件切换列表平铺，同名文件无法区分","按对话顺序平铺","按轮分组（本轮 / 更早），每行显示格式标、名称、目录，当前项打勾","切换后标题、内容、卡片三者一致","R1-12 · R1-05"],
+["协同","已修改文件的卡片点击无反应","核验失败后静默返回","卡片内联提示 + 打开后显示警告状态条，绝不标成“该卡片版本”","S05","R1-02"],
+["字体","字号 12 / 13 / 14 / 15 / 18 混杂","各组件自行设置字号","统一字阶：15/20 标题、12/16 元信息、13/20 工具与反馈、15/26 阅读正文、13/21 代码；字体为 Inter + Noto Sans SC、JetBrains Mono","v2 第 3.3 节；代码中不再出现规范外字号","R1-05 · R1-06"],
+["字体","次级文字过淡","使用透明度较高的灰","所有文字组合实时计算 WCAG 对比度并标注是否达标；Ink5 只用于图标","v2 第 3.2 节表格","—"],
+["结构","容器嵌套：面板里再套卡片、描边和胶囊","为了显得“高级”而堆砌装饰","纸 · 墨 · 台：面板只有一层，内容直接放在画布上；圆角只有 6 / 8 / 10 / 12 四档","截图中面板内无卡片嵌套","R1-05"],
+["动效","只有 3 个演示，且没有考虑 WebView2","只用文字描述动效","10 个可操作动效（M1–M10），附触发、属性、时长、缓动、取消规则和减少动态效果处理；面板宽度一律瞬时变化","动效稿逐项操作；减少动态效果开启后全部为 0 ms","R1-00 · R1-11"],
+["预览","效果稿只能缩放查看，细节被误判","外层 transform 缩放","提供“适应 / 100% / 200% 特写”三种比例，100% 与真实 DIP 一一对应","100% 模式下与真实客户端同尺寸截图对比","—"]
+];
+const cats=["全部",...new Set(R.map(r=>r[0]))];let cur="全部";
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function render(){
+ document.getElementById("flt").innerHTML=cats.map(c=>`<button aria-pressed="${c===cur}" data-c="${c}">${c}${c==="全部"?"":" · "+R.filter(r=>r[0]===c).length}</button>`).join("");
+ const rows=R.map((r,i)=>[i+1,...r]).filter(r=>cur==="全部"||r[1]===cur);
+ document.getElementById("tb").innerHTML=rows.map(r=>`<tr><td>${String(r[0]).padStart(2,"0")}<br><span class="cat">${r[1]}</span></td><td><b>${esc(r[2])}</b></td><td>${esc(r[3])}</td><td>${esc(r[4])}</td><td>${esc(r[5])}</td><td>${r[6]==="—"?"—":r[6].split(" · ").map(x=>`<span class="r">${x}</span>`).join(" ")}</td></tr>`).join("");
+ document.getElementById("count").textContent=`共 ${R.length} 项`;
+}
+document.getElementById("flt").addEventListener("click",e=>{const b=e.target.closest("[data-c]");if(b){cur=b.dataset.c;render()}});
+render();
+</script>
+</body>
+</html>
