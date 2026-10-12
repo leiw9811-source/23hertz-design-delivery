@@ -1,0 +1,1607 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>23Hertz 右侧工作区 R1</title>
+<meta name="description" content="23Hertz 右侧工作区第一轮低中风险改进：交互效果稿、动效稿、设计规范与 Codex 统一开工提示词">
+<style>
+:root{
+  --font:"Segoe UI Variable Text","Segoe UI","Microsoft YaHei UI","PingFang SC","Hiragino Sans GB",system-ui,sans-serif;
+  --mono:"Cascadia Mono","Cascadia Code",Consolas,"Microsoft YaHei UI",monospace;
+  --ease:cubic-bezier(.215,.61,.355,1);
+  --dur:120ms;
+  color-scheme:light;
+  --doc-bg:#F4F4F2;--doc-card:#FFFFFF;--doc-line:#E6E5E1;--doc-ink:#151312;--doc-ink2:#5B5954;--doc-ink3:#8C8A85;
+  --page:#FAFAF8;--rail:#F1F0EC;--panel:#FFFFFF;--raised:#FFFFFF;--sunken:#F3F2EF;--strong:#EAE9E5;
+  --ink:#151312;--ink2:rgba(26,24,21,.72);--ink3:rgba(26,24,21,.48);--hair:#E6E6E4;--hair2:rgba(18,18,21,.07);
+  --hover:rgba(26,24,21,.045);--pressed:#EAE9E5;--selected:rgba(26,24,21,.08);
+  --focus:#245BCD;--ring:0 0 0 2px #2A5BD7;
+  --partial:#9A6A12;--failed:#A33B32;--verified:#14795D;
+  --canvas:#ECEBE7;--scrim:rgba(0,0,0,.24);
+  --shadow-float:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.07);
+  --run:#E8590C;
+  --kw:#3D5AA8;--str:#2E7568;--num:#8A6212;--com:rgba(26,24,21,.45);
+  --sel:rgba(36,91,205,.14);--hit:rgba(224,190,114,.42);--hitcur:rgba(214,150,40,.78);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --doc-bg:#121211;--doc-card:#1A1A19;--doc-line:#2C2C2A;--doc-ink:#F2EFE9;--doc-ink2:#B9B6AF;--doc-ink3:#85827C;
+    --page:#1D1D1C;--rail:#171716;--panel:#222227;--raised:#27272B;--sunken:#2B2B30;--strong:#35353B;
+    --ink:#F2EFE9;--ink2:rgba(242,239,233,.72);--ink3:rgba(242,239,233,.46);--hair:#38383D;--hair2:rgba(255,255,255,.07);
+    --hover:rgba(255,255,255,.055);--pressed:#35353B;--selected:rgba(255,255,255,.09);
+    --focus:#7AA2FF;--ring:0 0 0 2px #7AA2FF;
+    --partial:#E0BE72;--failed:#EC9A8F;--verified:#65C7A0;
+    --canvas:#18181B;--scrim:rgba(0,0,0,.45);
+    --shadow-float:0 1px 2px rgba(0,0,0,.25),0 8px 24px rgba(0,0,0,.28);
+    --kw:#9DB3EE;--str:#7CC8B7;--num:#E0BE72;--com:rgba(242,239,233,.42);
+    --sel:rgba(122,162,255,.22);--hit:rgba(224,190,114,.30);--hitcur:rgba(224,170,70,.72);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --doc-bg:#121211;--doc-card:#1A1A19;--doc-line:#2C2C2A;--doc-ink:#F2EFE9;--doc-ink2:#B9B6AF;--doc-ink3:#85827C;
+  --page:#1D1D1C;--rail:#171716;--panel:#222227;--raised:#27272B;--sunken:#2B2B30;--strong:#35353B;
+  --ink:#F2EFE9;--ink2:rgba(242,239,233,.72);--ink3:rgba(242,239,233,.46);--hair:#38383D;--hair2:rgba(255,255,255,.07);
+  --hover:rgba(255,255,255,.055);--pressed:#35353B;--selected:rgba(255,255,255,.09);
+  --focus:#7AA2FF;--ring:0 0 0 2px #7AA2FF;
+  --partial:#E0BE72;--failed:#EC9A8F;--verified:#65C7A0;
+  --canvas:#18181B;--scrim:rgba(0,0,0,.45);
+  --shadow-float:0 1px 2px rgba(0,0,0,.25),0 8px 24px rgba(0,0,0,.28);
+  --kw:#9DB3EE;--str:#7CC8B7;--num:#E0BE72;--com:rgba(242,239,233,.42);
+  --sel:rgba(122,162,255,.22);--hit:rgba(224,190,114,.30);--hitcur:rgba(224,170,70,.72);
+}
+:root.reduce{--dur:0ms}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+:root.reduce,:root.reduce *{scroll-behavior:auto!important}
+body{margin:0;background:var(--doc-bg);color:var(--doc-ink);font:14px/1.65 var(--font);-webkit-font-smoothing:antialiased}
+button,input{font:inherit;color:inherit}
+a{color:inherit}
+.wrap{max-width:1360px;margin:0 auto;padding:0 32px}
+/* ---------- document chrome ---------- */
+.top{position:sticky;top:0;z-index:100;background:color-mix(in srgb,var(--doc-bg) 86%,transparent);backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid var(--doc-line)}
+.top .wrap{display:flex;align-items:center;gap:20px;height:56px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:.01em;white-space:nowrap}
+.brand i{width:22px;height:22px;border-radius:6px;background:var(--doc-ink);display:grid;place-items:center}
+.brand i::before{content:"";width:10px;height:10px;border:2px solid var(--doc-bg);border-radius:50%;border-right-color:transparent;transform:rotate(-45deg)}
+.nav{display:flex;gap:2px;margin-left:8px;overflow-x:auto;scrollbar-width:none}
+.nav a{text-decoration:none;color:var(--doc-ink2);padding:6px 12px;border-radius:8px;font-size:13px;white-space:nowrap}
+.nav a:hover{background:var(--hover);color:var(--doc-ink)}
+.nav a b{font-weight:500;color:var(--doc-ink3);margin-right:6px;font-variant-numeric:tabular-nums}
+.tools{margin-left:auto;display:flex;gap:6px;align-items:center}
+.seg{display:inline-flex;padding:2px;border-radius:9px;background:var(--sunken)}
+.seg button{border:0;background:transparent;height:28px;padding:0 10px;border-radius:7px;font-size:12px;color:var(--doc-ink2);cursor:pointer;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--doc-card);color:var(--doc-ink);box-shadow:0 0 0 1px var(--doc-line)}
+.seg button:focus-visible,.btn:focus-visible,.chipbtn:focus-visible{outline:none;box-shadow:var(--ring)}
+.hero{padding:56px 0 28px}
+.eyebrow{font-size:12px;letter-spacing:.08em;color:var(--doc-ink3);text-transform:uppercase}
+.hero h1{font-size:34px;line-height:1.25;margin:10px 0 12px;font-weight:650;letter-spacing:-.01em}
+.hero p{max-width:820px;color:var(--doc-ink2);margin:0}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.meta span{font-size:12px;padding:3px 10px;border-radius:999px;border:1px solid var(--doc-line);color:var(--doc-ink2);background:var(--doc-card)}
+.meta span b{font-weight:600;color:var(--doc-ink)}
+section.blk{padding:40px 0 24px;scroll-margin-top:64px}
+.sh{display:flex;align-items:baseline;gap:14px;margin-bottom:6px}
+.sh .no{font-size:13px;color:var(--doc-ink3);font-variant-numeric:tabular-nums}
+.sh h2{font-size:24px;margin:0;font-weight:640;letter-spacing:-.005em}
+.lede{color:var(--doc-ink2);margin:0 0 22px;max-width:860px}
+h3{font-size:16px;margin:30px 0 10px;font-weight:620}
+h3 small{font-weight:400;color:var(--doc-ink3);margin-left:8px;font-size:12px}
+.card-d{background:var(--doc-card);border:1px solid var(--doc-line);border-radius:14px}
+.tw{overflow-x:auto;border:1px solid var(--doc-line);border-radius:12px;background:var(--doc-card)}
+table.spec{width:100%;border-collapse:collapse;font-size:13px;line-height:1.55}
+table.spec th{text-align:left;font-weight:600;color:var(--doc-ink2);background:var(--sunken);font-size:12px}
+table.spec th,table.spec td{padding:9px 14px;border-bottom:1px solid var(--doc-line);vertical-align:top}
+table.spec tr:last-child td{border-bottom:0}
+table.spec code,.inl{font-family:var(--mono);font-size:12px;background:var(--sunken);padding:1px 5px;border-radius:5px;white-space:nowrap}
+.btn{height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--doc-line);background:var(--doc-card);cursor:pointer;font-size:13px;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{background:var(--sunken)}
+.btn.pri{background:var(--doc-ink);color:var(--doc-bg);border-color:var(--doc-ink)}
+.btn.pri:hover{opacity:.9}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.pill{display:inline-block;font-size:11px;padding:1px 7px;border-radius:999px;border:1px solid var(--doc-line);color:var(--doc-ink2);margin-right:4px;white-space:nowrap}
+.pill.new{border-color:color-mix(in srgb,var(--focus) 40%,transparent);color:var(--focus)}
+.pill.keep{color:var(--verified);border-color:color-mix(in srgb,var(--verified) 35%,transparent)}
+.foot{padding:40px 0 60px;color:var(--doc-ink3);font-size:12px}
+/* ---------- stage ---------- */
+.stage{display:grid;grid-template-columns:260px minmax(0,1fr);gap:20px;align-items:start}
+.scen{position:sticky;top:76px;display:flex;flex-direction:column;gap:2px;padding:8px;background:var(--doc-card);border:1px solid var(--doc-line);border-radius:14px}
+.scen .lbl{font-size:11px;color:var(--doc-ink3);padding:8px 10px 4px;letter-spacing:.06em}
+.chipbtn{display:flex;flex-direction:column;align-items:flex-start;gap:1px;text-align:left;border:0;background:transparent;border-radius:9px;padding:8px 10px;cursor:pointer}
+.chipbtn:hover{background:var(--hover)}
+.chipbtn[aria-pressed="true"]{background:var(--selected)}
+.chipbtn span{font-size:13px;font-weight:500;line-height:1.4}
+.chipbtn em{font-style:normal;font-size:11px;color:var(--doc-ink3);font-variant-numeric:tabular-nums}
+.stagebar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.stagebar .sp{flex:1}
+.toggle{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--doc-ink2);cursor:pointer;user-select:none}
+.toggle input{appearance:none;width:30px;height:18px;border-radius:999px;background:var(--strong);position:relative;cursor:pointer;margin:0;transition:background var(--dur) var(--ease)}
+.toggle input::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--doc-card);box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform var(--dur) var(--ease)}
+.toggle input:checked{background:var(--doc-ink)}
+.toggle input:checked::after{transform:translateX(12px)}
+.toggle input:focus-visible{outline:none;box-shadow:var(--ring)}
+.fit{width:100%;position:relative}
+.caption{margin-top:14px;padding:16px 18px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px}
+.caption h4{margin:0 0 4px;font-size:12px;color:var(--doc-ink3);font-weight:500;letter-spacing:.04em}
+.caption p{margin:0;font-size:13px;color:var(--doc-ink2)}
+.caption .ttl{grid-column:1/-1;font-weight:600;font-size:15px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+/* ---------- mock app ---------- */
+.mock{position:absolute;left:0;top:0;transform-origin:0 0;width:1440px;height:880px;border-radius:12px;overflow:hidden;background:var(--page);color:var(--ink);font:13px/1.5 var(--font);box-shadow:0 0 0 1px var(--hair),0 24px 70px rgba(0,0,0,.14);--pw:488px}
+.mock *{transition-timing-function:var(--ease)}
+.ic{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;overflow:visible}
+.ic.g20{width:20px;height:20px}
+.m-title{position:absolute;left:0;right:0;top:0;height:40px;display:flex;align-items:center;background:var(--rail);font-size:12px;color:var(--ink3);z-index:5}
+.m-title .t{padding-left:16px;flex:1}
+.m-title .mirror{height:100%;width:calc(var(--pw) + 4px);background:var(--panel);display:flex;justify-content:flex-end;align-items:center}
+.mock.closed .m-title .mirror,.mock.overlay .m-title .mirror{width:auto;background:transparent}
+.wc{display:flex;height:40px}
+.wc span{width:46px;display:grid;place-items:center;color:var(--ink2)}
+.wc svg{width:10px;height:10px;stroke:currentColor;stroke-width:1;fill:none}
+.m-body{position:absolute;top:40px;left:0;right:0;bottom:0;display:flex}
+.m-rail{width:236px;flex:none;background:var(--rail);padding:6px 10px;display:flex;flex-direction:column;gap:2px}
+.m-rail .newc{height:36px;border-radius:10px;border:1px solid var(--hair);background:var(--raised);display:flex;align-items:center;gap:8px;padding:0 12px;font-size:13px;margin:4px 0 14px;color:var(--ink)}
+.m-rail .sec{font-size:12px;color:var(--ink3);padding:8px 10px 4px}
+.ri{height:36px;border-radius:8px;display:flex;align-items:center;padding:0 10px;font-size:13px;border:0;background:transparent;text-align:left;cursor:pointer;gap:8px;white-space:nowrap;overflow:hidden}
+.ri:hover{background:var(--hover)}
+.ri.on{background:var(--selected);font-weight:500}
+.ri .run{width:6px;height:6px;border-radius:50%;background:var(--run);flex:none}
+.mock.overlay .m-rail{width:56px;padding:6px 8px;align-items:center}
+.mock.overlay .m-rail>*:not(.mini){display:none}
+.m-rail .mini{display:none;width:36px;height:36px;border-radius:10px;place-items:center;color:var(--ink2)}
+.mock.overlay .m-rail .mini{display:grid}
+.mock.overlay .m-rail .mini.on{background:var(--selected);color:var(--ink)}
+.m-main{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--page);position:relative}
+.m-head{height:52px;flex:none;display:flex;align-items:center;padding:0 18px 0 24px;gap:16px}
+.m-head .tt{flex:1;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-head .grp{display:flex;align-items:center;gap:2px}
+.th{height:36px;min-width:36px;padding:0 8px;border-radius:10px;border:0;background:transparent;color:var(--ink2);display:inline-flex;align-items:center;justify-content:center;gap:7px;font-size:12px;position:relative;cursor:pointer;transition:background var(--dur),color var(--dur)}
+.th:hover{background:var(--sunken);color:var(--ink)}
+.th:active{background:var(--strong)}
+.th:focus-visible{outline:none;box-shadow:inset 0 0 0 1.5px var(--focus)}
+.th.on{background:var(--selected);color:var(--ink)}
+.th .dot{position:absolute;left:23px;top:7px;width:6px;height:6px;border-radius:50%;background:var(--ink);box-shadow:0 0 0 1.5px var(--page);opacity:0;transition:opacity var(--dur) var(--ease)}
+.th.pending .dot{opacity:1}
+.ring{width:18px;height:18px}
+.hsep{width:1px;height:14px;background:var(--hair);margin:0 5px}
+.m-trans{flex:1;overflow:auto;padding:6px 36px 28px;scrollbar-width:thin}
+.m-col{max-width:640px;margin:0 auto}
+.u{display:flex;justify-content:flex-end;margin:22px 0 12px}
+.u div{max-width:76%;background:var(--sunken);border-radius:16px;padding:9px 14px;font-size:15px;line-height:24px}
+.a{font-size:15px;line-height:26px;margin:6px 0 4px}
+.tool-row{font-size:13px;color:var(--ink2);display:flex;align-items:center;gap:8px;margin:8px 0}
+.tool-row .ic{width:14px;height:14px}
+.changes{font-size:14px;color:var(--ink);margin:12px 0 4px;display:flex;gap:10px;align-items:center}
+.changes em{font-style:normal;color:var(--ink3);font-size:13px}
+.changes .add{color:#3F7A56}.changes .del{color:#A24A3F}
+.card{width:440px;border:1px solid var(--hair);border-radius:11px;background:var(--raised);position:relative;margin-top:8px;transition:background var(--dur)}
+.card:hover{background:var(--sunken)}
+.crow{display:flex;align-items:center;padding-right:8px}
+.copen{flex:1;min-width:0;display:flex;align-items:center;gap:12px;padding:11px 14px;border:0;background:transparent;text-align:left;cursor:pointer;border-radius:11px}
+.copen:focus-visible{outline:none;box-shadow:var(--ring)}
+.cthumb{width:36px;height:36px;border-radius:8px;display:grid;place-items:center;flex:none}
+.clbl{min-width:0;display:flex;flex-direction:column;gap:3px}
+.ctitle{font-size:16px;line-height:22px;font-weight:500;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-all}
+.cmeta{font-size:14px;line-height:20px;color:var(--ink2)}
+.cmeta .st-partial{color:var(--partial)}.cmeta .st-failed{color:var(--failed)}
+.card .mark{position:absolute;left:2px;top:50%;width:3px;height:20px;margin-top:-10px;border-radius:2px;background:var(--ink);opacity:0;transition:opacity var(--dur)}
+.card.sel .mark{opacity:1}
+.cnote{margin:0 12px 12px;padding:10px 12px;border-radius:8px;background:var(--sunken);display:flex;gap:10px;font-size:13px;line-height:20px;animation:nin var(--dur) var(--ease)}
+.cnote .ic{width:14px;height:14px;margin-top:3px;color:var(--partial)}
+.cnote .acts2{display:flex;gap:14px;margin-top:6px;flex-wrap:wrap}
+.lnk{border:0;background:none;padding:0;font-size:13px;font-weight:500;color:var(--ink);cursor:pointer;text-underline-offset:3px}
+.lnk:hover{text-decoration:underline}
+.lnk:focus-visible{outline:none;box-shadow:var(--ring);border-radius:3px}
+.lnk.q{color:var(--ink2);font-weight:400}
+.m-comp{flex:none;padding:0 36px 20px}
+.cbox{max-width:640px;margin:0 auto;background:var(--raised);border:1px solid var(--hair);border-radius:18px;box-shadow:0 1px 2px rgba(0,0,0,.04),0 6px 18px rgba(0,0,0,.05);padding:10px 10px 8px 16px;position:relative}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.chips:empty{display:none}
+.chip{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:8px;background:var(--sunken);font-size:12px;color:var(--ink);max-width:320px;animation:nin var(--dur) var(--ease)}
+.chip .ic{width:13px;height:13px;color:var(--ink2)}
+.chip b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cin{font-size:15px;color:var(--ink3);min-height:26px;padding:2px 0}
+.cin.has{color:var(--ink)}
+.cbar{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink2);margin-top:4px}
+.cbar .sp{flex:1}
+.runb{width:32px;height:32px;border-radius:50%;background:var(--ink);display:grid;place-items:center}
+.runb.on{background:var(--run)}
+.runb i{width:10px;height:10px;border-radius:2px;background:var(--page)}
+.runb:not(.on) i{width:0;height:0;border-radius:0;background:none;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:8px solid var(--page)}
+.m-split{width:4px;flex:none;cursor:ew-resize;position:relative;background:transparent;touch-action:none}
+.m-split::after{content:"";position:absolute;left:1.5px;top:0;bottom:0;width:1px;background:var(--hair)}
+.m-split:hover::after{background:var(--ink3)}
+.m-panel{width:var(--pw);flex:none;background:var(--panel);display:flex;flex-direction:column;position:relative;min-width:0}
+.mock.closed .m-panel,.mock.closed .m-split{display:none}
+.mock.overlay .m-split{display:none}
+.mock.overlay .m-panel{position:absolute;right:0;top:0;bottom:0;width:calc(100% - 56px);z-index:20;box-shadow:var(--shadow-float);border-left:1px solid var(--hair)}
+.ph{min-height:56px;flex:none;display:flex;align-items:center;gap:12px;padding:0 20px;border-bottom:1px solid var(--hair);position:relative}
+.ident{display:flex;align-items:center;gap:10px;min-width:0;flex:1;padding:4px 8px;margin-left:-8px;border-radius:8px;border:0;background:none;text-align:left;cursor:default}
+button.ident{cursor:pointer}
+button.ident:hover,button.ident.open{background:var(--hover)}
+button.ident:focus-visible{outline:none;box-shadow:var(--ring)}
+.ilbl{min-width:0;display:flex;flex-direction:column}
+.ttl{font-size:15px;line-height:20px;font-weight:600;min-width:0}
+.sub{font-size:12px;line-height:16px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mid{display:flex;min-width:0;white-space:nowrap}
+.mid .h{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.mid .t{flex:none}
+.chev{width:12px;height:12px;color:var(--ink3);flex:none}
+.acts{display:flex;align-items:center;gap:2px;flex:none}
+.vsep{width:1px;height:16px;background:var(--hair);margin:0 6px;flex:none}
+.ib{width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:6px;background:transparent;color:var(--ink2);cursor:pointer;transition:background var(--dur),color var(--dur);position:relative}
+.ib:hover{background:var(--hover);color:var(--ink)}
+.ib:active{background:var(--pressed)}
+.ib:focus-visible{outline:none;box-shadow:var(--ring)}
+.ib.on{background:var(--selected);color:var(--ink)}
+.ib[aria-disabled="true"]{opacity:.4;pointer-events:none}
+.ib.lab{width:auto;padding:0 10px 0 8px;font-size:13px;font-weight:500;color:var(--ink)}
+.ib.quiet{color:var(--ink3)}
+.pload{height:2px;flex:none;position:relative;overflow:hidden}
+.pload.on::before{content:"";position:absolute;top:0;bottom:0;left:-30%;width:30%;background:var(--ink);opacity:.55;animation:ld 1.1s var(--ease) infinite}
+:root.reduce .pload.on::before{animation:none;left:0;width:100%;opacity:.18}
+@keyframes ld{to{left:100%}}
+.tool{height:40px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:4px 16px;border-bottom:1px solid var(--hair);font-size:13px;gap:12px}
+.tool .grp{display:flex;align-items:center;gap:2px}
+.pgin{width:36px;height:28px;border:1px solid transparent;border-radius:6px;background:transparent;text-align:center;font-size:13px;font-variant-numeric:tabular-nums}
+.pgin:hover{border-color:var(--hair)}
+.pgin:focus{outline:none;border-color:var(--hair);box-shadow:var(--ring)}
+.tot{color:var(--ink2);min-width:30px;padding:0 4px;font-variant-numeric:tabular-nums}
+.zbtn{min-width:56px;height:32px;padding:0 6px;border:0;border-radius:6px;background:transparent;font-size:13px;display:inline-flex;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-variant-numeric:tabular-nums}
+.zbtn:hover{background:var(--hover)}
+.zbtn:focus-visible{outline:none;box-shadow:var(--ring)}
+.segtxt{color:var(--ink2)}
+.segtxt b{color:var(--ink);font-weight:500;font-variant-numeric:tabular-nums}
+.vnote{min-height:32px;flex:none;padding:6px 16px;display:flex;gap:8px;align-items:flex-start;font-size:13px;line-height:20px;color:var(--ink2);border-bottom:1px solid var(--hair)}
+.vnote .ic{width:14px;height:14px;margin-top:3px;flex:none}
+.vnote .x{flex:1}
+.find{height:40px;flex:none;display:flex;align-items:center;gap:4px;padding:0 12px 0 16px;border-bottom:1px solid var(--hair)}
+.find .ic.lead{color:var(--ink3);margin-right:4px}
+.find input{flex:1;min-width:0;height:28px;border:1px solid var(--hair);border-radius:6px;background:var(--sunken);padding:0 8px;font-size:13px}
+.find input:focus{outline:none;box-shadow:var(--ring);border-color:transparent}
+.find .cnt{min-width:56px;text-align:center;font-size:13px;color:var(--ink2);font-variant-numeric:tabular-nums}
+.navrow{height:40px;flex:none;display:flex;align-items:center;gap:4px;padding:4px 12px 4px 16px;border-bottom:1px solid var(--hair)}
+.addr{flex:1;min-width:0;height:32px;border-radius:8px;background:var(--sunken);display:flex;align-items:center;padding:0 10px;font-size:13px;color:var(--ink2);white-space:nowrap;overflow:hidden}
+.addr b{color:var(--ink);font-weight:400}
+.pbody{flex:1;overflow:auto;position:relative;background:var(--canvas);scrollbar-width:thin}
+.pbody:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
+.pbody.flat{background:var(--panel)}
+.pages{padding:24px;display:flex;flex-direction:column;align-items:center;gap:24px}
+.pg{width:calc((var(--pw) - 48px) * var(--zoom,1));aspect-ratio:612/792;background:#fff;color:#1d1c1a;box-shadow:0 0 0 1px rgba(0,0,0,.06);container-type:inline-size;position:relative;padding:7cqw 8cqw;flex:none}
+.pg .hd{display:flex;justify-content:space-between;font-size:2.1cqw;color:#8a877f;border-bottom:.3cqw solid #eee;padding-bottom:1.6cqw}
+.pg h5{font-size:4.6cqw;margin:4cqw 0 1.2cqw;font-weight:650;letter-spacing:-.01em}
+.pg .lead{font-size:2.4cqw;color:#6b6862;margin-bottom:3cqw}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:2cqw;margin-bottom:3cqw}
+.kpis div{border:.25cqw solid #ece9e3;border-radius:1.4cqw;padding:2cqw}
+.kpis small{display:block;font-size:1.9cqw;color:#8a877f}
+.kpis b{font-size:4cqw;font-weight:650}
+.bars{display:flex;align-items:flex-end;gap:2cqw;height:24cqw;border-bottom:.25cqw solid #e5e2db;margin-bottom:3cqw;padding:0 1cqw}
+.bars i{flex:1;background:#2f2d2a;border-radius:.6cqw .6cqw 0 0;opacity:.85}
+.bars i:nth-child(2n){background:#b9b4aa}
+.ln{height:1.5cqw;background:#ecebe7;border-radius:1cqw;margin:1.7cqw 0}
+.pg .pno{position:absolute;bottom:3.5cqw;left:0;right:0;text-align:center;font-size:2cqw;color:#a5a29b}
+.docv{max-width:640px;margin:0 auto;padding:28px 32px 40px;font-size:14px;line-height:24px}
+.docv h4{font-size:20px;line-height:28px;margin:0 0 12px;font-weight:650}
+.docv h6{font-size:15px;margin:20px 0 6px;font-weight:600}
+.docv p{margin:0 0 10px;color:var(--ink)}
+.docv .slide{border-top:1px solid var(--hair);padding-top:14px;margin-top:16px}
+.docv .slide small{display:block;color:var(--ink3);font-size:12px;margin-bottom:2px}
+.code{font-family:var(--mono);font-size:13px;line-height:21px;padding:20px 0 28px;white-space:pre;color:var(--ink);min-width:max-content}
+.code .l{padding:0 24px;display:block}
+.code .l.sel{background:var(--sel)}
+.code .k{color:var(--kw)}.code .s{color:var(--str)}.code .n{color:var(--num)}.code .c{color:var(--com);font-style:italic}
+.code mark{background:var(--hit);color:inherit;border-radius:2px}
+.code mark.cur{background:var(--hitcur)}
+.lcard{position:absolute;inset:0;display:grid;place-items:center;padding:24px;animation:nin var(--dur) var(--ease)}
+.lcard .in{max-width:420px;width:100%;padding:24px;border-radius:12px;background:var(--raised);border:1px solid var(--hair)}
+.lcard h6{margin:0 0 6px;font-size:15px;line-height:22px;font-weight:600}
+.lcard p{margin:0;color:var(--ink2);font-size:13px;line-height:20px}
+.web{background:#fff;color:#1f1d1a;min-height:100%;font-size:14px}
+.web .wn{height:52px;display:flex;align-items:center;gap:22px;padding:0 28px;border-bottom:1px solid #eee;font-size:13px;color:#6b6862}
+.web .wn b{color:#1f1d1a;margin-right:auto;font-size:14px}
+.web .hero2{padding:44px 28px 28px;background:linear-gradient(180deg,#f6f4ef,#fff)}
+.web .hero2 h5{font-size:28px;line-height:1.25;margin:0 0 10px;font-weight:700;letter-spacing:-.01em}
+.web .hero2 p{color:#6b6862;margin:0;max-width:420px}
+.web .cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:20px 28px}
+.web .cols div{border:1px solid #eee;border-radius:10px;padding:14px;font-size:13px;color:#6b6862}
+.web .cols b{display:block;color:#1f1d1a;margin-bottom:4px}
+.nhost{position:absolute;left:16px;right:16px;bottom:16px;display:flex;justify-content:center;pointer-events:none;z-index:30}
+.notice{pointer-events:auto;max-width:min(480px,100%);display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:8px;background:var(--raised);border:1px solid var(--hair);box-shadow:var(--shadow-float);font-size:13px;line-height:20px;color:var(--ink)}
+.notice.enter{animation:nin var(--dur) var(--ease)}
+.notice.leave{animation:nout var(--dur) var(--ease) forwards}
+.notice .nic{width:14px;height:14px;margin-top:3px;flex:none}
+.notice.k-ok .nic{color:var(--verified)}.notice.k-warn .nic{color:var(--partial)}.notice.k-err .nic{color:var(--failed)}.notice.k-info .nic{color:var(--ink2)}
+.notice .nt{flex:1;min-width:0}
+.notice .na{display:flex;gap:14px;margin-top:4px}
+.notice .nx{width:24px;height:24px;margin:-2px -4px -2px 0}
+.notice .nx .ic{width:12px;height:12px}
+@keyframes nin{from{opacity:0}}
+@keyframes nout{to{opacity:0}}
+.fly{position:absolute;z-index:40;background:var(--raised);border:1px solid var(--hair);border-radius:10px;box-shadow:var(--shadow-float);padding:4px;animation:nin var(--dur) var(--ease)}
+.fly.picker{top:52px;left:12px;width:348px;max-height:360px;overflow:auto}
+.fly.menu{top:50px;right:14px;min-width:216px}
+.fly.zm{top:84px;right:52px;min-width:180px}
+.fly .cap{font-size:12px;color:var(--ink3);padding:6px 10px 4px}
+.mi{height:32px;padding:0 12px;display:flex;align-items:center;gap:10px;border-radius:6px;font-size:13px;width:100%;border:0;background:none;text-align:left;cursor:pointer;white-space:nowrap}
+.mi:hover,.mi:focus-visible{background:var(--hover);outline:none}
+.mi .ic{color:var(--ink2)}
+.mi kbd{margin-left:auto;font:11px var(--font);color:var(--ink3)}
+.msep{height:1px;background:var(--hair);margin:4px 0}
+.pr{min-height:44px;padding:10px 12px;display:flex;gap:10px;align-items:center;border-radius:6px;width:100%;border:0;background:none;text-align:left;cursor:pointer}
+.pr:hover{background:var(--hover)}
+.pr.cur{background:var(--selected)}
+.pr .pl{flex:1;min-width:0;display:flex;flex-direction:column}
+.pr .pn{font-size:13px;line-height:18px}
+.pr.cur .pn{font-weight:500}
+.pr .pf{font-size:12px;line-height:16px;color:var(--ink3)}
+.pr .ck{color:var(--ink)}
+.drawer{position:absolute;top:0;right:0;bottom:0;width:440px;background:var(--panel);border-left:1px solid var(--hair);z-index:25;box-shadow:var(--shadow-float);display:flex;flex-direction:column;animation:nin var(--dur) var(--ease)}
+.drawer .ph{justify-content:space-between}
+.drawer .db{padding:20px;color:var(--ink2);font-size:13px}
+/* annotations */
+.annot [data-spec]{outline:1px dashed color-mix(in srgb,var(--focus) 80%,transparent);outline-offset:-1px}
+.annot [data-spec]::after{content:attr(data-spec);position:absolute;z-index:60;right:4px;top:4px;font:500 10px/1.5 var(--font);color:#fff;background:var(--focus);padding:1px 6px;border-radius:4px;white-space:nowrap;pointer-events:none}
+.annot .ph[data-spec]::after{top:auto;bottom:-9px;right:16px}
+.annot .card[data-spec]::after{top:-9px}
+.annot .cbox[data-spec]::after{top:-9px;right:16px}
+.annot .ib[data-spec]::after{top:-18px;right:-4px}
+.annot .th[data-spec]::after{top:38px;right:0}
+.annot .tool[data-spec],.annot .vnote[data-spec],.annot .find[data-spec],.annot .navrow[data-spec]{position:relative}
+.annot .notice[data-spec]{position:relative}
+.annot .notice[data-spec]::after{top:-18px;right:0}
+/* ---------- motion & spec visuals ---------- */
+.mbox{padding:18px}
+.mbox h4{margin:0 0 4px;font-size:14px;font-weight:600}
+.mbox .d{font-size:12px;color:var(--doc-ink2);margin:0 0 12px}
+.mini-panel{height:168px;border-radius:10px;border:1px solid var(--hair);background:var(--panel);position:relative;overflow:hidden;color:var(--ink)}
+.mini-panel .mh{height:40px;border-bottom:1px solid var(--hair);display:flex;align-items:center;padding:0 14px;font-size:13px;font-weight:600;gap:8px}
+.mini-panel .mc{position:absolute;top:42px;left:0;right:0;bottom:0;background:var(--canvas)}
+.mini-panel .pgx{position:absolute;left:50%;top:14px;width:46%;transform:translateX(-50%);bottom:-20px;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.06)}
+.tl{width:100%;height:auto;margin-top:12px;display:block}
+.tl text{font:10px var(--font);fill:var(--doc-ink3)}
+.tl .tk{stroke:var(--doc-line)}
+.tl .bar{fill:var(--doc-ink);opacity:.82}
+.tl .bar2{fill:var(--doc-ink3);opacity:.5}
+.tl .lbl{fill:var(--doc-ink2);font-size:10.5px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.dont{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.dont div{padding:14px;font-size:13px;color:var(--doc-ink2)}
+.dont b{display:block;color:var(--doc-ink);margin-bottom:4px;font-weight:600}
+.icgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.icc{padding:14px;display:flex;gap:14px;align-items:flex-start}
+.icz{width:64px;height:64px;flex:none;border-radius:10px;background-color:var(--sunken);background-image:linear-gradient(var(--doc-line) 1px,transparent 1px),linear-gradient(90deg,var(--doc-line) 1px,transparent 1px);background-size:4px 4px;display:grid;place-items:center;color:var(--doc-ink)}
+.icz .ic{width:48px;height:48px;stroke-width:1.5}
+.icc b{font-size:13px;font-weight:600;display:block}
+.icc small{font-size:11px;color:var(--doc-ink3);display:block;line-height:1.5}
+.icc code{font-family:var(--mono);font-size:10px;color:var(--doc-ink2);word-break:break-all;display:block;margin-top:6px;line-height:1.45}
+.sw{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.swi{display:flex;gap:12px;align-items:center;padding:10px 12px}
+.chipc{width:44px;height:44px;border-radius:10px;flex:none;box-shadow:inset 0 0 0 1px rgba(128,128,128,.25);position:relative;overflow:hidden}
+.chipc::after{content:"";position:absolute;inset:0 0 0 50%;background:var(--d)}
+.chipc{background:var(--l)}
+.swi b{font-size:13px;display:block;font-weight:600}
+.swi small{font-size:11px;color:var(--doc-ink3);font-family:var(--mono)}
+.states{display:grid;grid-template-columns:150px repeat(6,1fr);border:1px solid var(--doc-line);border-radius:12px;overflow:hidden;background:var(--doc-card)}
+.states>div{padding:12px;border-bottom:1px solid var(--doc-line);border-right:1px solid var(--doc-line);display:flex;align-items:center;justify-content:center;min-height:62px;font-size:12px;color:var(--doc-ink2)}
+.states>div.h{min-height:36px;background:var(--sunken);font-weight:600;color:var(--doc-ink2)}
+.states>div.r{justify-content:flex-start;font-weight:600;color:var(--doc-ink)}
+.states .pv{background:var(--panel);color:var(--ink)}
+.f-hover{background:var(--hover)!important;color:var(--ink)!important}
+.f-press{background:var(--pressed)!important;color:var(--ink)!important}
+.f-focus{box-shadow:var(--ring)!important}
+.f-dis{opacity:.4}
+.sbtn{height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--hair);background:var(--raised);font-size:13px;color:var(--ink)}
+.sbtn.f-hover{background:var(--sunken)!important}
+.typo div{display:grid;grid-template-columns:220px 1fr 180px;gap:16px;align-items:baseline;padding:12px 16px;border-bottom:1px solid var(--doc-line)}
+.typo div:last-child{border-bottom:0}
+.typo small{color:var(--doc-ink3);font-size:12px}
+.anat{display:grid;grid-template-columns:488px 1fr;gap:28px;align-items:start}
+.anat .ap{width:488px;border:1px solid var(--hair);border-radius:10px;overflow:hidden;background:var(--panel);color:var(--ink);position:relative}
+.dims{font-size:13px;color:var(--doc-ink2)}
+.dims li{margin:4px 0}
+.prompt-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.prompt-actions .hint{font-size:12px;color:var(--doc-ink3);margin-left:6px}
+.md{padding:28px 32px;font-size:13.5px;line-height:1.75}
+.md h1{font-size:22px;line-height:1.35;margin:0 0 14px}
+.md h2{font-size:18px;margin:30px 0 10px;padding-top:18px;border-top:1px solid var(--doc-line)}
+.md h3{font-size:15px;margin:20px 0 8px}
+.md p{margin:6px 0}
+.md ul,.md ol{margin:6px 0;padding-left:22px}
+.md li{margin:3px 0}
+.md li.l2{margin-left:18px;list-style:circle}
+.md code{font-family:var(--mono);font-size:12px;background:var(--sunken);padding:1px 5px;border-radius:5px}
+.md pre{background:var(--sunken);border-radius:10px;padding:12px 14px;overflow:auto;font-family:var(--mono);font-size:12px;line-height:1.6}
+.md blockquote{margin:10px 0;padding:8px 14px;border-left:3px solid var(--doc-ink);background:var(--sunken);border-radius:0 8px 8px 0;color:var(--doc-ink2)}
+.md table{border-collapse:collapse;width:100%;margin:10px 0;font-size:12.5px;display:block;overflow-x:auto}
+.md th,.md td{border:1px solid var(--doc-line);padding:6px 10px;text-align:left;vertical-align:top}
+.md th{background:var(--sunken);font-weight:600}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--doc-ink);color:var(--doc-bg);padding:8px 14px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:opacity var(--dur) var(--ease);z-index:200}
+.toast.on{opacity:1}
+@media (max-width:1100px){.grid3{grid-template-columns:1fr 1fr}.dont{grid-template-columns:1fr 1fr}.anat{grid-template-columns:1fr}.anat .ap{width:100%;max-width:488px}}
+@media (max-width:900px){
+  .stage{grid-template-columns:1fr}
+  .scen{position:static;flex-direction:row;overflow-x:auto;scrollbar-width:none}
+  .scen .lbl{display:none}
+  .chipbtn{flex:none}
+  .caption{grid-template-columns:1fr}
+  .grid2{grid-template-columns:1fr}
+  .states{grid-template-columns:110px repeat(6,minmax(70px,1fr));overflow-x:auto}
+  .typo div{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .wrap{padding:0 16px}
+  .top .wrap{gap:10px}
+  .brand span{display:none}
+  .hero{padding:36px 0 18px}
+  .hero h1{font-size:26px}
+  .grid3,.dont{grid-template-columns:1fr}
+  .md{padding:18px 16px}
+  .tools .seg button{padding:0 7px}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-close" viewBox="0 0 16 16"><path d="M4 4L12 12M12 4L4 12"/></symbol>
+    <symbol id="i-expand" viewBox="0 0 16 16"><path d="M2.5 6V2.5H6M10 2.5H13.5V6M13.5 10V13.5H10M6 13.5H2.5V10"/></symbol>
+    <symbol id="i-restore" viewBox="0 0 16 16"><path d="M6 2.5V6H2.5M13.5 6H10V2.5M10 13.5V10H13.5M2.5 10H6V13.5"/></symbol>
+    <symbol id="i-more" viewBox="0 0 16 16"><circle cx="3.5" cy="8" r="1.25" fill="currentColor" stroke="none"/><circle cx="8" cy="8" r="1.25" fill="currentColor" stroke="none"/><circle cx="12.5" cy="8" r="1.25" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-ext" viewBox="0 0 16 16"><path d="M9 2H14V7M14 2L7 9M6 3H2V14H13V10"/></symbol>
+    <symbol id="i-quote" viewBox="0 0 16 16"><path d="M3 4H7V8C7 10 6 11.5 4 12.5M9 4H13V8C13 10 12 11.5 10 12.5"/></symbol>
+    <symbol id="i-find" viewBox="0 0 16 16"><path d="M7 11.5A4.5 4.5 0 1 1 7 2.5A4.5 4.5 0 1 1 7 11.5ZM10.5 10.5L13.5 13.5"/></symbol>
+    <symbol id="i-up" viewBox="0 0 16 16"><path d="M4 10L8 6L12 10"/></symbol>
+    <symbol id="i-down" viewBox="0 0 16 16"><path d="M4 6L8 10L12 6"/></symbol>
+    <symbol id="i-prev" viewBox="0 0 16 16"><path d="M10 3.5L5.5 8L10 12.5"/></symbol>
+    <symbol id="i-next" viewBox="0 0 16 16"><path d="M6 3.5L10.5 8L6 12.5"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 16 16"><path d="M3 8H13"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 16 16"><path d="M3 8H13M8 3V13"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 16 16"><path d="M5 6.5L8 9.5L11 6.5"/></symbol>
+    <symbol id="i-check" viewBox="0 0 16 16"><path d="M3.5 8.5L6.5 11.5L12.5 4.5"/></symbol>
+    <symbol id="i-info" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5"/><path d="M8 7.5V11"/><circle cx="8" cy="5" r=".9" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-warn" viewBox="0 0 16 16"><path d="M8 2.5L14 13H2Z"/><path d="M8 6.5V9.5"/><circle cx="8" cy="11.5" r=".9" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-ok" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5"/><path d="M5.2 8.3L7.2 10.2L10.8 6"/></symbol>
+    <symbol id="i-err" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5"/><path d="M5.8 5.8L10.2 10.2M10.2 5.8L5.8 10.2"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 16 16"><path d="M1.5 4.5V3A1 1 0 0 1 2.5 2H6L7.5 3.5H13.5A1 1 0 0 1 14.5 4.5V12.5A1 1 0 0 1 13.5 13.5H2.5A1 1 0 0 1 1.5 12.5Z"/><path d="M1.5 6H14.5"/></symbol>
+    <symbol id="i-save" viewBox="0 0 16 16"><path d="M8 1V10M4 6L8 10L12 6M2 11V15H14V11"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 16 16"><path d="M5.5 5.5H12.5V13.5H5.5Z"/><path d="M3.5 10.5V2.5H10.5"/></symbol>
+    <symbol id="i-attach" viewBox="0 0 16 16"><path d="M13 7.5L8 12.5A3 3 0 0 1 3.5 8L9 2.5A2 2 0 0 1 12 5.5L6.8 10.7A1 1 0 0 1 5.3 9.2L10 4.5"/></symbol>
+    <symbol id="i-reload" viewBox="0 0 16 16"><path d="M13 6A5 5 0 1 0 13 10M13 2V6H9"/></symbol>
+    <symbol id="i-back" viewBox="0 0 16 16"><path d="M10 3L5 8L10 13"/></symbol>
+    <symbol id="i-fwd" viewBox="0 0 16 16"><path d="M6 3L11 8L6 13"/></symbol>
+    <symbol id="i-go" viewBox="0 0 16 16"><path d="M3 8H13M8 3L13 8L8 13"/></symbol>
+    <symbol id="g-globe" viewBox="0 0 20 20"><path d="M17.5 10A7.5 7.5 0 1 1 2.5 10A7.5 7.5 0 1 1 17.5 10ZM13 10A3 7.5 0 1 1 7 10A3 7.5 0 1 1 13 10ZM2.5 10H17.5"/></symbol>
+    <symbol id="g-files" viewBox="0 0 20 20"><path d="M2.5 7V5.5A1.5 1.5 0 0 1 4 4H7.5L10 6.5H16A1.5 1.5 0 0 1 17.5 8V14.5A1.5 1.5 0 0 1 16 16H4A1.5 1.5 0 0 1 2.5 14.5V7ZM2.5 8H17.5"/></symbol>
+    <symbol id="g-outline" viewBox="0 0 20 20"><path d="M3.5 5.5H4M7.5 5.5H16.5M3.5 10H4M7.5 10H16.5M3.5 14.5H4M7.5 14.5H13"/></symbol>
+    <symbol id="g-chat" viewBox="0 0 20 20"><path d="M4 4.5H16A1.5 1.5 0 0 1 17.5 6V12.5A1.5 1.5 0 0 1 16 14H9L5.5 16.5V14H4A1.5 1.5 0 0 1 2.5 12.5V6A1.5 1.5 0 0 1 4 4.5Z"/></symbol>
+    <symbol id="g-plus" viewBox="0 0 20 20"><path d="M10 4V16M4 10H16"/></symbol>
+  </defs>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><i></i><span>23Hertz · 右侧工作区 R1</span></div>
+    <nav class="nav" aria-label="页面目录">
+      <a href="#mock"><b>01</b>效果稿</a>
+      <a href="#motion"><b>02</b>动效</a>
+      <a href="#spec"><b>03</b>设计规范</a>
+      <a href="#prompt"><b>04</b>Codex 提示词</a>
+    </nav>
+    <div class="tools">
+      <div class="seg" role="group" aria-label="主题">
+        <button data-theme-set="light" aria-pressed="false">浅色</button>
+        <button data-theme-set="dark" aria-pressed="false">深色</button>
+        <button data-theme-set="system" aria-pressed="true">跟随系统</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="hero">
+    <div class="eyebrow">第一轮低中风险改进 · 交互效果稿 / 动效稿 / 设计规范 / 开工提示词</div>
+    <h1>23Hertz 右侧工作区：看得准、不打断、可预期</h1>
+    <p>本稿基于对 <code class="inl">23Hertz_round1_20261008</code> 当前源码的只读复核制作。所有尺寸、颜色与状态都对应现有设计 Token 或真实数据来源；不包含新的版本体系、页签化面板或任何没有依据的状态。效果稿为 1440 × 880 DIP 的可交互复刻，按 100% 缩放设计，自动按容器宽度等比缩放显示。</p>
+    <div class="meta">
+      <span>基线 <b>HEAD 980556557f0b</b>（detached，含未提交成果）</span>
+      <span>正式候选 <b>execution-v11-candidate32</b></span>
+      <span>范围 <b>R1-00 – R1-10</b></span>
+      <span>日期 <b>2026-10-12</b></span>
+      <span>状态 <b>待用户授权施工</b></span>
+    </div>
+  </div>
+
+  <!-- ===================== 01 MOCK ===================== -->
+  <section class="blk" id="mock">
+    <div class="sh"><span class="no">01</span><h2>交互效果稿</h2></div>
+    <p class="lede">左侧选择场景，右侧是可操作的复刻窗口：卡片、文件切换、⋯ 菜单、翻页、缩放、查找、引用、关闭、拖拽分隔线、切换会话都可以点。打开“规格标注”可在画面上直接看到尺寸。窗口内键盘：焦点在预览正文时 PageDown / PageUp / Home / End 翻页，Ctrl+= / Ctrl+- / Ctrl+0 缩放，Ctrl+F 查找，Esc 依次关闭查找栏、菜单、面板。</p>
+    <div class="stage">
+      <div class="scen" id="scen" role="group" aria-label="场景"></div>
+      <div>
+        <div class="stagebar">
+          <button class="btn" id="agentBtn" title="模拟 Agent 完成一次 agent_web-panel_open 调用">模拟：AI 请求打开网页</button>
+          <button class="btn" id="resetBtn">重置</button>
+          <span class="sp"></span>
+          <label class="toggle"><input type="checkbox" id="annotT"> 规格标注</label>
+          <label class="toggle"><input type="checkbox" id="slowT"> 慢速加载</label>
+          <label class="toggle"><input type="checkbox" id="reduceT"> 减少动态效果</label>
+        </div>
+        <div class="fit card-d" id="fit" style="background:transparent;border:0"><div class="mock" id="mockEl"></div></div>
+        <div class="caption card-d" id="caption"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 02 MOTION ===================== -->
+  <section class="blk" id="motion">
+    <div class="sh"><span class="no">02</span><h2>动效稿</h2></div>
+    <p class="lede">动效只表达真实状态变化：出现、消失、正在加载。时长 120 ms，缓动 CubicEaseOut（与现有 <code class="inl">DeliveryShelf</code>、<code class="inl">MotionSettings</code> 一致）。系统“减少动态效果”开启时，全部时长为 0。面板宽度变化与菜单展开沿用现有行为，不新增动画——右侧包含 WebView2 等原生层，宽度动画会造成重排抖动。</p>
+    <div class="grid3">
+      <div class="card-d mbox">
+        <h4>M1 · PanelNotice 出现 / 消失</h4>
+        <p class="d">透明度 0→1，120 ms；成功与信息类 2500 ms 后自动消失（120 ms）；警告、错误、需要用户决定的提示保持显示。不位移、不缩放，正文位置不变。</p>
+        <div class="mini-panel" id="m1"><div class="mh">Q3 销售简报.pdf</div><div class="mc"><div class="pgx"></div></div><div class="nhost" id="m1host"></div></div>
+        <div class="row"><button class="btn" data-m1="ok">成功 · 自动消失</button><button class="btn" data-m1="err">错误 · 保持显示</button></div>
+        <svg class="tl" viewBox="0 0 320 64" aria-label="M1 时间轴">
+          <line class="tk" x1="10" y1="40" x2="310" y2="40"/>
+          <rect class="bar" x="10" y="30" width="14" height="10" rx="2"/><rect class="bar2" x="24" y="30" width="250" height="10" rx="2"/><rect class="bar" x="274" y="30" width="14" height="10" rx="2"/>
+          <text x="10" y="56">0</text><text x="18" y="22" class="lbl">进入 120</text><text x="122" y="22" class="lbl">停留 2500</text><text x="250" y="22" class="lbl">退出 120</text><text x="268" y="56">2500</text><text x="290" y="56">2620ms</text>
+        </svg>
+      </div>
+      <div class="card-d mbox">
+        <h4>M2 · 加载感知（200 ms 门槛）</h4>
+        <p class="d">点开文件后，加载线（2 px）立即出现；200 ms 内完成就不显示加载卡片，避免闪烁；超过 200 ms 才显示“正在准备预览”。这 200 ms 内正文保持空白画布，不保留旧文件内容，防止看错文件。</p>
+        <div class="mini-panel" id="m2"><div class="mh" id="m2t">切换文件</div><div class="pload" id="m2l"></div><div class="mc" id="m2c"></div></div>
+        <div class="row"><button class="btn" data-m2="150">快速 150 ms</button><button class="btn" data-m2="1200">慢速 1200 ms</button></div>
+        <svg class="tl" viewBox="0 0 320 64" aria-label="M2 时间轴">
+          <line class="tk" x1="10" y1="44" x2="310" y2="44"/>
+          <rect class="bar2" x="10" y="16" width="300" height="6" rx="2"/><text x="10" y="12" class="lbl">加载线：0 ms 起，直到内容就绪</text>
+          <rect class="bar" x="60" y="30" width="250" height="8" rx="2"/><text x="64" y="58">200 ms 后才出现加载卡片（仅慢速）</text>
+          <line x1="60" y1="26" x2="60" y2="44" stroke="currentColor" style="color:var(--focus)" stroke-dasharray="2 2"/>
+        </svg>
+      </div>
+      <div class="card-d mbox">
+        <h4>M3 · 待处理圆点与缓动曲线</h4>
+        <p class="d">AI 请求被暂缓时，顶栏“网页”按钮出现 6×6 圆点（透明度 120 ms）。不闪烁、不脉冲、不无限循环。曲线为 cubic-bezier(.215, .61, .355, 1)。</p>
+        <div class="mini-panel" style="height:96px;display:flex;align-items:center;justify-content:center;gap:10px">
+          <button class="th" id="m3btn" aria-label="网页面板"><svg class="ic g20"><use href="#g-globe"/></svg><span class="dot"></span></button>
+          <button class="btn" id="m3t">切换待处理</button>
+        </div>
+        <svg class="tl" viewBox="0 0 320 84" aria-label="CubicEaseOut 曲线" id="curve"></svg>
+      </div>
+    </div>
+    <h3>动效规则表</h3>
+    <div class="tw"><table class="spec">
+      <tr><th>对象</th><th>属性</th><th>时长</th><th>缓动</th><th>触发</th><th>减少动态效果</th></tr>
+      <tr><td>PanelNotice</td><td>opacity</td><td>入 120 ms / 出 120 ms；成功、信息类停留 2500 ms</td><td>CubicEaseOut</td><td>真实操作结果或 AI 请求</td><td>0 ms，仍按 2500 ms 自动消失</td></tr>
+      <tr><td>加载线 PanelLoadingLine</td><td>位置循环（沿用现有组件）</td><td>沿用</td><td>沿用</td><td>读取 / 转换进行中</td><td>改为静态低透明度满宽条</td></tr>
+      <tr><td>加载卡片</td><td>opacity</td><td>200 ms 门槛后淡入 120 ms</td><td>CubicEaseOut</td><td>加载超过 200 ms</td><td>门槛保留，淡入为 0</td></tr>
+      <tr><td>待处理圆点</td><td>opacity</td><td>120 ms</td><td>CubicEaseOut</td><td>AI 请求被暂缓</td><td>0 ms</td></tr>
+      <tr><td>卡片内联提示 / 引用就绪标签</td><td>opacity</td><td>120 ms</td><td>CubicEaseOut</td><td>核对结果为“已修改 / 不可访问”；出现选区</td><td>0 ms</td></tr>
+      <tr><td>按钮 hover / pressed</td><td>background</td><td>120 ms（沿用）</td><td>—</td><td>指针</td><td>0 ms</td></tr>
+      <tr><td>面板宽度（展开 / 还原 / 拖拽）、Flyout 菜单</td><td colspan="5">沿用现有行为，不新增动画</td></tr>
+    </table></div>
+    <h3>禁止的动效</h3>
+    <div class="dont">
+      <div class="card-d"><b>无限循环</b>圆点脉冲、呼吸灯、旋转等待图标都不用。持续进行的状态只用现有加载线表示。</div>
+      <div class="card-d"><b>滑入、弹簧、缩放</b>面板、菜单、通知一律不加位移或缩放动画。</div>
+      <div class="card-d"><b>骨架屏</b>不用假内容模拟“正在出现”，避免被误认为文件真实内容。</div>
+      <div class="card-d"><b>假进度</b>没有真实页数或进度时，不显示百分比或步骤条。</div>
+    </div>
+  </section>
+
+  <!-- ===================== 03 SPEC ===================== -->
+  <section class="blk" id="spec">
+    <div class="sh"><span class="no">03</span><h2>设计规范</h2></div>
+    <p class="lede">数值优先引用现有 Token（<code class="inl">UnifiedUiTokens.cs</code>、<code class="inl">Foundations.axaml</code>、<code class="inl">WorkspaceTokens.axaml</code>、<code class="inl">CompactArtifactStyles.axaml</code>）。表中的十六进制取值用于本稿渲染；施工时一律绑定 Token 名，与源码现值冲突时以源码为准并记录。本轮不新增任何 Token。</p>
+
+    <h3>3.1 面板结构与尺寸 <small>R1-05 · R1-06</small></h3>
+    <div class="anat">
+      <div class="ap" id="anatPanel"></div>
+      <div class="tw"><table class="spec">
+        <tr><th>元素</th><th>规格</th><th>Token / 来源</th></tr>
+        <tr><td>头部</td><td>最小高 56；左右内边距 20；底部 1 px 分隔</td><td><code>HertzPanelHeaderHeight</code> <code>HertzPanelHeaderInset</code> <code>HairBrush</code></td></tr>
+        <tr><td>身份区</td><td>文件图标 20×24（紧凑色板），间距 10；标题单行、中部省略；副标题单行、尾部省略；文件数 ≥2 才可点击并显示 12 px 下拉箭头</td><td><code>FileFormatTile.UseCompactPalette</code> <code>MiddleEllipsisTextBlock</code></td></tr>
+        <tr><td>操作区</td><td>按钮 32×32，间距 2；内容组与窗口组之间 1×16 分隔线，左右各留 6</td><td><code>PreviewButtons</code></td></tr>
+        <tr><td>工具行</td><td>高 40；内边距 16,4；左侧为分页 / 分段，右侧为缩放</td><td>—</td></tr>
+        <tr><td>页码框</td><td>36×28，圆角 6；悬停或聚焦时 1 px Hair 边；13 号等宽数字</td><td><code>UiCaptionSize</code></td></tr>
+        <tr><td>缩放标签</td><td>最小宽 56（含 12 px 下拉箭头）；13 号等宽数字</td><td>—</td></tr>
+        <tr><td>视图说明行</td><td>最小高 32；内边距 16,6；14 px 信息图标；13/20 Ink2；底部分隔</td><td><code>Ink2Brush</code></td></tr>
+        <tr><td>查找栏</td><td>高 40；输入框高 28，圆角 6，Sunken 底；计数最小宽 56</td><td><code>SurfaceSunkenBrush</code></td></tr>
+        <tr><td>正文画布</td><td>画布内边距 24，页间距 24（不改）</td><td><code>PreviewViewport.CanvasInset / PageGap</code></td></tr>
+        <tr><td>PanelNotice</td><td>距底 16；最大宽 min(480, 面板宽 − 32)；内边距 10,12；圆角 8；14 px 状态图标</td><td><code>SurfaceRaisedBrush</code> <code>HairBrush</code> <code>ShadowFloat</code></td></tr>
+        <tr><td>文件切换列表</td><td>宽 348（范围 320–360）；最大高 360；行高 ≥44；内边距 10,12；当前项 Selected 底 + 勾</td><td><code>SelectedBrush</code></td></tr>
+        <tr><td>菜单</td><td>项高 32；内边距 12,0；最小宽 216；分隔线 1 px、上下各 4；13 号字；同一菜单图标全有或全无</td><td>与 Y-02“菜单项字号 13”一致</td></tr>
+      </table></div>
+    </div>
+
+    <h3>3.2 字号层级 <small>右侧面板内只允许以下组合</small></h3>
+    <div class="card-d typo">
+      <div><small>面板标题 · 15/20 SemiBold · Ink</small><span style="font-size:15px;line-height:20px;font-weight:600">渠道复盘_第三季度_管理层汇报终版.pptx</span><small><code class="inl">HertzPanelTitleSize</code></small></div>
+      <div><small>副标题 · 12/16 · Ink2</small><span style="font-size:12px;line-height:16px;color:var(--ink2)">PDF 文档 · 2.4 MB · 12 页</span><small><code class="inl">UiSmallSize</code> <code class="inl">HertzMetaLine</code></small></div>
+      <div><small>工具行 · 13 · 等宽数字</small><span style="font-size:13px;font-variant-numeric:tabular-nums">5 / 12　　72%</span><small><code class="inl">UiCaptionSize</code></small></div>
+      <div><small>菜单项 · 13</small><span style="font-size:13px">在文件夹中显示</span><small>沿用 Y-02 决定</small></div>
+      <div><small>说明、通知、卡片提示 · 13/20</small><span style="font-size:13px;line-height:20px;color:var(--ink2)">简化视图：只显示提取的文字，原排版、图片和图表未显示。</span><small>Ink2 / Ink</small></div>
+      <div><small>错误卡 · 15/22 SemiBold + 13/20</small><span><b style="font-size:15px;font-weight:600">无法在这里预览</b> <span style="font-size:13px;color:var(--ink2)">文件已移动或删除</span></span><small>替换原 <code class="inl">UiPanelTitleSize</code> 18</small></div>
+      <div><small>左侧成果卡标题 · 16/22 Medium</small><span style="font-size:16px;line-height:22px;font-weight:500">客户回访报告.docx</span><small><code class="inl">RichLinkFontSize</code>（不改）</small></div>
+    </div>
+    <p class="lede" style="margin-top:12px;font-size:13px">需要修正的写死字号：<code class="inl">PreviewToolbar</code> 页码框、总页数、工作表下拉 14→13；<code class="inl">PdfPagePreviewView._message</code> 14→13；<code class="inl">MarkdownFilePreviewView</code> 提示行 14→13；<code class="inl">UniversalContentPanel</code> 副标题 14→12。</p>
+
+    <h3>3.3 颜色 <small>左半为浅色，右半为深色</small></h3>
+    <div class="sw" id="swatches"></div>
+    <p class="lede" style="margin-top:12px;font-size:13px">规则：保持黑白主调；蓝色只用于键盘焦点环；选中用 <code class="inl">SelectedBrush</code>；语义色只用于真实状态；<b>橙色只属于运行主控制，右侧面板禁止使用</b>；用户文件本身的颜色（PDF 页面、网页）原样显示。</p>
+
+    <h3>3.4 图标 <small>16×16 网格 · 描边 1.5 · 圆头圆角 · UseLayoutRounding</small></h3>
+    <div class="icgrid" id="icgrid"></div>
+
+    <h3>3.5 按钮状态</h3>
+    <div class="states" id="states"></div>
+
+    <h3>3.6 成果卡状态 <small>R1-02</small></h3>
+    <div class="grid2" id="cardStates"></div>
+
+    <h3>3.7 PanelNotice 变体 <small>R1-00</small></h3>
+    <div class="grid2" id="noticeStates"></div>
+
+    <h3>3.8 响应式与窗口 / DPI</h3>
+    <div class="tw"><table class="spec">
+      <tr><th>条件</th><th>表现</th><th>依据</th></tr>
+      <tr><td>面板宽 ≥ 600</td><td>阅读 / 源码切换放在头部</td><td><code>UniversalContentPanel.PlaceModes</code>（不改）</td></tr>
+      <tr><td>440 – 599</td><td>阅读 / 源码切换下移到独立一行，其余不变</td><td>同上</td></tr>
+      <tr><td>360 – 439</td><td>“在外部打开”“展开”收进 ⋯ 菜单首组；标题保持中部省略</td><td>R1-05 新增</td></tr>
+      <tr><td>叠层：<code>Resolve</code> 计算得 maximum &lt; 360</td><td>面板铺满对话区，关闭按钮提示“返回对话”，展开按钮隐藏，Tab 在面板内循环</td><td><code>ObjectPanelMetrics</code>（阈值不改）</td></tr>
+      <tr><td>停靠宽度</td><td>maximum = min(窗口宽/2, 可用宽 − 640 − 72 − 4)；默认 = clamp(窗口宽 × 0.46, 480, 900)，再夹在 360 与 maximum 之间</td><td>1440 DIP 窗口、236 侧栏 → 488（本稿）</td></tr>
+    </table></div>
+    <div class="tw" style="margin-top:12px"><table class="spec">
+      <tr><th>验收窗口（逻辑 DIP）</th><th>100%</th><th>125%</th><th>150%</th><th>200%</th><th>预期模式</th></tr>
+      <tr><td>900 DIP</td><td>900 px</td><td>1125 px</td><td>1350 px</td><td>1800 px</td><td>叠层（可用宽小于 1076）</td></tr>
+      <tr><td>840 DIP（窗口最小宽 <code>MinWidth=840</code>）</td><td>840 px</td><td>1050 px</td><td>1260 px</td><td>1680 px</td><td>叠层</td></tr>
+      <tr><td>1440 DIP</td><td>1440 px</td><td>1800 px</td><td>2160 px</td><td>2880 px</td><td>停靠 488</td></tr>
+    </table></div>
+
+    <h3>3.9 键盘与焦点 <small>R1-04 · R1-08 · R1-09</small></h3>
+    <div class="tw"><table class="spec">
+      <tr><th>按键 / 场景</th><th>行为</th><th>条件</th></tr>
+      <tr><td>PageDown / PageUp · Home / End</td><td>下一页 / 上一页 · 第一页 / 最后一页</td><td>焦点在正文且不在输入框；页数 &gt; 1</td></tr>
+      <tr><td>Ctrl+= / Ctrl+NumPad+ · Ctrl+- · Ctrl+0</td><td>放大 ×1.25 · 缩小 ÷1.25 · 适应页面</td><td>分页或图片预览</td></tr>
+      <tr><td>Ctrl+滚轮</td><td>每格 ×1.1，以视口中心为锚点；普通滚轮不变</td><td>指针在正文上</td></tr>
+      <tr><td>Ctrl+F · Enter · Shift+Enter</td><td>打开查找 · 下一个 · 上一个</td><td>仅文本、代码、源码模式；IME 组合中不响应</td></tr>
+      <tr><td>Esc</td><td>依次关闭：菜单或下拉 → 查找栏 → 面板</td><td>IME 组合中不响应（沿用 <code>HasImeComposition</code>）</td></tr>
+      <tr><td>← / →</td><td>阅读 / 源码切换</td><td>焦点在切换控件上</td></tr>
+      <tr><td>Tab 顺序</td><td>身份区 → 内容操作 → 窗口操作 → 工具行 → 正文</td><td>叠层模式在面板内循环</td></tr>
+      <tr><td>打开时的焦点</td><td>用户发起：保持现状。<b>AI 发起：不移动焦点。</b></td><td><code>PreviewOpenOptions.TakeFocus</code></td></tr>
+      <tr><td>关闭后的焦点</td><td>回到打开者（沿用 <code>SidePanelDismissService</code>）</td><td>—</td></tr>
+    </table></div>
+
+    <h3>3.10 新增状态与数据来源 <small>没有来源的状态一律不显示</small></h3>
+    <div class="tw"><table class="spec">
+      <tr><th>状态</th><th>出现位置</th><th>真实来源</th></tr>
+      <tr><td>交付后已修改 · 文件已移动或删除 · 与交付时一致 · 旧记录无法确认</td><td>成果卡元信息 / 文件详情</td><td><code>DeliveryRecovery.Validate</code> 的 FileChanged / FileInaccessible / 成功（有或无 SHA-256）</td></tr>
+      <tr><td>简化视图 · 页面预览未能生成 · 阅读视图说明</td><td>视图说明行</td><td>实际执行的渲染分支；<code>OfficeVisualPreview.CreateAsync</code> 异常或返回空；<code>reading.Notice</code></td></tr>
+      <tr><td>AI 请求打开 {名称}</td><td>PanelNotice + 顶栏圆点</td><td>已完成的 <code>agent_web-panel_open</code> 条目中的 url</td></tr>
+      <tr><td>网页 / 文件与改动按钮激活</td><td>顶栏</td><td><code>_webDock</code> 可见；<code>TaskWorkspace</code> 当前为 project 区段</td></tr>
+      <tr><td>引用就绪</td><td>头部“引用”按钮</td><td><code>CaptureSelection() != null</code></td></tr>
+      <tr><td>恢复阅读位置</td><td>切回会话时</td><td>切换前捕获的 <code>CurrentPath</code> 与 <code>adapter.Page</code>（只存内存）</td></tr>
+    </table></div>
+
+    <h3>3.11 文案</h3>
+    <div class="tw"><table class="spec" id="copyTable"></table></div>
+  </section>
+
+  <!-- ===================== 04 PROMPT ===================== -->
+  <section class="blk" id="prompt">
+    <div class="sh"><span class="no">04</span><h2>Codex 统一开工提示词</h2></div>
+    <p class="lede">下方为完整提示词。“复制全文”得到 Markdown 原文，可直接交给 Codex。提示词把本文件第 03 节定为视觉唯一依据，第 01 节为交互示意，第 02 节为动效依据。</p>
+    <div class="prompt-actions">
+      <button class="btn pri" id="copyPrompt">复制全文</button>
+      <button class="btn" id="dlPrompt">下载 .md</button>
+      <span class="hint" id="promptStat"></span>
+    </div>
+    <article class="card-d md" id="promptView"></article>
+  </section>
+
+  <div class="foot">23Hertz 右侧工作区第一轮 · 效果稿与开工提示词 · 2026-10-12 · 本文件不修改任何源码、配置或用户数据；施工须等待用户明确授权。</div>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script type="text/markdown" id="promptSrc">
+# 23Hertz 右侧工作区第一轮低中风险改进与 UI 优化｜Codex 统一开工提示词（v2 精准版 · 2026-10-12）
+
+## 0. 授权、依据与总原则
+
+你是 23Hertz 施工工程师，负责实施本提示词列出的第一轮右侧工作区改进。本提示词基于 2026-10-12 对真实源码的只读复核编写；《右侧工作区完整落地可行性与风险评估报告（2026-10-10）》中已过时或不准确的结论，以第 2 节为准，不得回退到报告原文。
+
+**依据文件**：`F:\codex harness\23Hertz_右侧面板设计交付_20261012\23Hertz_右侧工作区R1_效果稿与开工提示词.html`
+- 第 03 节“设计规范”是**视觉唯一依据**；第 01 节“效果稿”是交互示意（不是像素截图）；第 02 节“动效稿”是动效依据。
+- 数值冲突时，以第 03 节表格为准；与源码 Token 现值冲突时，以源码为准并写入 ledger。
+- 本轮不新增任何设计 Token。
+
+**授权范围**：只改本提示词列出的源码与测试；可构建隔离候选；只在隔离数据下运行验证。
+
+**禁止事项**：
+- 替换 `23Hertz_Current/releases/*`；改动桌面快捷方式或 `Start-23Hertz.ps1`
+- 使用真实数据目录 `F:\codex harness\23Hertz-Data\Agent.codex-0.155.1`
+- 推送、部署、提交远程；对外发送任何消息
+
+**施工原则**：先修真实缺陷，再做交互，最后做视觉；复用现有组件和 Token；不做全局重构；编译通过不算完成。
+
+## 1. 基线（W0，开工前必须完成并写入 `artifacts/rightpanel-r1/baseline.json`）
+
+- 源码：`F:\codex harness\23Hertz_round1_20261008`，detached HEAD `980556557f0b…`。`src/Hertz.Desktop` 有 492 个文件存在未提交改动，全仓约 1729 条 status。这些都是已验收的成果，**严禁 reset / clean / checkout / stash 覆盖**。
+- 开工前对以下文件逐个记录 `git status` 与 SHA256；修改每个文件前再核对一次，哈希变化说明有并行改动，先合并再改：
+  - `PreviewDockController*.cs`、`FilePreviewPanel*.cs`、`UniversalContentPanel.cs`、`PreviewHeader.cs`、`PreviewToolbar.cs`
+  - `DeliveryShelf*.cs`、`ConversationArtifactView.cs`、`CompactArtifact.cs`
+  - `WebDockPanel*.cs`、`TerminalOutputPanel.cs`、`TextFileContentView.cs`、`PreviewViewport.cs`、`ContentViewModes.cs`
+  - `TaskHeaderPanel.axaml(.cs)`、`SidePanelDismissService.cs`、`WebPanelRequestObserver.cs`、`MainWindowViewModel.PreviewSnippets.cs`
+- **换行符**：仓库 CRLF / LF 混用。保持每个文件原有换行符，禁止整文件规范化。
+- **行数锁**：`eng/architecture-size-baseline.json` 锁定 `MainWindowViewModel.cs`（3599 行，正好在锁线上）和 `MainWindow.axaml.cs`，由 `tests/Hertz.Desktop.Tests/ArchitectureSizeBaselineChecks.cs` 校验。**这两个文件不得增加任何行。**`PreviewDockController.cs`（418 行）只允许加挂接点，主体逻辑放新 partial。
+- **并行设计稿**：`23Hertz_设计升级交付_20261012\23Hertz_完整交互与动效设计原型.html` 是并行原型，包含页签化“右侧任务面板”，**不是本轮施工依据**。
+
+## 2. 复核结论（更正报告）
+
+| 报告项 | 源码事实 | 本轮 |
+|---|---|---|
+| 首个成果自动打开 / 关闭后被无关成果重开 | 交付文件从不自动打开。唯一会在后台改变右侧内容的入口是 Agent 工具 `agent_web-panel_open`（`WebPanelRequestObserver.cs:66-85` → `MainWindow.WebDock.cs:20-22`）。这条链路确有问题：打断阅读、抢焦点、关闭后重开、弹出外部路径确认框 | R1-04 |
+| R12 终端为构造时快照 | 已过时。工具记录已由 `ExecutionToolRecordBinding.cs` 实时绑定 | 不处理 |
+| R07 迟到结果 | 预览加载已有取消令牌。真实缺口有两处：引用判定过严；`OpenWebLinkAsync` await 后 `SaveWebDock()` 会写入已切换的会话 | R1-01、R1-04 |
+| R02 DistinctBy(path) | 属实。`DeliveryShelf.cs:102` 保留的是第一次交付的快照，最终文件核验必然失败 | R1-02 |
+| R01 旧卡片打开新字节 | 结构缺口，属实。当前体验是核验失败后 `Perform` 静默返回（:130-133），**点击毫无反应**。本轮只呈现真实状态，版本身份延后 | R1-02（部分） |
+| R11 切换会话丢阅读 | 属实。切换时 `RemoveWebDock()` 关闭文件预览，只恢复网页面板的开合状态（`PreviewDockController.cs:81-93、402-416`） | R1-07（内存态） |
+| 7.1 对象栏 / 工具栏 | 头部已统一为 `PanelShell`（56），但四类面板各自一套按钮和关闭方式；名称换行导致头部跳动；执行记录头部有失效下拉 | R1-05 |
+| 7.3 窄窗口 | 窗口 `MinWidth=840` DIP；900 DIP 已是叠层模式；必须区分 DIP 与物理像素 | 验收 |
+
+**数据安全**：本轮范围内没有发现需要立即隔离的数据安全 BUG。R03（基于旧附件修改可能覆盖外部改动）仍是后续高风险项，本轮只让“交付后已修改”状态可见。
+
+## 3. 范围、优先级与顺序
+
+| ID | 项目 | 优先级 | 风险 | 工程量 | 依赖 |
+|---|---|---|---|---|---|
+| R1-00 | PanelNotice 就近反馈组件 | P0 | 低 | 小 | — |
+| R1-01 | 发送后在同一预览“引用”被误判为“对话已切换” | P0 | 低 | 小 | — |
+| R1-02 | 成果卡：取最新快照；已修改 / 已删除不再点击无反应；状态与菜单统一 | P0 | 低 | 中 | R1-00 |
+| R1-03 | 文本定位第 N 行滚动偏差、分页文案 | P0 | 低 | 小 | — |
+| R1-04 | Agent 打开请求的阅读保护、关闭意图、不抢焦点、迟到写入 | P0 | 中 | 中 | R1-00 |
+| R1-05 | 头部与操作入口统一、顶栏激活态 | P1 | 低 | 中 | — |
+| R1-06 | 视图说明行、加载 200 ms 门槛、错误卡、引用就绪态 | P1 | 低 | 中 | R1-00、R1-05 |
+| R1-07 | 切换会话恢复文件与页码（内存态） | P1 | 中 | 中 | R1-04 |
+| R1-08 | 键盘翻页与缩放、模式切换焦点 | P2 | 低 | 小 | R1-05 |
+| R1-09 | 文本 / 代码 / 源码模式查找（Ctrl+F） | P2 | 低 | 中 | R1-05、R1-08 |
+| R1-10 | 非图片缩略图悬停时才生成（实测） | P2 | 低 | 小 | — |
+
+**顺序**：W0 → R1-00 → R1-01 → R1-03 → R1-02 → R1-04 → R1-05 → R1-06 → R1-07 → R1-08 → R1-09 → R1-10 → 全量回归与证据包。
+
+**完成门槛**：P0、P1 必须全部完成并验收。P2 遇真实硬阻塞时可单列未完成，不计入完成率。
+
+## 4. 逐项规格
+
+### R1-00 PanelNotice
+- **问题**：`_notice` 位于正文第 1 行（`UniversalContentPanel.cs:77-79`），任何反馈都会把文档下推，而且永不消失。`TerminalOutputPanel` 的提示同样如此。
+- **实施**：新建 `Controls/PanelNotice.cs`（约 120 行内），覆盖在正文底部，不参与布局。
+  - API：`Show(text, kind, actions?, persistent)`、`Hide()`。
+  - Success / Info 在 2500 ms 后自动消失；Warning / Error 或带决策按钮的提示保持显示，直到用户关闭或切换文件。新消息替换旧消息。
+  - `LiveSetting=Polite`。规格见 HTML 3.1、3.7，动效见 M1。
+- **接入**：替换 `FilePreviewPanel` 中所有 `_notice` 赋值处（Attachment、Selection、Viewer.OpenOriginal、FileRequested 失败）以及执行记录的引用反馈。`LocalFilePreviewResult.Message` 不走 Toast，转入 R1-06 的视图说明行。
+- **测试**：通知出现与消失前后，正文首行的 `Bounds.Y` 不变。
+
+### R1-01 引用误判
+- **根因**：
+  1. `ShowFilePreviewAsync`（约 :300）和 `ShowTerminal`（约 :325）在打开时调用 `CaptureComposerSession()`，其中包含 `_taskPolling`。
+  2. 每次发送都会 `BeginPolling()` 替换 `_taskPolling`（`MainWindowViewModel.cs:2110/2303`、`TaskControl.cs:64`）。
+  3. `TaskPresentationSession.Matches` 用 `ReferenceEquals` 比较，必然失配。
+- **实施**：
+  - 在 `MainWindowViewModel.PreviewSnippets.cs` 新增“预览归属”判定，只比较 TaskId、Workspace、`_composerDraftGeneration`。`AddPreviewSnippet` 与两处捕获改用它。
+  - 不改 `TaskPresentationSession`（另有约 13 处调用依赖它）。
+  - 隔离不会变弱：会话切换时整个面板被移除，新建对话会递增 draft generation。
+- **测试**：替换 polling 后引用成功；`PrepareNewTask` 后拒绝；不同 Task 拒绝。
+
+### R1-02 成果卡
+1. **取最新快照**：在 `ViewModels/DeliveryShelfData.cs` 新增纯函数 `LatestByPath`（同一路径保留最后一次交付，排序规则不变），`Refresh` 改用它。`DeliveryRecovery.Validate` 不改。
+2. **核验失败时给出明确操作**：新建 `DeliveryShelf.ChangedNotice.cs`，在卡片行下方显示内联提示，规格见 HTML 3.6。
+   - FileChanged：“此文件在交付后已被修改，当前内容与这张卡片记录的不同。”按钮按原动作区分为 [查看当前文件] 或 [用当前文件继续修改]，另有 [取消]。
+   - FileInaccessible：“文件已移动或删除，无法打开。”按钮为 [复制原路径]。
+   - 执行路径：在 `ISourceDeliveryActionHost` 新增 `OpenChangedDeliveryAsync(owner, file, action)`，实现放在 `MainWindow.SourceDelivery.cs`，沿用已有任务归属校验。
+     - 预览：调用 `ShowFilePreviewAsync(target, new PreviewOpenOptions { Note = "正在显示文件的当前内容，与对话中该卡片交付时的内容不同。" })`，以 Warning 级、持久的 PanelNotice 显示。
+     - 修改：调用 `PrepareArtifactRevisionAsync`，原有修改提示原文不变。
+   - **禁止把当前文件标成“该卡片的版本”。**
+3. **状态文案**：去掉常驻的“版本待核验”（`DeliveryShelf.Artifacts.cs:245`）。元信息只显示“类型 · 大小”，异常时追加“· 交付后已修改”（StatusPartial）或“· 文件已移动或删除”（StatusFailed）。成功和旧记录的结论只写在文件详情里。
+4. **菜单**：
+   - 成果卡菜单分四组，纯文字：
+     - ① 基于此文件继续修改
+     - ② 用默认应用打开 / 选择应用打开… / 在文件夹中显示
+     - ③ 另存为… / 复制文件路径
+     - ④ 核对是否被改动 / 刷新卡片预览 / 显示（隐藏）文件详情
+   - `ConversationArtifactView` 菜单：用默认应用打开 / 选择应用打开… / 在文件夹中显示 / 另存为… / 复制文件路径；全部带图标。
+5. **视觉**：“⋯”从字符 TextBlock 改为矢量三点（HTML 3.4）；卡片标题最多 2 行，完整名称放 ToolTip 与 AutomationName。
+
+### R1-03 文本定位
+- **问题**：`TextFileContentView.GoToLine` 用 `FontSize * 1.3` 估算滚动位置（:140），实际行高为 21 / 23（:46）。定位到第 300 行时偏差约 830 DIP。
+- **实施**：
+  - 滚动位置优先用 `_text.TextLayout.HitTestTextPosition(local)`，失败时回退 `行序 × LineHeight`。
+  - 定位提示改为“已定位到第 N 行”。
+  - 构造时一次性计算各分段的起止行号，分段信息改为“分段 x / y · 第 a–b 行，共 n 行”。16K 分段机制不变。
+
+### R1-04 Agent 打开请求的阅读保护
+- **真实链路**：
+  - 本地文件、工作区内：`ShowConversationPathAsync(path)` → `ShowFilePreviewAsync` → `_close.Focus()`（`FilePreviewPanel.cs:128`），**抢走输入焦点，打断 IME**。
+  - 本地文件、工作区外：`ExternalPathConfirmationOverlay` 被聚焦（`MainWindow.FileActions.cs:51-58`），**等于 Agent 弹出了模态框**。
+  - 网页：`OpenWebLinkAsync` 执行 `CloseFilePreview()`（:153），**用户正在读的文件被关掉**。
+  - 用户关闭后，Agent 再请求会重新打开；await 之后的 `SaveWebDock()` 可能写入另一个会话。
+- **实施**：
+  1. 新建纯策略类 `Services/AgentPanelRequestPolicy.cs`。输入：面板当前内容（None / Web / File(path) / Records / Diagram / PastedText）、本轮是否已被用户关闭、目标。决策：
+     - None 且未关闭 → 打开，不移动焦点。
+     - 目标在工作区外 → 一律进入待处理，不自动弹出确认框。
+     - 用户本轮已关闭 → 待处理。
+     - 当前显示 Web → 在网页面板内导航，不移动焦点。
+     - 当前显示同一文件 → 待处理，按钮为“重新加载”；不自动重载。
+     - 当前显示其他内容 → 待处理。
+  2. **待处理的呈现**（HTML 效果稿场景 4、5）：只保留最新一条；切换会话、打开或忽略后清除。
+     - 面板可见时：持久 Info 级 PanelNotice “AI 请求打开 {名称}”，按钮 [打开] [忽略]。
+     - 始终：顶栏 `WebButton` 显示 6×6 圆点，ToolTip “AI 请求打开：{名称}”。待处理期间点击该按钮，打开待处理目标。
+     - 工作区外的文件，用户点击“打开”后才走原有确认框。
+  3. **关闭意图**（内存态，按会话区分）：用户通过关闭按钮、Esc、遮罩、顶栏切换、“返回对话”关闭时设置；任务切换、打开侧栏等程序性移除不设置。该会话发出下一条用户消息，或用户手动打开任何内容时清除。
+  4. **焦点**：`ShowFilePreviewAsync(target, PreviewOpenOptions? options)` 新增 `TakeFocus`（默认 true）与 `Note`；`FilePreviewPanel.ShowFileAsync` 只在 TakeFocus 为 true 时聚焦。所有 Agent 发起的打开都传 false；用户发起时保持现状。
+  5. **迟到写入**：`OpenWebLinkAsync` 在 await 前捕获 `_webConversation`，之后若已变化或已 Dispose，则跳过 `SaveWebDock()`。
+- **边界**：
+  - `WebPanelRequestObserver.cs` 保留不重放历史的逻辑，`WebPanelResumeChecks` 必须继续通过。
+  - 新建 `PreviewDockController.AgentRequests.cs`。
+  - `MainWindow.WebDock.cs` 只接线。
+  - `TaskHeaderPanel.axaml(.cs)` 加圆点与激活态。
+
+### R1-05 头部与入口统一（规格见 HTML 3.1 / 3.4 / 3.5）
+- **a**：`UniversalContentPanel` 只在文件数 ≥2 且 showFileActions 为 true 时，把身份区渲染成下拉按钮；否则为纯文本、无箭头。这同时修掉执行记录面板的失效下拉（它从不调用 `SetIdentity`）。
+- **b**：标题改用 `MiddleEllipsisTextBlock`，单行；副标题用 `UiSmallSize` / `HertzMetaLine`（原为 14 号）。
+- **c**：头部操作顺序固定为：[阅读|源码] [查找] [引用] ┆ [在外部打开] [展开/还原] [⋯] [×]。
+  - 展开 / 还原两个图标随状态切换；叠层模式规则不变。
+  - 面板宽度小于 440 时，“在外部打开”和“展开”收进 ⋯ 菜单首组（参照 `PlaceModes` 的 SizeChanged 写法）。
+- **d**：“⋯”菜单只放操作，分两组：添加到对话 / 在文件夹中显示、复制文件路径、另存为…。说明文字移到副标题与视图说明行。
+- **e**：文件、网页、执行记录、图表四类面板统一关闭按钮。执行记录面板的“关闭”“引用所选”文字按钮改为图标按钮；`PreviewDockController.Diagram.cs` 改用 `PanelShell`，标题为“图表”。
+- **f**：`PreviewButtons.Style` 去掉写死的 #12777777 等颜色，改为 HoverBrush / SurfaceStrongBrush / FocusRingShadow；新增 toggled 态（SelectedBrush）。同一文件中未使用的 `PreviewHeader` 类可以删除，`PreviewButtons` 与 `PreviewPanelFrame` 保留。
+- **g**：网页面板标题优先显示 `state.Title`，没有时显示“网页”；副标题为域名。
+- **h**：头部与切换列表的 `FileFormatTile` 设 `UseCompactPalette=true`，与左侧卡片同色。
+- **i**：网页面板可见时 `WebButton` 加 `active` 类；TaskWorkspace 处于 project 区段时 `ChangesButton` 加 `active` 类。
+- **j**：文件切换列表按交付时间从新到旧排列；每行显示文件名（中部省略）和第二行所在文件夹名；当前项显示勾并使用 Selected 底。
+
+### R1-06 预览状态真实化
+1. **视图说明行**（工具行之下，与内容同时出现，不会事后插入）：
+   - 文档提取视图：“简化视图：只显示提取的文字，原排版、图片和图表未显示。”
+   - 表格视图：“表格简化视图：公式显示为文字、不会计算；点击单元格查看完整内容。”
+   - Office 页面转换失败：“页面预览未能生成，当前为简化视图。”
+   - 加载器提示：截断、缩放说明。
+   - 行尾提供 [用默认应用打开]。
+2. **清除残留状态**：修复“正在生成页面预览…”在异常和降级路径上的残留（`FilePreviewPanel.cs:177/194`）。页数并入副标题，例如“PowerPoint 演示文稿 · 5.1 MB · 18 页”。
+3. **加载感知**：加载线立即出现；加载卡片 200 ms 后才出现；在此之前正文保持空白画布，不保留旧内容（动效见 M2）。
+4. **错误卡**：标题“正在准备预览”或“无法在这里预览”（15/22）；原因行用加载器的真实原因（13/20）；按钮 [重新加载] [用默认应用打开] [复制文件路径]。
+5. **引用就绪态**：
+   - 在已有的 PointerReleased / KeyUp 捕获点（`FilePreviewPanel.Selection.cs:40-43`）计算是否有选区。
+   - 有选区：按钮显示“图标 + 引用”；无选区：只显示图标，ToolTip “先选择文字，再引用到输入框”。
+   - **不禁用按钮**，以保留现有的 PointerPressed 捕获。
+   - 成功反馈：Success 级 PanelNotice “已加入输入框（第 a–b 行），发送前可在引用卡里核对。”执行记录面板同样处理。
+
+### R1-07 恢复阅读对象
+- 新建 partial `PreviewDockController.ReadingState.cs`：`Dictionary<会话键, (Path, Page?)>`，LRU 最多 32 条，只存内存。
+- **捕获**：在 `ViewModelChanged` 执行 `RemoveWebDock()` 之前，且当前预览已加载成功。用户主动关闭预览时删除该会话的快照。
+- **恢复**：在 `RestoreWebDock()` 之后，若文件仍存在，调用 `ShowFilePreviewAsync(path, TakeFocus:false)`，加载完成后执行 `GoToPageAsync(page)`。每个 await 之后都校验会话键与 `CurrentPath`。
+- **已知限制**（如实记录）：新对话首次发送时 Task ID 从无到有，期间打开的预览不恢复；执行记录、图表、粘贴文本不恢复。
+
+### R1-08 键盘与缩放
+- 在 `FilePreviewPanel` 中对 `_content` 统一处理，只在焦点位于正文且不在输入框时生效：
+  - PageDown / PageUp / Home / End 翻页（页数 > 1）
+  - Ctrl+= / Ctrl+NumPad+ 放大 ×1.25；Ctrl+- 缩小 ÷1.25；Ctrl+0 适应页面
+  - Ctrl+滚轮每格 ×1.1，设 `e.Handled`；普通滚轮不变
+- `ContentViewModes` 增加焦点环和 ← / → 切换。
+- 开工前检索 `KeyboardShortcutsDialog.cs`、MainWindow 键盘处理、CommandPalette，确认无冲突。
+
+### R1-09 查找
+- 只在 `TextFileContentView` 实现；Markdown、HTML、JSON 的源码模式复用它。PDF、图片、Office 页面预览不显示查找入口。
+- 查找栏高 40：输入框（占位“在文件中查找”）、计数“i / n”、上一个、下一个、关闭。
+- 匹配：不区分大小写，按序数比较；最多计 10000，超出显示“10000+”；超过 1 MB 在后台查找并可取消；跨分段跳转后用选区高亮，复用 R1-03 的滚动逻辑。
+- 按键：Enter 下一个；Shift+Enter 上一个；Esc 只关闭查找栏（设 `e.Handled`）。IME 组合中不响应；文本变化后防抖 150 ms。
+
+### R1-10 缩略图按需生成
+- **问题**：`DeliveryShelf.Artifacts.cs:272` 为每张可见卡片立即生成缩略图。非图片文件的结果只用于 ToolTip，却会启动 Playwright 渲染 HTML、在 UI 线程渲染 Markdown、读取 Office 文件。
+- **实施**：非图片改为 ToolTip 即将打开时生成一次（受 generation 守卫）；图片保持立即生成；`RecoverPreviewAsync` 不变。
+- **实测**：在含 10 个以上 HTML / MD / DOCX 交付的会话中，对比改动前后的生成次数、Playwright 启动次数和 UI 卡顿（`eng/Measure-DesktopResponsiveness.ps1`）。只报告实测数字。
+
+## 5. 视觉规格摘要（详见 HTML 第 03 节；此处只列关键数值）
+
+- **字号**：
+  - 标题 15/20 SemiBold；副标题 12/16 Ink2；工具行 13 等宽数字；菜单 13；说明与通知 13/20；错误卡标题 15/22。
+  - 写死字号要修正：`PreviewToolbar` 14→13、`PdfPagePreviewView._message` 14→13、`MarkdownFilePreviewView` 提示 14→13。
+- **尺寸**：
+  - 头部 56 / 内边距 20；图标按钮 32×32、图形 16、圆角 6；组间分隔 1×16。
+  - 工具行 40 / 内边距 16,4；页码框 36×28；视图说明行 ≥32；查找栏 40。
+  - PanelNotice 距底 16、最大宽 480、内边距 10,12、圆角 8。
+  - 菜单项 32、最小宽 216；切换列表行 ≥44、宽 320–360。
+  - 成果卡 440 / 圆角 11；卡片内联提示内边距 12,10。
+  - 顶栏按钮 36×36，待处理圆点 6×6，圆心 (26,10)。
+- **颜色**：黑白主调；蓝色只用于焦点环；选中用 SelectedBrush；语义色只用于真实状态（StatusPartial、StatusFailed、StatusVerified）；**右侧禁止橙色**（橙色专属运行控制）。
+- **图标**：16 网格，描边 1.5，圆头圆角；几何定义见 HTML 3.4，复用项不得重画。
+- **动效**：透明度 120 ms，CubicEaseOut；加载卡片 200 ms 门槛；减少动态效果时为 0；面板宽度与 Flyout 不加动画；禁止循环、滑动、缩放和骨架屏。
+- **文案**：严格使用 HTML 3.11 的替换表；新增文案接入 `UiLanguage.Translate`。
+
+## 6. 必须保留与禁区
+
+**必须保留**：
+- 输入框升起 / 按压 / 运行阴影与位移、左右区域色差：`ComposerSurfaceStyles.axaml`，`ThemePalette.cs` 中的 Composer*、SurfacePage、SurfaceRail（冻结）
+- 唯一橙色运行主控制；Enter 发送 / Shift+Enter 换行；Tiptap + WebView2；中文 IME；草稿、队列、Steer、防重
+- 流式响应、Skills、MCP、审批、电脑操作接管与急停、附件、历史恢复
+- 预览安全限制（8 MiB / 20 MiB、CSP、sandbox、`WebPanelAddressPolicy`）
+- 用户主动打开工作区外路径时的二次确认
+- `SidePanelDismissService` 语义；`ObjectPanelMetrics` 阈值；`WebLayout` Version 4 格式；`DeliveryRecovery.Validate` 的判定
+
+**不得改动**：
+- `Hertz.Host`、`Hertz.Contracts`、`Hertz.Persistence`、`WorkspaceHistory*`、Office 生成与发布、`Hertz.Browser` 安全策略
+- `RichComposer/*`、Composer 样式、`ThemePalette.cs`、Provider / 路由 / Skills
+
+如果必须改动这些模块才能完成某项，停止该项并记录为阻塞，不要扩大范围。
+
+## 7. 施工纪律
+
+1. 开工先完成 W0；修改任何文件前核对哈希，不覆盖并行成果。
+2. 直接复用 `MiddleEllipsisTextBlock`、`PanelShell`、`PanelLoadingLine`、`FocusRingShadow`、`HoverBrush`、`SelectedBrush`、`DeliveryRecovery`、`TaskPresentationSession`、`WebPanelRequestObserver`，不另建同类组件。
+3. 新逻辑放入新 partial 或小类；不做无关重构，不加无关注释，不批量改格式。
+4. 每项改动复核上下游调用链：`RequestConversationFileActionAsync` 的全部调用方；`ShowFilePreviewAsync` 的 5 处调用方；`SidePanelDismissService` 的注册与焦点返回；`ResourcePreviewState`；`ISourceDeliveryActionHost` 的实现与测试替身。
+5. 每完成一项，立即运行相关测试与 UiCapture 探针，失败当场修。
+6. **每 30 分钟保存检查点**：`artifacts/rightpanel-r1/checkpoint-<时间>.json`，并更新 `progress.json`。内容包括已完成与未完成项、已改文件及哈希、测试命令与结果、候选路径、阻塞项、下一步。中断后从最新检查点继续。
+7. **硬阻塞**只限外部服务、硬件、权限或用户现场条件缺失。处理方式：记录错误原文、已尝试措施、影响、恢复条件，然后跳过该项继续其他工作。本轮改动引起的问题不算阻塞，必须修复。
+8. 以本提示词给出的源码证据为起点，不重新调研，不全仓重复扫描。
+9. **构建与候选**：
+   - 测试构建输出与 TEMP / TMP 放在仓库之外，使用 `StageDevelopmentHost=false`。
+   - 用 `eng/Publish-Preview.ps1`（先读参数说明）发布到 `artifacts/rightpanel-r1-candidate<N>`。
+   - 启动前设置 `HERTZ_DESKTOP_DATA_ROOT` 指向新的隔离目录（例如 `D:\23Hertz-rightpanel-r1\data`），并设置 TEMP / TMP。
+   - 需要真实模型时，使用 `D:\23Hertz-round1-validation-20261008\live-stream980` 的**副本**；不可用则记为阻塞。
+10. 只要有一项 P0 / P1 未验收，就不得宣布完成；延后项不计入完成率。
+
+## 8. 测试与验收
+
+**新增自动测试**：放在 `tests/Hertz.Desktop.Tests/`，每类一个文件，在 `Program.cs` 中各加一行注册。
+- PreviewOwnerSessionChecks
+- DeliveryLatestAndChangedChecks
+- TextPreviewLocateChecks
+- AgentPanelRequestPolicyChecks（决策表全分支）
+- ReadingRestoreChecks（含快速切换与迟到写入）
+- TextFindChecks
+- ThumbnailLazyChecks
+
+**UiCapture 扩展**：
+- `ContentPanelProbe`：头部操作、单文件无下拉、窄面板收纳
+- `DeliveryShelfProbe`：已修改卡片的内联提示
+- `WebPanelToolProbe`：焦点不被移走、不弹确认框
+- `TextPreviewNativeChecks`：定位准确
+- `FilePreviewNativeProbe`：键盘、缩放、PanelNotice 不挤压正文
+
+**必须回归通过**：
+- Desktop 全量，含 ArchitectureSizeBaseline、ThemeResource、DrawerDismiss、FilePreviewSave、LocalFilePreview、SourcesDelivery、ArtifactDeliveryPresentation、PreviewAttachmentReceipt、WebPanelResume
+- Browser：WebPanelAddress、LocalWebPreview
+- RichCore / Web 输入框测试
+- 本轮不应改动 Host；如有 Host 文件变化，必须跑 Host 全量
+- 不得删除或放宽断言；断言与新要求冲突时，先记录原断言、原因和失败日志
+
+**真实操作验收**（隔离候选 + 隔离数据 + 真实 Windows 窗口）：
+
+| 编号 | 操作 | 通过条件 |
+|---|---|---|
+| S01 | 点卡片 → 预览 → 切换文件 → ⋯ 逐项操作 → 关闭 | 每项真实生效；焦点回到原卡片 |
+| S02 | 同一轮两次写入并交付同名文件 | 只有一张卡片，打开最终内容，不误报 |
+| S03 | 第 2 轮修改第 1 轮交付的文件，再点第 1 轮卡片 | 出现内联提示；查看当前文件后预览中持续有差异说明；绝不显示“该卡片版本” |
+| S04 | 在外部删除或修改交付文件 | 卡片状态与原因准确 |
+| S05 | 阅读 PDF 第 5 页时 AI 请求打开网页 | 不切换、不重置页码、不抢焦点；出现通知与圆点 |
+| S06 | 中文 IME 组合中，AI 请求打开工作区内 / 外的 html | 组合不被打断；不弹确认框 |
+| S07 | 运行中主动关闭面板，AI 再次请求 | 面板保持关闭；下一条消息后恢复默认 |
+| S08 | A 会话第 7 页 → 切到 B → 回 A；再快速切换五次 | 回到 A 时恢复第 7 页；B 不出现 A 的内容；无迟到覆盖 |
+| S09 | 发送后在同一预览中选字引用 | 成功；真实切换会话后被拒绝 |
+| S10 | pptx / xlsx 页面转换失败；只能提取文字的文档 | 视图说明行准确；不显示“生成失败”或“已检查” |
+| S11 | 大代码文件定位第 300 行；中英文查找；Esc | 定位准确；Esc 先关查找再关面板 |
+| S12 | 全键盘：Tab → Enter → PageDown → Ctrl+= → Ctrl+F → Esc×2 | 焦点可见、顺序合理、没有陷阱 |
+| S13 | 900 / 840 DIP × 100/125/150/200% × 浅 / 深色 | 关键操作可见可达；长名中部省略；头部不跳动 |
+| S14 | 连续打开、翻页、缩放、查找、复制、另存 10 分钟 | Provider 请求计数不变 |
+| S15 | 左侧回归：流式、Skills、MCP、审批、电脑操作（物理 Esc 急停需用户在场）、附件、队列、草稿、历史、Enter | 全部正常；输入框阴影与色差和基线截图一致 |
+| S16 | 四类面板截图对照 | 字号、图标、间距、状态符合 HTML 第 03 节 |
+
+**证据格式**：每条记录包含需求 ID、候选路径与 SHA256、源码指纹、窗口 DIP / 物理像素 / DPI / 主题、步骤、预期、实际、截图或日志路径、结论。
+
+**结论分类**：通过 / 未通过 / 替代验证 / 无法验证。
+- 系统 DPI 切换须由用户现场同意；未同意时，用 UiCapture 缩放或 `eng/Capture-UiIronRulesMatrix.ps1` 作为替代证据，标为“替代验证”，不得记为物理 DPI 通过。
+- 第二显示器、Narrator 全流程、余额不足的 Provider、物理 Esc 急停，在报告中单列。
+
+## 9. 延后项目（不得混入本轮，也不得用 UI 假象替代）
+
+- 成果 / 修订身份（ArtifactRef / RevisionRef）、不可变字节、导出版本
+- 类型化锚点与批量批注；修改回执与精确定位；按修改项审阅
+- 比较与范围恢复；条件提交与并发；稳定快照读取；版本保留
+- 完整来源链；可解释检查记录；数据血缘与跨成果更新
+- 视图状态落盘（缩放、选区、未发送批注）
+- 局部试调、旁问扩展；统一实时与快照操作现场
+- HTML 宿主桥扩展；Office 原生编辑；跨文件同步；Host / Desktop 协议重建
+- 页签化右侧任务面板、自由布局、多文件标签
+- PDF 文字层查找、高分辨率重渲染、修改 `ObjectPanelMetrics` 阈值
+
+## 10. 交付物与完成判定
+
+1. **源码改动**：只限本提示词列出的文件，以及新增的 partial 和小类。
+2. **候选**：`artifacts/rightpanel-r1-candidate<N>`，附 SHA256 与 manifest，标注 preview / dirty / 不可分发。
+3. **验收记录**：`artifacts/rightpanel-r1/` 下包括 baseline、progress、各次检查点、ledger（R1-00 至 R1-10 逐项）、截图、日志、R1-10 的性能前后数据。
+4. **最终报告**：逐项写明结论分类；未完成项写明原因与恢复条件；列出与第 2 节不一致的新发现；不宣称超出证据的结论。
+
+正式替换安装包、推送、发布，均需用户另行明确授权。
+</script>
+
+<script>
+(()=>{
+"use strict";
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ic=(id,cls="")=>`<svg class="ic ${cls}" aria-hidden="true"><use href="#i-${id}"/></svg>`;
+const g20=id=>`<svg class="ic g20" aria-hidden="true"><use href="#g-${id}"/></svg>`;
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+
+/* ---------- theme ---------- */
+function applyTheme(t){
+  const r=document.documentElement;
+  if(t==="system")r.removeAttribute("data-theme");else r.setAttribute("data-theme",t);
+  $$("[data-theme-set]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.themeSet===t)));
+  store.set("hz-r1-theme",t);
+}
+$$("[data-theme-set]").forEach(b=>b.addEventListener("click",()=>applyTheme(b.dataset.themeSet)));
+applyTheme(store.get("hz-r1-theme")||"system");
+const sysReduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------- data ---------- */
+const INK={pdf:"#EB4743",doc:"#D87888",slides:"#FE5EA0",sheet:"#18B670",code:"#30A9FF",md:"#00B7C7",web:"#00B7C7"};
+function tile(kind,label,w=20,h=24){const c=INK[kind]||"#B5B8BB";return `<svg class="tile" width="${w}" height="${h}" viewBox="0 0 20 24" aria-hidden="true" style="flex:none"><path d="M3.5 .75H12.5L17.25 5.5V21.5A1.75 1.75 0 0 1 15.5 23.25H3.5A1.75 1.75 0 0 1 1.75 21.5V2.5A1.75 1.75 0 0 1 3.5 .75Z" fill="${c}" fill-opacity=".12" stroke="${c}" stroke-width="1.1"/><path d="M12.5 .75V5.5H17.25" fill="none" stroke="${c}" stroke-width="1.1" stroke-linejoin="round"/><text x="9.5" y="19" text-anchor="middle" font-size="5.4" font-weight="700" fill="${c}" font-family="Segoe UI,Arial,sans-serif">${label}</text></svg>`}
+const FILES={
+  q3:{name:"Q3 销售简报.pdf",kind:"pdf",label:"PDF",type:"PDF 文档",size:"2.4 MB",pages:12,folder:"交付 › 2026-10-11"},
+  deck:{name:"渠道复盘_第三季度_管理层汇报终版.pptx",kind:"slides",label:"PPT",type:"PowerPoint 演示文稿",size:"5.1 MB",pages:18,folder:"交付 › 2026-10-11",failed:true},
+  code:{name:"report_builder.py",kind:"code",label:"PY",type:"Python 源代码",size:"48 KB",folder:"scripts"},
+  rep:{name:"客户回访报告.docx",kind:"doc",label:"DOC",type:"Word 文档",size:"86 KB",folder:"交付 › 2026-10-09",changed:true}
+};
+const PICK_ORDER=["code","deck","q3","rep"];
+const WEB={A:{title:"2026 Q3 渠道与零售趋势报告 · 示例研究",domain:"research.example.com",path:"/reports/2026-q3-channel"},B:{title:"官网首页 · 改版预览",domain:"localhost:5173",path:"/"}};
+const CODE=[
+"from dataclasses import dataclass","from pathlib import Path","import csv","",
+"# 汇总 Q3 各区域销售数据，生成简报所需的表格与图表","",
+"@dataclass","class RegionSummary:","    region: str","    revenue: float","    target: float","    orders: int","",
+"    @property","    def attainment(self) -> float:","        return self.revenue / self.target if self.target else 0.0","",
+"    @property","    def avg_order(self) -> float:","        return self.revenue / self.orders if self.orders else 0.0","","",
+"def load_rows(path: Path) -> list[dict]:",'    with path.open(encoding="utf-8-sig") as f:',"        return list(csv.DictReader(f))","","",
+"def summarize(rows: list[dict]) -> list[RegionSummary]:","    buckets: dict[str, RegionSummary] = {}","    for row in rows:",'        region = row["region"].strip()','        revenue = float(row["revenue"] or 0)','        target = float(row["target"] or 0)',
+"        item = buckets.setdefault(region, RegionSummary(region, 0.0, 0.0, 0))","        item.revenue += revenue","        item.target += target","        item.orders += 1",
+"    return sorted(buckets.values(), key=lambda s: s.revenue, reverse=True)","","",
+"def top_regions(items: list[RegionSummary], n: int = 3) -> list[RegionSummary]:","    # 按 revenue 排序后取前 n 个区域，用于第 2 页的重点区域",
+"    ranked = sorted(items, key=lambda s: s.revenue, reverse=True)","    return ranked[:n]","",
+"def growth(current: float, previous: float) -> float:","    if previous == 0:","        return 0.0","    return (current - previous) / previous","","",
+"def build_table(items: list[RegionSummary]) -> list[list[str]]:",'    header = ["区域", "revenue", "目标", "达成率"]',"    body = [",'        [s.region, f"{s.revenue:,.0f}", f"{s.target:,.0f}", f"{s.attainment:.1%}"]',"        for s in items","    ]","    return [header, *body]","","",
+'if __name__ == "__main__":','    rows = load_rows(Path("data/q3_sales.csv"))',"    summary = summarize(rows)","    for line in build_table(top_regions(summary)):",'        print("\\t".join(line))'
+];
+const SEL=[42,48];
+
+/* ---------- state ---------- */
+const MAXW=488,MINW=360;
+let S;
+function fresh(){return{
+  sess:"A",
+  A:{open:true,view:"file",file:"q3",page:5,closed:false,zoom:1},
+  B:{open:true,view:"web",file:null,page:1,closed:false,zoom:1},
+  userWidth:MAXW,expanded:false,overlay:false,
+  picker:false,menu:false,zmenu:false,cardMenu:null,cardNotice:null,repState:null,
+  find:null,quote:false,notice:null,pending:null,loading:false,loadingCard:false,
+  viewNote:null,running:false,chips:[],composer:"",changes:false,agentRow:false,scen:"read"
+};}
+S=fresh();
+const keep={annot:false,slow:false,reduce:sysReduce};
+const cur=()=>S[S.sess];
+const panelW=()=>S.overlay?844:(S.expanded?MAXW:S.userWidth);
+const narrow=()=>!S.overlay&&panelW()<440;
+
+/* ---------- mock skeleton ---------- */
+const mock=$("#mockEl"),fit=$("#fit");
+mock.innerHTML=`
+<div class="m-title"><span class="t">23Hertz</span><div class="mirror"><div class="wc"><span><svg viewBox="0 0 10 10"><path d="M0 5H10"/></svg></span><span><svg viewBox="0 0 10 10"><rect x=".5" y=".5" width="9" height="9"/></svg></span><span><svg viewBox="0 0 10 10"><path d="M0 0L10 10M10 0L0 10"/></svg></span></div></div></div>
+<div class="m-body">
+  <nav class="m-rail" id="mRail"></nav>
+  <div class="m-main" id="mMain">
+    <div class="m-head" id="mHead"></div>
+    <div class="m-trans" id="mTrans"></div>
+    <div class="m-comp"><div class="cbox" data-spec="保留不改：输入框阴影 · 左右色差 · 橙色运行控制"><div class="chips" id="mChips"></div><div class="cin" id="mCin"></div><div class="cbar"><span>${g20("plus")}</span><span>DeepSeek Pro</span><span class="sp"></span><span>工作区 · Q3-briefing</span><button class="runb" id="mRun" aria-label="运行主控制" style="border:0;cursor:default"><i></i></button></div></div></div>
+  </div>
+  <div class="m-split" id="mSplit" role="separator" aria-orientation="vertical" aria-label="调整右侧面板宽度" tabindex="0"></div>
+  <section class="m-panel" id="mPanel" aria-label="右侧预览面板"></section>
+</div>`;
+
+/* ---------- render helpers ---------- */
+function midE(name){const dot=name.lastIndexOf(".");const cut=Math.max(0,(dot>0?dot:name.length)-6);return `<span class="mid"><span class="h">${esc(name.slice(0,cut))}</span><span class="t">${esc(name.slice(cut))}</span></span>`}
+function renderRail(){
+  const it=(k,t)=>`<button class="ri ${S.sess===k?"on":""}" data-act="sess:${k}">${S.running&&k==="A"?'<span class="run"></span>':""}<span style="overflow:hidden;text-overflow:ellipsis">${t}</span></button>`;
+  $("#mRail").innerHTML=`<div class="newc">${g20("plus")}新对话</div><div class="sec">今天</div>${it("A","Q3 销售简报整理")}${it("B","官网首页改版评审")}<div class="sec">更早</div><div class="ri">供应商合同条款核对</div><div class="ri">九月周报汇总</div><div class="ri">招聘 JD 改写</div>
+  <button class="mini ${S.sess==="A"?"on":""}" data-act="sess:A" aria-label="Q3 销售简报整理">${g20("chat")}</button><button class="mini ${S.sess==="B"?"on":""}" data-act="sess:B" aria-label="官网首页改版评审">${g20("chat")}</button>`;
+}
+function renderHead(){
+  const c=cur();const webOn=c.open&&c.view==="web";
+  $("#mHead").innerHTML=`<div class="tt">${S.sess==="A"?"Q3 销售简报整理":"官网首页改版评审"}</div>
+  <div class="grp">
+    <button class="th" aria-label="打开上下文"><svg class="ring" viewBox="0 0 18 18"><circle cx="9" cy="9" r="7" fill="none" stroke="var(--hair)" stroke-width="2"/><path d="M9 2A7 7 0 0 1 15.9 10.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>上下文 <span style="color:var(--ink3)">38%</span></button>
+    <span class="hsep"></span>
+    <button class="th" aria-label="会话目录">${g20("outline")}</button>
+    <button class="th ${S.changes?"on":""}" data-act="changes" aria-label="文件与改动" title="查看这条对话的文件、改动与恢复记录">${g20("files")}</button>
+    <button class="th ${webOn?"on":""} ${S.pending?"pending":""}" data-act="web" data-spec="36×36 · 激活 Selected · 圆点 6×6" aria-label="${S.pending?"AI 请求打开："+esc(S.pending.label):"网页面板"}" title="${S.pending?"AI 请求打开："+esc(S.pending.label):"网页面板"}">${g20("globe")}<span class="dot"></span></button>
+  </div>`;
+}
+function cardHTML(id){
+  const f=FILES[id];const c=cur();const sel=c.open&&c.view==="file"&&c.file===id&&S.sess==="A";
+  let state="";
+  if(id==="rep"&&S.repState==="changed")state=` <span class="st-partial">· 交付后已修改</span>`;
+  const note=S.cardNotice===id?`<div class="cnote" role="status">${ic("warn")}<div><div>此文件在交付后已被修改，当前内容与这张卡片记录的不同。</div><div class="acts2"><button class="lnk" data-act="cardView">查看当前文件</button><button class="lnk" data-act="cardRevise">用当前文件继续修改</button><button class="lnk q" data-act="cardCancel">取消</button></div></div></div>`:"";
+  const menu=S.cardMenu===id?`<div class="fly menu" style="top:calc(100% - 4px);right:6px" role="menu">
+    <button class="mi" data-act="cardRevise">基于此文件继续修改</button><div class="msep"></div>
+    <button class="mi" data-act="noop">用默认应用打开</button><button class="mi" data-act="noop">选择应用打开…</button><button class="mi" data-act="noop">在文件夹中显示</button><div class="msep"></div>
+    <button class="mi" data-act="noop">另存为…</button><button class="mi" data-act="copyPathCard">复制文件路径</button><div class="msep"></div>
+    <button class="mi" data-act="verify:${id}">核对是否被改动</button><button class="mi" data-act="noop">刷新卡片预览</button><button class="mi" data-act="noop">显示文件详情</button></div>`:"";
+  return `<div class="card ${sel?"sel":""}" ${id==="q3"?'data-spec="成果卡 440 · 圆角 11 · 标题最多 2 行"':""}><span class="mark"></span>
+   <div class="crow"><button class="copen" data-act="card:${id}" aria-label="预览 ${esc(f.name)}" title="${esc(f.name)}"><span class="cthumb" style="background:color-mix(in srgb,${INK[f.kind]} 9%,transparent)">${tile(f.kind,f.label,26,31)}</span><span class="clbl"><span class="ctitle">${esc(f.name)}</span><span class="cmeta">${f.type} · ${f.size}${state}</span></span></button>
+   <button class="ib" data-act="cardmore:${id}" aria-label="交付文件操作" title="文件操作">${ic("more")}</button></div>${note}${menu}</div>`;
+}
+function renderTrans(){
+  const t=$("#mTrans");const top=t.scrollTop;
+  if(S.sess==="A"){
+    t.innerHTML=`<div class="m-col">
+    <div class="u"><div>把 9 月客户回访整理成一份报告，标出高风险客户。</div></div>
+    <div class="a">已整理 26 位客户的回访记录，按满意度和续约意向分组，并标出 4 位高风险客户及建议跟进动作。</div>
+    ${cardHTML("rep")}
+    <div class="u"><div>基于报告和 Q3 数据，做一份销售简报，再出一版渠道复盘 PPT，数据处理脚本也一起给我。</div></div>
+    <div class="a">已完成。销售简报共 12 页，第 5 页起是区域拆分；渠道复盘 18 页。脚本会从 <code class="inl" style="font-size:13px">data/q3_sales.csv</code> 汇总区域数据。</div>
+    ${cardHTML("q3")}${cardHTML("deck")}${cardHTML("code")}
+    <div class="changes">另外改动了 2 个文件 › <em><span class="add">+148</span> <span class="del">−12</span></em></div>
+    ${S.agentRow?`<div class="tool-row">${ic("go")}已请求在网页面板打开 research.example.com</div>`:""}
+    </div>`;
+  }else{
+    t.innerHTML=`<div class="m-col"><div class="u"><div>本地起一下首页改版，在右侧打开给我看。</div></div><div class="a">开发服务器已在 5173 端口运行，已在右侧网页面板打开首页。首屏改为单栏主视觉，次要入口收进页脚。</div><div class="tool-row">${ic("go")}已请求在网页面板打开 localhost:5173</div></div>`;
+  }
+  t.scrollTop=top;
+}
+function renderComposer(){
+  $("#mChips").innerHTML=S.chips.map(c=>`<span class="chip">${ic(c.icon)}<b>${esc(c.text)}</b></span>`).join("");
+  const cin=$("#mCin");cin.textContent=S.composer||"继续说点什么，Enter 发送，Shift+Enter 换行";cin.classList.toggle("has",!!S.composer);
+  $("#mRun").classList.toggle("on",S.running);
+}
+/* panel parts */
+function headerHTML(){
+  const c=cur();const n=narrow();
+  let ident,content="";
+  if(c.view==="web"){
+    const w=WEB[S.sess];
+    ident=`<div class="ident" data-spec="身份区 · 图标 20×24 · 15/20 · 12/16">${tile("web","WEB")}<div class="ilbl"><div class="ttl">${midE(w.title)}</div><div class="sub">${esc(w.domain)}</div></div></div>`;
+  }else{
+    const f=FILES[c.file];const multi=S.sess==="A";
+    let sub=`${f.type} · ${f.size}`;if((f.kind==="pdf")&&!S.loading)sub+=` · ${f.pages} 页`;if(f.kind==="slides"&&!S.loading)sub+=` · ${f.pages} 页`;
+    const tag=multi?"button":"div";
+    ident=`<${tag} class="ident ${S.picker?"open":""}" ${multi?'data-act="picker" aria-haspopup="listbox" aria-expanded="'+S.picker+'" title="切换到本对话的其他文件"':""} data-spec="身份区 · 图标 20×24 · 15/20 · 12/16">${tile(f.kind,f.label)}<div class="ilbl"><div class="ttl">${midE(f.name)}</div><div class="sub">${S.loading?"正在读取文件…":sub}</div></div>${multi?ic("chev","chev"):""}</${tag}>`;
+    if(f.kind==="code"&&!S.loading)content+=`<button class="ib ${S.find?"on":""}" data-act="find" aria-label="查找" title="查找 · Ctrl+F">${ic("find")}</button>`;
+    const textual=(f.kind==="code"||f.kind==="doc")&&!S.loading;
+    if(textual&&S.quote)content+=`<button class="ib lab" data-act="quote" aria-label="引用所选文字" title="把选中的文字加入输入框（不会立即发送）">${ic("quote")}引用</button>`;
+    else content+=`<button class="ib quiet" data-act="quote" aria-label="引用" title="先选择文字，再引用到输入框">${ic("quote")}</button>`;
+  }
+  const back=S.overlay;
+  let win="";
+  if(!n){
+    win+=`<button class="ib" data-act="noop" aria-label="在外部打开" title="${c.view==="web"?"在默认浏览器打开":"用默认应用打开"}" data-spec="32×32 · 图形 16 · 圆角 6">${ic("ext")}</button>`;
+    if(!S.overlay)win+=`<button class="ib" data-act="expand" aria-label="${S.expanded?"还原面板宽度":"展开面板"}" title="${S.expanded?"还原面板宽度":"展开面板"}">${ic(S.expanded?"restore":"expand")}</button>`;
+  }
+  win+=`<button class="ib ${S.menu?"on":""}" data-act="menu" aria-label="更多操作" aria-haspopup="menu" aria-expanded="${S.menu}" title="更多操作">${ic("more")}</button>`;
+  win+=`<button class="ib" data-act="close" aria-label="${back?"返回对话":"关闭"}" title="${back?"返回对话":"关闭"}">${ic("close")}</button>`;
+  return `<div class="ph" data-spec="头部 · 最小高 56 · 内边距 20">${ident}<div class="acts">${content}${content?'<span class="vsep"></span>':""}${win}</div></div>`;
+}
+function toolHTML(){
+  const c=cur();if(c.view==="web"){const w=WEB[S.sess];return `<div class="navrow" data-spec="导航行 40"><button class="ib" aria-label="后退">${ic("back")}</button><button class="ib" aria-label="前进" aria-disabled="true">${ic("fwd")}</button><button class="ib" aria-label="刷新">${ic("reload")}</button><div class="addr"><b>${esc(w.domain)}</b>${esc(w.path)}</div><button class="ib" aria-label="前往">${ic("go")}</button></div>`}
+  if(S.loading)return"";
+  const f=FILES[c.file];
+  if(f.kind==="pdf"){
+    const pct=Math.round((panelW()-48)*c.zoom/612*100);
+    return `<div class="tool" data-spec="工具行 40 · 内边距 16,4"><div class="grp"><button class="ib" data-act="prev" aria-label="上一页" ${c.page<=1?'aria-disabled="true"':""}>${ic("prev")}</button><input class="pgin" id="pgin" value="${c.page}" aria-label="跳转到页码" inputmode="numeric"><span class="tot">/ ${f.pages}</span><button class="ib" data-act="next" aria-label="下一页" ${c.page>=f.pages?'aria-disabled="true"':""}>${ic("next")}</button></div>
+    <div class="grp"><button class="ib" data-act="zout" aria-label="缩小">${ic("minus")}</button><button class="zbtn" data-act="zmenu" id="zlbl" aria-haspopup="menu" title="${c.zoom===1?"适应宽度":"手动缩放"} · 点击更改">${pct}%${ic("chev","chev")}</button><button class="ib" data-act="zin" aria-label="放大">${ic("plus")}</button></div></div>`;
+  }
+  if(f.kind==="code")return `<div class="tool" data-spec="工具行 40 · 分段信息"><div class="segtxt">分段 <b>1</b> / 3 · 第 1–412 行，共 1,180 行</div><div class="segtxt">Python · UTF-8</div></div>`;
+  return "";
+}
+function vnoteHTML(){
+  const c=cur();if(c.view!=="file"||S.loading)return"";const f=FILES[c.file];
+  if(f.failed)return `<div class="vnote" data-spec="视图说明行 ≥32 · 13/20">${ic("info")}<span class="x">页面预览未能生成，当前为简化视图：只显示提取的文字，原排版、图片和图表未显示。</span><button class="lnk" data-act="noop">用默认应用打开</button></div>`;
+  if(f.kind==="doc")return `<div class="vnote" data-spec="视图说明行（来自 reading.Notice）">${ic("info")}<span class="x">阅读视图：按段落显示，原分页、页眉页脚可能与 Word 中不同。</span><button class="lnk" data-act="noop">用默认应用打开</button></div>`;
+  return "";
+}
+function findHTML(){
+  if(!S.find)return"";const {n,i}=findCalc();
+  return `<div class="find" data-spec="查找栏 40">${ic("find","lead")}<input id="findIn" value="${esc(S.find.q)}" placeholder="在文件中查找" aria-label="在文件中查找"><span class="cnt" aria-live="polite">${n?`${i+1} / ${n}`:(S.find.q?"无结果":"")}</span><button class="ib" data-act="fprev" aria-label="上一个" ${n?"":'aria-disabled="true"'}>${ic("up")}</button><button class="ib" data-act="fnext" aria-label="下一个" ${n?"":'aria-disabled="true"'}>${ic("down")}</button><button class="ib" data-act="fclose" aria-label="关闭查找">${ic("close")}</button></div>`;
+}
+function findCalc(){
+  const q=(S.find&&S.find.q||"").toLowerCase();const hits=[];
+  if(q)CODE.forEach((l,li)=>{let p=0;const low=l.toLowerCase();while((p=low.indexOf(q,p))>=0){hits.push([li,p]);p+=q.length;}});
+  const n=hits.length;let i=S.find?S.find.i:0;if(n)i=((i%n)+n)%n;else i=0;if(S.find)S.find.i=i;return{hits,n,i};
+}
+const KW=new Set("from import as class def return if else for in with lambda not and or None True False self while try except raise yield pass".split(" "));
+function codeHTML(){
+  const {hits,i}=S.find?findCalc():{hits:[],i:0};const q=S.find?S.find.q.length:0;
+  return `<div class="code" role="document" aria-label="report_builder.py 内容">`+CODE.map((line,li)=>{
+    const cls=new Array(line.length).fill("");
+    const ci=line.indexOf("#");let strOpen=null;
+    for(let k=0;k<line.length;k++){const ch=line[k];
+      if(strOpen){cls[k]="s";if(ch===strOpen)strOpen=null;continue}
+      if(ch==='"'||ch==="'"){strOpen=ch;cls[k]="s";continue}
+      if(ch==="#"&&k===ci){for(let j=k;j<line.length;j++)cls[j]="c";break}
+    }
+    line.replace(/\b[A-Za-z_]+\b/g,(m,off)=>{if(KW.has(m)&&!cls[off])for(let j=0;j<m.length;j++)cls[off+j]="k";return m});
+    line.replace(/\b\d+(\.\d+)?\b/g,(m,off)=>{if(!cls[off])for(let j=0;j<m.length;j++)cls[off+j]="n";return m});
+    const mk=new Array(line.length).fill(0);
+    hits.forEach(([hl,hp],hi)=>{if(hl===li)for(let j=hp;j<hp+q;j++)mk[j]=hi===i?2:1});
+    let out="",k=0;
+    while(k<line.length){let j=k;while(j<line.length&&cls[j]===cls[k]&&mk[j]===mk[k])j++;
+      let seg=esc(line.slice(k,j));if(cls[k])seg=`<span class="${cls[k]}">${seg}</span>`;if(mk[k])seg=`<mark class="${mk[k]===2?"cur":""}">${seg}</mark>`;out+=seg;k=j;}
+    const lineNo=li+1;const sel=S.quote&&lineNo>=SEL[0]&&lineNo<=SEL[1];
+    return `<span class="l ${sel?"sel":""}" data-line="${lineNo}">${out||" "}</span>`;
+  }).join("")+`</div>`;
+}
+function pdfPage(n){
+  const bars=[62,80,48,92,70,56,84].map((h,i)=>`<i style="height:${Math.max(20,(h+n*7+i*11)%96)}%"></i>`).join("");
+  const titles=["Q3 销售简报","目录","核心指标","区域拆分 · 华东","区域拆分 · 华南","区域拆分 · 华北","渠道结构","重点客户","高风险客户跟进","产品线表现","Q4 目标","附录：口径说明"];
+  return `<div class="pg" data-page="${n}"><div class="hd"><span>23Hertz · 销售简报</span><span>2026 Q3</span></div><h5>${titles[n-1]}</h5><div class="lead">数据截至 2026-09-30 · 单位：万元</div>
+  ${n%2?`<div class="kpis"><div><small>营收</small><b>${(4820+n*37).toLocaleString()}</b></div><div><small>目标达成</small><b>${92+n%7}%</b></div><div><small>订单数</small><b>${(1260+n*23).toLocaleString()}</b></div></div>`:""}
+  <div class="bars">${bars}</div><div class="ln" style="width:94%"></div><div class="ln" style="width:88%"></div><div class="ln" style="width:72%"></div>${n%2?"":'<div class="ln" style="width:90%"></div><div class="ln" style="width:64%"></div>'}<div class="pno">${n} / 12</div></div>`;
+}
+function bodyHTML(){
+  const c=cur();
+  if(c.view==="web"){
+    return S.sess==="A"
+     ?`<div class="web"><div class="wn"><b>示例研究</b><span>报告</span><span>数据</span><span>订阅</span></div><div class="hero2"><h5>2026 Q3 渠道与零售趋势</h5><p>线上渠道占比继续提升，社区团购增速放缓，品牌自营小程序在复购上表现突出。</p></div><div class="cols"><div><b>线上占比 41%</b>同比提升 5.2 个百分点</div><div><b>复购率 28%</b>自营渠道领先</div><div><b>客单价 ¥186</b>环比持平</div><div><b>新客成本</b>较 Q2 上升 9%</div></div></div>`
+     :`<div class="web"><div class="wn"><b>23Hertz</b><span>产品</span><span>价格</span><span>文档</span></div><div class="hero2" style="padding:64px 28px 40px"><h5>把复杂的工作，交给一个安静的助手</h5><p>文件、网页与电脑操作，在同一个对话里完成。</p></div><div class="cols"><div><b>文件</b>交付即可预览</div><div><b>网页</b>边看边问</div></div></div>`;
+  }
+  if(S.loading)return S.loadingCard?`<div class="lcard"><div class="in"><h6>正在准备预览</h6><p>正在读取文件。大型文档首次打开需要几秒。</p></div></div>`:"";
+  const f=FILES[c.file];
+  if(f.kind==="pdf"){let h=`<div class="pages" style="--zoom:${c.zoom}">`;for(let n=1;n<=f.pages;n++)h+=pdfPage(n);return h+`</div>`}
+  if(f.kind==="code")return codeHTML();
+  if(f.kind==="doc")return `<div class="docv" ${S.quote?'':''}><h4>客户回访报告（9 月）</h4><p style="color:var(--ink2)">回访 26 位客户 · 整理日期 2026-10-09</p><h6>一、总体情况</h6><p>本月共回访 26 位重点客户，整体满意度 4.3 / 5，较 8 月提升 0.2。续约意向明确的客户 17 位，观望 5 位，存在流失风险 4 位。</p><h6>二、高风险客户</h6><p>华南区两家连锁客户反馈配送时效下降；华北区一家客户对新版合同条款有异议，需要法务协同。</p><h6>三、建议动作</h6><p>两周内完成高风险客户的上门回访，配送问题由运营牵头给出时效承诺，合同异议由销售与法务联合答复。</p><p style="color:var(--ink2)">（以上为文件当前内容。）</p></div>`;
+  if(f.failed)return `<div class="docv"><h4>渠道复盘 · 第三季度</h4>${["渠道复盘概览","线上渠道：增长来源","线下门店：坪效变化","经销商结构调整","Q4 渠道策略"].map((t,i)=>`<div class="slide"><small>第 ${i+1} 页</small><h6 style="margin-top:2px">${t}</h6><p>${["本季度渠道总营收 4,820 万元，线上占比 41%。","自营小程序复购率 28%，为各渠道最高。","一线城市门店坪效下降 6%，社区店上升 3%。","经销商数量精简 12%，头部 20% 贡献 68% 营收。","聚焦自营与社区店，收缩低效经销商。"][i]}</p></div>`).join("")}</div>`;
+  return "";
+}
+function pickerHTML(){
+  if(!S.picker)return"";const c=cur();
+  return `<div class="fly picker" role="listbox" aria-label="本对话的文件" data-spec="切换列表 348 · 行 ≥44"><div class="cap">本对话的文件 · 新到旧</div>`+PICK_ORDER.map(id=>{const f=FILES[id];const on=c.file===id;return `<button class="pr ${on?"cur":""}" role="option" aria-selected="${on}" data-act="pick:${id}" title="${esc(f.name)}">${tile(f.kind,f.label)}<span class="pl"><span class="pn">${midE(f.name)}</span><span class="pf">${esc(f.folder)}</span></span>${on?ic("check","ck"):""}</button>`}).join("")+`</div>`;
+}
+function menuHTML(){
+  if(!S.menu)return"";const c=cur();const n=narrow();
+  if(c.view==="web")return `<div class="fly menu" role="menu">${n?`<button class="mi" data-act="noop">${ic("ext")}在默认浏览器打开</button><button class="mi" data-act="expand">${ic(S.expanded?"restore":"expand")}${S.expanded?"还原面板宽度":"展开面板"}</button><div class="msep"></div>`:""}<button class="mi" data-act="noop">${ic("minus")}缩小网页</button><button class="mi" data-act="noop">${ic("plus")}放大网页</button><button class="mi" data-act="noop">${ic("expand")}适应宽度</button></div>`;
+  return `<div class="fly menu" role="menu" data-spec="菜单 · 项高 32 · 最小宽 216">${n?`<button class="mi" data-act="noop">${ic("ext")}用默认应用打开</button><button class="mi" data-act="expand">${ic(S.expanded?"restore":"expand")}${S.expanded?"还原面板宽度":"展开面板"}</button><div class="msep"></div>`:""}
+  <button class="mi" data-act="attach">${ic("attach")}添加到对话</button><div class="msep"></div>
+  <button class="mi" data-act="noop">${ic("folder")}在文件夹中显示</button><button class="mi" data-act="copyPath">${ic("copy")}复制文件路径</button><button class="mi" data-act="noop">${ic("save")}另存为…</button></div>`;
+}
+function zmenuHTML(){if(!S.zmenu)return"";return `<div class="fly zm" role="menu"><button class="mi" data-act="fit:page">适应页面<kbd>Ctrl+0</kbd></button><button class="mi" data-act="fit:width">适应宽度</button><button class="mi" data-act="fit:actual">实际大小 · 100%</button></div>`}
+const NIC={ok:"ok",warn:"warn",err:"err",info:"info"};
+function noticeHTML(n,enter){
+  if(!n)return"";
+  const acts=(n.actions||[]).map((a,i)=>`<button class="lnk ${a.quiet?"q":""}" data-nact="${i}">${esc(a.label)}</button>`).join("");
+  return `<div class="notice k-${n.kind} ${enter?"enter":""}" role="${n.kind==="err"||n.kind==="warn"?"alert":"status"}" data-spec="PanelNotice · 距底 16 · ≤480">${ic(NIC[n.kind],"nic")}<div class="nt">${esc(n.text)}${acts?`<div class="na">${acts}</div>`:""}</div>${n.persist?`<button class="ib nx" data-act="nclose" aria-label="关闭提示">${ic("close")}</button>`:""}</div>`;
+}
+function renderPanel(keepScroll=true){
+  const c=cur();const p=$("#mPanel");
+  const oldBody=$("#pbody");const prev=oldBody?{top:oldBody.scrollTop,key:p.dataset.key}:null;
+  const key=S.sess+":"+c.view+":"+(c.file||"")+":"+(S.loading?"L":"");
+  const flat=c.view==="web"||(c.view==="file"&&!S.loading&&FILES[c.file].kind!=="pdf");
+  p.innerHTML=headerHTML()+`<div class="pload ${S.loading||(c.view==="web"&&S.webLoading)?"on":""}"></div>`+toolHTML()+vnoteHTML()+findHTML()+`<div class="pbody ${flat?"flat":""}" id="pbody" tabindex="0" aria-label="预览正文">${bodyHTML()}</div><div class="nhost" id="nhost">${noticeHTML(S.notice,false)}</div>`+pickerHTML()+menuHTML()+zmenuHTML();
+  p.dataset.key=key;
+  const b=$("#pbody");
+  if(prev&&keepScroll&&prev.key===key)b.scrollTop=prev.top;
+  if(S.jumpPage){const pg=b.querySelector(`[data-page="${S.jumpPage}"]`);if(pg)b.scrollTop=pg.offsetTop-24;S.jumpPage=null;}
+  if(S.find&&S.findScroll){const m=b.querySelector("mark.cur");if(m)b.scrollTop=m.parentElement.closest(".l").offsetTop-b.clientHeight/3;S.findScroll=false;}
+  if(S.quote&&S.quoteScroll){const l=b.querySelector('[data-line="'+SEL[0]+'"]');if(l)b.scrollTop=l.offsetTop-60;S.quoteScroll=false;}
+  b.addEventListener("scroll",onScroll,{passive:true});
+  const pi=$("#pgin");if(pi)pi.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();const v=parseInt(pi.value,10);if(v>0){goPage(Math.min(FILES[cur().file].pages,v));}else pi.value=cur().page;}});
+  const fi=$("#findIn");if(fi){fi.addEventListener("input",()=>{clearTimeout(S.ft);S.ft=setTimeout(()=>{S.find.q=fi.value;S.find.i=0;S.findScroll=true;renderPanel();const n=$("#findIn");n.focus();n.setSelectionRange(n.value.length,n.value.length)},150)});
+    fi.addEventListener("keydown",e=>{if(e.isComposing)return;if(e.key==="Enter"){e.preventDefault();S.find.i+=e.shiftKey?-1:1;S.findScroll=true;renderPanel();$("#findIn").focus()}else if(e.key==="Escape"){e.preventDefault();e.stopPropagation();S.find=null;renderPanel();$("#pbody").focus()}});}
+}
+function onScroll(e){
+  const c=cur();if(c.view!=="file"||FILES[c.file].kind!=="pdf")return;
+  const b=e.currentTarget;const pages=$$(".pg",b);const mid=b.scrollTop+b.clientHeight/2;let pg=1;
+  for(const el of pages){if(el.offsetTop<=mid)pg=+el.dataset.page;}
+  if(pg!==c.page){c.page=pg;const pi=$("#pgin");if(pi&&document.activeElement!==pi)pi.value=pg;
+    $$('[data-act="prev"]').forEach(x=>x.toggleAttribute("aria-disabled",pg<=1));$$('[data-act="next"]').forEach(x=>pg>=12?x.setAttribute("aria-disabled","true"):x.removeAttribute("aria-disabled"));}
+}
+function layout(){
+  const c=cur();
+  mock.classList.toggle("closed",!c.open);
+  mock.classList.toggle("overlay",S.overlay&&c.open);
+  mock.classList.toggle("annot",keep.annot);
+  mock.style.setProperty("--pw",panelW()+"px");
+  const W=S.overlay?900:1440;mock.style.width=W+"px";
+  const s=Math.min(1,fit.clientWidth/W);mock.style.transform=`scale(${s})`;fit.style.height=Math.ceil(880*s)+"px";mock._s=s;
+}
+function render(o={}){renderRail();renderHead();renderTrans();renderComposer();renderPanel(o.keepScroll!==false);layout();renderCaption();
+  const d=$("#mDrawer");if(d)d.remove();
+  if(S.changes){const dr=document.createElement("div");dr.className="drawer";dr.id="mDrawer";dr.innerHTML=`<div class="ph"><div class="ilbl"><div class="ttl">文件与改动</div><div class="sub">Q3 销售简报整理</div></div><button class="ib" data-act="changes" aria-label="关闭">${ic("close")}</button></div><div class="db">现有“文件与改动”抽屉，本轮不改动其内容；只为顶栏按钮增加激活态，让用户看得出它已打开。</div>`;$("#mMain").appendChild(dr);}
+}
+
+/* ---------- notice ---------- */
+let nTimer=null;
+function notify(n){
+  clearTimeout(nTimer);S.notice=n;const h=$("#nhost");if(h)h.innerHTML=noticeHTML(n,true);
+  if(n&&!n.persist)nTimer=setTimeout(hideNotice,2500);
+}
+function hideNotice(){
+  const el=$("#nhost .notice");S.notice=null;if(!el)return;
+  if(keep.reduce){el.remove();return}
+  el.classList.remove("enter");el.classList.add("leave");setTimeout(()=>{if(!S.notice)el.remove()},130);
+}
+
+/* ---------- actions ---------- */
+let loadTok=0;
+function openFile(id,opt={}){
+  const c=S.A;S.sess="A";c.open=true;c.view="file";c.file=id;c.closed=false;c.zoom=1;
+  S.picker=S.menu=S.zmenu=false;S.find=null;S.quote=false;S.viewNote=opt.note||null;
+  const tok=++loadTok;S.loading=true;S.loadingCard=false;
+  if(!opt.note)S.notice=null;
+  render({keepScroll:false});
+  setTimeout(()=>{if(tok===loadTok&&S.loading){S.loadingCard=true;renderPanel(false)}},200);
+  setTimeout(()=>{if(tok!==loadTok)return;S.loading=false;S.loadingCard=false;c.page=opt.page||1;S.jumpPage=c.page>1?c.page:null;
+    if(opt.quote){S.quote=true;S.quoteScroll=true}if(opt.find){S.find={q:opt.find,i:0};S.findScroll=true}
+    render({keepScroll:false});
+    if(opt.note)notify({kind:"warn",text:opt.note,persist:true});
+    if(opt.after)opt.after();
+  },opt.instant?0:(keep.slow||opt.slow?1400:140));
+}
+function goPage(p){const c=cur();c.page=p;S.jumpPage=p;renderPanel();}
+function zoom(f){const c=cur();c.zoom=Math.min(4,Math.max(.2,f==="fit"?1:c.zoom*f));renderPanel();}
+function closePanel(user){const c=cur();c.open=false;if(user)c.closed=true;S.picker=S.menu=S.zmenu=false;S.find=null;S.notice=null;render();}
+function agentRequest(){
+  const c=cur();S.agentRow=true;S.running=true;
+  const target={label:"research.example.com",kind:"web"};
+  if(!c.open&&!c.closed){c.open=true;c.view="web";S.pending=null;render();return}
+  if(c.open&&c.view==="web"){render();return}
+  S.pending=target;render();
+  if(c.open)notify({kind:"info",text:"AI 请求打开 research.example.com",persist:true,actions:[{label:"打开",run:openPending},{label:"忽略",quiet:true,run:()=>{S.pending=null;S.notice=null;render()}}]});
+}
+function openPending(){const c=cur();S.pending=null;S.notice=null;c.open=true;c.view="web";c.closed=false;S.find=null;S.quote=false;render({keepScroll:false})}
+function switchSess(k){
+  if(S.sess===k)return;
+  S.picker=S.menu=S.zmenu=false;S.find=null;S.quote=false;S.notice=null;S.pending=null;S.cardMenu=null;S.changes=false;
+  S.sess=k;const c=cur();if(c.view==="file"&&c.file){S.jumpPage=c.page>1?c.page:null}
+  render({keepScroll:false});
+}
+const ACT={
+  noop(){S.menu=false;S.cardMenu=null;render()},
+  picker(){S.picker=!S.picker;S.menu=S.zmenu=false;renderPanel()},
+  menu(){S.menu=!S.menu;S.picker=S.zmenu=false;renderPanel()},
+  zmenu(){S.zmenu=!S.zmenu;S.menu=S.picker=false;renderPanel()},
+  close(){closePanel(true)},
+  expand(){S.expanded=!S.expanded;S.menu=false;render()},
+  prev(){const c=cur();if(c.page>1)goPage(c.page-1)},next(){const c=cur();if(c.page<FILES[c.file].pages)goPage(c.page+1)},
+  zin(){zoom(1.25)},zout(){zoom(1/1.25)},
+  find(){if(S.find){S.find=null;renderPanel();return}S.find={q:"",i:0};renderPanel();$("#findIn").focus()},
+  fnext(){S.find.i++;S.findScroll=true;renderPanel()},fprev(){S.find.i--;S.findScroll=true;renderPanel()},fclose(){S.find=null;renderPanel();$("#pbody").focus()},
+  quote(){
+    if(!S.quote){notify({kind:"info",text:"先选择文字，再引用到输入框。"});return}
+    S.chips.push({icon:"quote",text:"report_builder.py · 第 42–48 行"});renderComposer();
+    notify({kind:"ok",text:"已加入输入框（第 42–48 行），发送前可在引用卡里核对。"});
+  },
+  attach(){S.menu=false;renderPanel();const f=FILES[cur().file];if(!S.chips.some(c=>c.text===f.name))S.chips.push({icon:"attach",text:f.name});renderComposer();notify({kind:"ok",text:"文件已添加到输入框；发送后才交给 AI 处理。"})},
+  copyPath(){S.menu=false;renderPanel();notify({kind:"ok",text:"文件路径已复制"})},
+  copyPathCard(){S.cardMenu=null;renderTrans();notify({kind:"ok",text:"文件路径已复制"})},
+  nclose(){hideNotice()},
+  web(){const c=cur();if(S.pending){openPending();return}if(c.open&&c.view==="web"){closePanel(true);return}c.open=true;c.view="web";c.closed=false;S.find=null;S.quote=false;S.notice=null;render({keepScroll:false})},
+  changes(){S.changes=!S.changes;render()},
+  cardView(){S.cardNotice=null;S.repState="changed";openFile("rep",{note:"正在显示文件的当前内容，与对话中该卡片交付时的内容不同。"})},
+  cardRevise(){S.cardNotice=null;S.cardMenu=null;S.repState="changed";if(!S.chips.some(c=>c.text==="客户回访报告.docx"))S.chips.push({icon:"attach",text:"客户回访报告.docx"});S.composer="请基于附件“客户回访报告.docx”继续修改，使用当前附件内容，不沿用旧版本的检查结论；另存为新文件并核对结果，保留原件。我的修改要求：";render()},
+  cardCancel(){S.cardNotice=null;render()}
+};
+function handle(act,el){
+  if(ACT[act])return ACT[act](el);
+  const [k,v]=act.split(":");
+  if(k==="sess")return switchSess(v);
+  if(k==="pick")return openFile(v);
+  if(k==="fit"){S.zmenu=false;zoom("fit");return}
+  if(k==="card"){S.cardMenu=null;if(S.sess!=="A")return;
+    if(FILES[v].changed&&S.repState!=="changed"&&S.cardNotice!==v){S.cardNotice=v;S.repState="changed";render();return}
+    if(FILES[v].changed){S.cardNotice=v;render();return}
+    return openFile(v)}
+  if(k==="cardmore"){S.cardMenu=S.cardMenu===v?null:v;renderTrans();return}
+  if(k==="verify"){S.cardMenu=null;if(v==="rep"){S.repState="changed";S.cardNotice="rep"}render();notify(v==="rep"?{kind:"warn",text:"核对完成：此文件在交付后已被修改。",persist:false}:{kind:"ok",text:"核对完成：与交付时一致（只核对文件是否被改动，不代表内容已审核）。"});return}
+}
+mock.addEventListener("click",e=>{
+  const na=e.target.closest("[data-nact]");if(na&&S.notice&&S.notice.actions){S.notice.actions[+na.dataset.nact].run();return}
+  const t=e.target.closest("[data-act]");
+  if(!t){if(S.picker||S.menu||S.zmenu||S.cardMenu){S.picker=S.menu=S.zmenu=false;S.cardMenu=null;render()}return}
+  handle(t.dataset.act,t);
+});
+mock.addEventListener("keydown",e=>{
+  const inPanel=e.target.closest&&e.target.closest("#mPanel");if(!inPanel)return;
+  if(e.isComposing)return;
+  const c=cur();const isInput=e.target.tagName==="INPUT";
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="f"&&c.view==="file"&&FILES[c.file].kind==="code"){e.preventDefault();if(!S.find)S.find={q:"",i:0};renderPanel();$("#findIn").focus();return}
+  if(e.key==="Escape"){e.preventDefault();if(S.picker||S.menu||S.zmenu){S.picker=S.menu=S.zmenu=false;renderPanel();return}if(S.find){S.find=null;renderPanel();$("#pbody").focus();return}closePanel(true);return}
+  if(isInput)return;
+  if(c.view==="file"&&FILES[c.file].kind==="pdf"){
+    const f=FILES[c.file];
+    if(e.key==="PageDown"){e.preventDefault();if(c.page<f.pages)goPage(c.page+1)}
+    else if(e.key==="PageUp"){e.preventDefault();if(c.page>1)goPage(c.page-1)}
+    else if(e.key==="Home"){e.preventDefault();goPage(1)}else if(e.key==="End"){e.preventDefault();goPage(f.pages)}
+    else if((e.ctrlKey||e.metaKey)&&(e.key==="="||e.key==="+")){e.preventDefault();zoom(1.25)}
+    else if((e.ctrlKey||e.metaKey)&&e.key==="-"){e.preventDefault();zoom(1/1.25)}
+    else if((e.ctrlKey||e.metaKey)&&e.key==="0"){e.preventDefault();zoom("fit")}
+    if(["PageDown","PageUp","Home","End"].includes(e.key))setTimeout(()=>{const b=$("#pbody");b&&b.focus()},0);
+  }
+});
+mock.addEventListener("wheel",e=>{if(!(e.ctrlKey||e.metaKey))return;const b=e.target.closest("#pbody");if(!b)return;const c=cur();if(c.view!=="file"||FILES[c.file].kind!=="pdf")return;e.preventDefault();zoom(e.deltaY<0?1.1:1/1.1)},{passive:false});
+/* splitter */
+(()=>{const sp=$("#mSplit");let sx=0,sw=0,drag=false;
+  sp.addEventListener("pointerdown",e=>{drag=true;sx=e.clientX;sw=panelW();sp.setPointerCapture(e.pointerId);e.preventDefault()});
+  sp.addEventListener("pointermove",e=>{if(!drag)return;const dx=(e.clientX-sx)/(mock._s||1);const w=Math.round(Math.min(MAXW,Math.max(MINW,sw-dx)));const wasN=narrow();S.expanded=false;S.userWidth=w;if(wasN!==narrow()){S.menu=false;renderPanel()}layout();const z=$("#zlbl");if(z){const c=cur();z.firstChild.nodeValue=Math.round((panelW()-48)*c.zoom/612*100)+"%"}});
+  const up=()=>{if(drag){drag=false;render()}};sp.addEventListener("pointerup",up);sp.addEventListener("pointercancel",up);
+  sp.addEventListener("keydown",e=>{if(e.key==="ArrowLeft"||e.key==="ArrowRight"){e.preventDefault();S.expanded=false;S.userWidth=Math.min(MAXW,Math.max(MINW,S.userWidth+(e.key==="ArrowLeft"?16:-16)));render()}});
+})();
+
+/* ---------- scenarios ---------- */
+const SC=[
+ {id:"read",t:"默认阅读 · PDF 第 5 页",tag:"R1-05 · R1-06",run(){},
+  what:"头部：单行标题（中部省略）+ 副标题“PDF 文档 · 2.4 MB · 12 页”；操作顺序固定为 引用 ┆ 外部打开 · 展开 · ⋯ · 关闭。工具行左侧分页，右侧缩放。左侧对应卡片显示 3 px 墨色选中标记。",
+  why:"原头部名称会换行、副标题 14 号、展开藏在菜单里、按钮颜色写死（UniversalContentPanel.cs:52-57；PreviewHeader.cs:167-175）。",acc:"S01 · S16：所有按钮真实可用；四类面板头部一致；切换不同长度的文件名时头部不跳动。"},
+ {id:"picker",t:"文件切换列表",tag:"R1-05 j",run(){S.picker=true},
+  what:"按交付时间从新到旧；每行显示图标、文件名（中部省略）和所在文件夹；当前项为 Selected 底 + 勾。只有本对话文件数 ≥2 时身份区才可点击。",
+  why:"原列表按对话顺序排列，同名文件无法区分；执行记录面板显示失效的下拉（TerminalOutputPanel 从不调用 SetIdentity）。",acc:"S01：切换后标题、内容、左侧选中标记一致，不出现错误关联。"},
+ {id:"menu",t:"更多菜单 · 只放操作",tag:"R1-05 d",run(){S.menu=true},
+  what:"两组：添加到对话 ／ 在文件夹中显示 · 复制文件路径 · 另存为…。图标全有；13 号字；项高 32。",
+  why:"原菜单混入了“类型 · 大小”和“当前显示提取的内容…”等说明文字（FilePreviewPanel.Attachment.cs:566-570），重要的保真提示被藏在菜单里。",acc:"S01：每一项真实生效，反馈显示在底部 PanelNotice 中，正文不被挤压。"},
+ {id:"agent",t:"AI 请求打开 · 阅读保护",tag:"R1-04",run(){S.running=true;setTimeout(agentRequest,250)},
+  what:"正在读 PDF 时，AI 调用 agent_web-panel_open：面板不切换、页码不变、焦点不动。底部出现“AI 请求打开 …［打开］［忽略］”，顶栏网页按钮出现圆点。",
+  why:"原链路会执行 CloseFilePreview()（PreviewDockController.cs:153），本地文件还会执行 _close.Focus()（FilePreviewPanel.cs:128），抢走正在输入的焦点。",acc:"S05 · S06：阅读不被打断；IME 组合不被打断；点击“打开”或网页按钮才切换。"},
+ {id:"closed",t:"主动关闭后 AI 再请求",tag:"R1-04",run(){S.running=true;S.A.open=false;S.A.closed=true;setTimeout(agentRequest,250)},
+  what:"本轮用户已主动关闭面板：AI 的请求不再重新打开面板，只在顶栏网页按钮上显示圆点，ToolTip 写明请求内容。用户发出下一条消息后恢复默认行为。",
+  why:"原实现中每次 Agent 请求都会重新展开面板，违背用户刚刚做出的关闭选择。",acc:"S07：保持关闭，任务正常运行；点击网页按钮会打开被暂缓的目标。"},
+ {id:"changed",t:"成果卡 · 交付后已修改",tag:"R1-02",run(){S.repState="changed";S.cardNotice="rep";setTimeout(()=>{const t=$("#mTrans");t.scrollTop=0},0)},
+  what:"第 1 轮的报告在第 2 轮被改过：卡片显示“· 交付后已修改”，并出现内联提示［查看当前文件］［用当前文件继续修改］［取消］。查看后，预览底部持续提示当前内容与卡片记录不同。",
+  why:"原实现核验失败后直接 return 并隐藏错误（DeliveryShelf.cs:130-133），用户点击毫无反应。同轮多次交付时 DistinctBy 保留的还是首个快照（:102）。",acc:"S02 · S03 · S04：不伪造“该卡片版本”；状态来自 DeliveryRecovery.Validate。"},
+ {id:"simplified",t:"简化视图 · 页面预览未生成",tag:"R1-06",run(){openFile("deck",{instant:true})},
+  what:"PPTX 页面转换失败时，工具行下方的视图说明行写明“页面预览未能生成，当前为简化视图…”，并提供［用默认应用打开］。长文件名中部省略，扩展名始终可见。",
+  why:"原保真说明只存在于“⋯”菜单的 _previewInformation 里；转换失败后“正在生成页面预览…”会残留（FilePreviewPanel.cs:177/194）。",acc:"S10：文件生成成功但预览失败时，不显示“生成失败”或“已检查”。"},
+ {id:"quote",t:"代码 · 选区引用",tag:"R1-01 · R1-06",run(){openFile("code",{instant:true,quote:true})},
+  what:"有选区时，头部引用按钮显示“图标 + 引用”；点击后输入框出现引用卡，底部提示“已加入输入框（第 42–48 行）”。无选区时只显示图标，ToolTip 说明先选择文字。",
+  why:"发送一条消息后，BeginPolling() 会替换 _taskPolling，引用被误判为“对话已切换”（PreviewSnippets 的会话判定比较了 polling）。",acc:"S09：发送后仍能在同一预览中引用；真正切换会话后才拒绝。"},
+ {id:"find",t:"查找 Ctrl+F",tag:"R1-09",run(){openFile("code",{instant:true,find:"revenue"})},
+  what:"查找栏高 40：输入框、计数“i / n”、上一个、下一个、关闭。Enter 下一个，Shift+Enter 上一个，Esc 只关闭查找栏。计数来自真实匹配结果。",
+  why:"原预览没有任何查找能力。只在文本、代码、源码模式提供；PDF 与 Office 页面没有文字层，不显示查找入口。",acc:"S11 · S12：跨分段跳转准确；IME 组合中不触发查找。"},
+ {id:"loading",t:"加载 · 200 ms 门槛",tag:"R1-06",run(){openFile("code",{instant:true,after(){setTimeout(()=>openFile("q3",{slow:true}),500)}})},
+  what:"切换到大文件时，标题立即更新，加载线立即出现；200 ms 内保持空白画布，超过 200 ms 才显示“正在准备预览”；完成后显示第 1 页。",
+  why:"原实现每次切换都会立即换成加载卡片（FilePreviewPanel.cs:127），小文件也会闪一下。",acc:"小文件不出现加载卡片；大文件期间不残留旧文件内容。"},
+ {id:"narrow",t:"窄面板 400 DIP · 操作收纳",tag:"R1-05 c",run(){S.userWidth=400;S.menu=true},
+  what:"面板宽度低于 440 时，“在外部打开”“展开”收进 ⋯ 菜单首组，头部只保留内容操作、⋯ 和关闭。可以拖动分隔线体验阈值切换。",
+  why:"窄面板时头部按钮会挤压文件名。阈值沿用 PlaceModes 的 SizeChanged 写法，不改 ObjectPanelMetrics。",acc:"S13：360–439 DIP 时关键操作仍可见、可达。"},
+ {id:"overlay",t:"叠层 · 900 DIP 窗口",tag:"S13",run(){S.overlay=true},
+  what:"900 DIP 窗口下，Resolve 计算出的 maximum 小于 360，面板进入叠层模式并铺满对话区；关闭按钮变为“返回对话”，展开按钮隐藏，Tab 在面板内循环。",
+  why:"窗口最小宽为 840 DIP。验收必须区分 DIP 与物理像素：900 DIP 在 150% 缩放下是 1350 px。",acc:"S13：100 / 125 / 150 / 200% 下关键操作可见可达，长文件名中部省略。"},
+ {id:"restore",t:"切换会话 · 恢复阅读位置",tag:"R1-07",run(){S.A.page=7;S.jumpPage=7;setTimeout(()=>switchSess("B"),900);setTimeout(()=>switchSess("A"),2100)},
+  what:"在会话 A 读到第 7 页 → 自动切到 B（B 显示自己的网页面板）→ 回到 A，自动恢复同一文件的第 7 页，不移动焦点。只存内存，不落盘。",
+  why:"原实现切换会话时 RemoveWebDock() 关闭文件预览，只恢复网页面板的开合（PreviewDockController.cs:81-93）。",acc:"S08：B 中从不出现 A 的内容；快速往返五次无迟到覆盖。"}
+];
+function renderScen(){
+  $("#scen").innerHTML=`<div class="lbl">场景</div>`+SC.map((s,i)=>`<button class="chipbtn" data-sc="${s.id}" aria-pressed="${S.scen===s.id}"><span>${String(i+1).padStart(2,"0")}　${s.t}</span><em>${s.tag}</em></button>`).join("");
+}
+function renderCaption(){
+  const s=SC.find(x=>x.id===S.scen)||SC[0];
+  $("#caption").innerHTML=`<div class="ttl">${esc(s.t)} <span class="pill new">${esc(s.tag)}</span></div><div><h4>呈现</h4><p>${esc(s.what)}</p></div><div><h4>源码依据</h4><p>${esc(s.why)}</p></div><div><h4>验收</h4><p>${esc(s.acc)}</p></div>`;
+}
+function runScen(id){
+  clearTimeout(nTimer);loadTok++;S=fresh();S.scen=id;const s=SC.find(x=>x.id===id);
+  if(id==="read")S.jumpPage=5;
+  s.run();if(S.sess==="A"&&S.A.view==="file"&&S.A.page>1&&!S.jumpPage)S.jumpPage=S.A.page;
+  renderScen();render({keepScroll:false});
+}
+$("#scen").addEventListener("click",e=>{const b=e.target.closest("[data-sc]");if(b)runScen(b.dataset.sc)});
+$("#agentBtn").addEventListener("click",()=>agentRequest());
+$("#resetBtn").addEventListener("click",()=>runScen("read"));
+$("#annotT").addEventListener("change",e=>{keep.annot=e.target.checked;layout()});
+$("#slowT").addEventListener("change",e=>{keep.slow=e.target.checked});
+const rT=$("#reduceT");rT.checked=keep.reduce;document.documentElement.classList.toggle("reduce",keep.reduce);
+rT.addEventListener("change",e=>{keep.reduce=e.target.checked;document.documentElement.classList.toggle("reduce",keep.reduce)});
+window.addEventListener("resize",layout);
+if(window.ResizeObserver)new ResizeObserver(layout).observe(fit);
+
+/* ---------- motion demos ---------- */
+(()=>{
+  const host=$("#m1host");let t=null;
+  $$("[data-m1]").forEach(b=>b.addEventListener("click",()=>{
+    clearTimeout(t);const ok=b.dataset.m1==="ok";
+    host.innerHTML=noticeHTML(ok?{kind:"ok",text:"文件路径已复制"}:{kind:"err",text:"另存失败：没有此位置的写入权限，请换个位置。",persist:true},true);
+    if(ok)t=setTimeout(()=>{const el=host.querySelector(".notice");if(el){el.classList.add("leave");setTimeout(()=>el.remove(),130)}},2500);
+  }));
+  host.addEventListener("click",e=>{if(e.target.closest('[data-act="nclose"]'))host.innerHTML=""});
+  let tok=0;
+  $$("[data-m2]").forEach(b=>b.addEventListener("click",()=>{
+    const ms=+b.dataset.m2,my=++tok;const l=$("#m2l"),c=$("#m2c");$("#m2t").textContent=ms>200?"Q3 销售简报.pdf":"notes.md";
+    l.classList.add("on");c.innerHTML="";
+    setTimeout(()=>{if(my===tok&&l.classList.contains("on"))c.innerHTML=`<div class="lcard"><div class="in" style="padding:14px"><h6>正在准备预览</h6><p>正在读取文件…</p></div></div>`},200);
+    setTimeout(()=>{if(my!==tok)return;l.classList.remove("on");c.innerHTML=`<div class="pgx"></div>`},ms);
+  }));
+  const m3=$("#m3btn");$("#m3t").addEventListener("click",()=>m3.classList.toggle("pending"));
+  const sv=$("#curve");let d="";for(let i=0;i<=40;i++){const tt=i/40;/* sample cubic-bezier via param */const x=3*.215*(1-tt)*(1-tt)*tt+3*.355*(1-tt)*tt*tt+tt*tt*tt;const y=3*.61*(1-tt)*(1-tt)*tt+3*1*(1-tt)*tt*tt+tt*tt*tt;d+=(i?"L":"M")+(20+x*280).toFixed(1)+" "+(72-y*60).toFixed(1);}
+  sv.innerHTML=`<line class="tk" x1="20" y1="72" x2="300" y2="72"/><line class="tk" x1="20" y1="12" x2="20" y2="72"/><path d="${d}" fill="none" stroke="currentColor" style="color:var(--doc-ink)" stroke-width="2"/><text x="20" y="82">0</text><text x="276" y="82">120 ms</text><text x="26" y="20" class="lbl">cubic-bezier(.215, .61, .355, 1)</text>`;
+})();
+
+/* ---------- spec visuals ---------- */
+(()=>{
+  // anatomy: reuse panel markup statically
+  const ap=$("#anatPanel");
+  ap.innerHTML=`<div class="ph" style="position:relative">${`<button class="ident">${tile("pdf","PDF")}<div class="ilbl"><div class="ttl">${midE("Q3 销售简报.pdf")}</div><div class="sub">PDF 文档 · 2.4 MB · 12 页</div></div>${ic("chev","chev")}</button>`}<div class="acts"><button class="ib quiet">${ic("quote")}</button><span class="vsep"></span><button class="ib">${ic("ext")}</button><button class="ib">${ic("expand")}</button><button class="ib">${ic("more")}</button><button class="ib">${ic("close")}</button></div></div>
+  <div class="tool"><div class="grp"><button class="ib">${ic("prev")}</button><input class="pgin" value="5" aria-label="页码"><span class="tot">/ 12</span><button class="ib">${ic("next")}</button></div><div class="grp"><button class="ib">${ic("minus")}</button><button class="zbtn">72%${ic("chev","chev")}</button><button class="ib">${ic("plus")}</button></div></div>
+  <div class="vnote">${ic("info")}<span class="x">简化视图：只显示提取的文字，原排版、图片和图表未显示。</span><button class="lnk">用默认应用打开</button></div>
+  <div style="height:150px;background:var(--canvas);position:relative"><div class="nhost">${noticeHTML({kind:"ok",text:"文件路径已复制"},false)}</div></div>`;
+  ap.style.setProperty("--pw","488px");
+  // swatches
+  const SW=[["ChatCanvas · 对话页","#FAFAF8","#1D1D1C"],["SurfaceRail · 侧栏","#F1F0EC","#171716"],["SurfacePanel · 面板","#FFFFFF","#222227"],["SurfaceRaisedBrush","#FFFFFF","#27272B"],["SurfaceSunkenBrush","#F3F2EF","#2B2B30"],["SurfaceStrongBrush · 按下","#EAE9E5","#35353B"],["InkBrush","#151312","#F2EFE9"],["Ink2Brush · 72%","#B81A1815","#B8F2EFE9"],["Ink3Brush · 48%","#7A1A1815","#76F2EFE9"],["HairBrush","#E6E6E4","#38383D"],["HoverBrush","#0B1A1815","#0EFFFFFF"],["SelectedBrush","#141A1815","#17FFFFFF"],["FocusRingBrush · 仅焦点","#245BCD","#7AA2FF"],["StatusPartial · 已修改","#9A6A12","#E0BE72"],["StatusFailed · 不可访问","#A33B32","#EC9A8F"],["StatusVerified · 成功","#14795D","#65C7A0"],["ObjectPanelScrim","#3D000000","#73000000"],["运行主控制（右侧禁用）","#E8590C","#E8590C"]];
+  const toCss=h=>h.length===9?`rgba(${parseInt(h.slice(3,5),16)},${parseInt(h.slice(5,7),16)},${parseInt(h.slice(7,9),16)},${(parseInt(h.slice(1,3),16)/255).toFixed(2)})`:h;
+  $("#swatches").innerHTML=SW.map(([n,l,d])=>`<div class="card-d swi"><span class="chipc" style="--l:${toCss(l)};--d:${toCss(d)};background-color:${toCss(l)}"></span><span><b>${n}</b><small>${l} / ${d}</small></span></div>`).join("");
+  $$(".chipc").forEach(c=>{c.style.background=`linear-gradient(90deg, ${c.style.getPropertyValue("--l")} 50%, ${c.style.getPropertyValue("--d")} 50%), repeating-conic-gradient(#ccc 0 25%, #fff 0 50%) 0 0/8px 8px`});
+  // icons
+  const IC=[["close","关闭","统一四处写法","M4,4 L12,12 M12,4 L4,12","统一"],["expand","展开面板","展开时显示","M2.5,6 V2.5 H6 M10,2.5 H13.5 V6 M13.5,10 V13.5 H10 M6,13.5 H2.5 V10","统一"],["restore","还原面板宽度","与展开互换，不再共用一个图标","M6,2.5 V6 H2.5 M13.5,6 H10 V2.5 M10,13.5 V10 H13.5 M2.5,10 H6 V13.5","新增"],["more","更多操作","实心圆 r=1.25，替换文字 ⋯ 与短横写法","circle (3.5,8) (8,8) (12.5,8) r1.25 fill","统一"],["ext","在外部打开","复用 FilePreviewPanel 现有几何","M9,2 H14 V7 M14,2 L7,9 M6,3 H2 V14 H13 V10","复用"],["quote","引用","复用；有选区时加“引用”文字","M3,4 H7 V8 C7,10 6,11.5 4,12.5 M9,4 H13 …","复用"],["find","查找","仅文本、代码、源码模式","M7,11.5 A4.5,4.5 0 1 1 7,2.5 … M10.5,10.5 L13.5,13.5","新增"],["up","上一个匹配","查找栏","M4,10 L8,6 L12,10","新增"],["down","下一个匹配","查找栏","M4,6 L8,10 L12,6","新增"],["prev","上一页","复用并对齐 0.5 网格","M10,3.5 L5.5,8 L10,12.5","复用"],["next","下一页","同上","M6,3.5 L10.5,8 L6,12.5","复用"],["minus","缩小","复用","M3,8 H13","复用"],["plus","放大","复用","M3,8 H13 M8,3 V13","复用"],["chev","下拉","身份区与缩放标签，12 px 显示","M5,6.5 L8,9.5 L11,6.5","统一"],["check","当前项","切换列表","M3.5,8.5 L6.5,11.5 L12.5,4.5","新增"],["info","说明 / 信息","视图说明行、Info 通知","circle r6.5 · M8,7.5 V11 · dot (8,5)","新增"],["warn","警告","卡片内联提示、Warning 通知（StatusPartial）","M8,2.5 L14,13 H2 Z · M8,6.5 V9.5 · dot","新增"],["ok","成功","Success 通知（StatusVerified）","circle r6.5 · M5.2,8.3 L7.2,10.2 L10.8,6","新增"],["err","错误","Error 通知（StatusFailed）","circle r6.5 · ×","新增"],["folder","在文件夹中显示","菜单","复用 ConversationArtifactView 文件夹几何","复用"],["copy","复制文件路径","菜单（补齐，保证同一菜单全有图标）","M5.5,5.5 H12.5 V13.5 H5.5 Z M3.5,10.5 V2.5 H10.5","新增"],["save","另存为…","菜单","M8,1 L8,10 M4,6 L8,10 L12,6 M2,11 V15 H14 V11","复用"],["attach","添加到对话","施工时复用输入框附件按钮几何；找不到则该菜单整体去图标","（示意）","复用"],["reload","刷新 / 重试","网页导航、错误卡","M13,6 A5,5 0 1 0 13,10 M13,2 V6 H9","复用"]];
+  $("#icgrid").innerHTML=IC.map(([id,n,s,g,st])=>`<div class="card-d icc"><span class="icz">${ic(id)}</span><span><b>${n} <span class="pill ${st==="新增"?"new":st==="复用"?"keep":""}">${st}</span></b><small>${s}</small><code>${esc(g)}</code></span></div>`).join("");
+  // button states
+  const H=["状态","常态","悬停","按下","键盘焦点","禁用","开启 / 就绪"];
+  const row=(name,mk)=>`<div class="r">${name}</div>`+["","f-hover","f-press","f-focus","f-dis","on"].map(c=>`<div class="pv">${mk(c)}</div>`).join("");
+  $("#states").innerHTML=H.map(h=>`<div class="h">${h}</div>`).join("")+
+    row("图标按钮 32×32",c=>`<button class="ib ${c}" tabindex="-1">${ic("expand")}</button>`)+
+    row("引用（有 / 无选区）",c=>c==="on"?`<button class="ib lab" tabindex="-1">${ic("quote")}引用</button>`:`<button class="ib quiet ${c}" tabindex="-1">${ic("quote")}</button>`)+
+    row("次要文字按钮",c=>`<button class="sbtn ${c==="on"?"":c}" tabindex="-1" style="${c==="f-press"?"background:var(--strong)":""}">重新加载</button>`)+
+    row("轻量链接",c=>`<button class="lnk ${c}" tabindex="-1" style="${c==="f-hover"?"text-decoration:underline;background:none!important":""}${c==="f-press"?";opacity:.7;background:none!important":""}">打开</button>`)+
+    row("顶栏按钮 36×36",c=>`<button class="th ${c==="on"?"on pending":c}" tabindex="-1" style="${c==="f-focus"?"box-shadow:inset 0 0 0 1.5px var(--focus)!important":""}">${g20("globe")}<span class="dot"></span></button>`);
+  // card states
+  const card=(t,meta,sel,extra)=>`<div class="card-d" style="padding:14px"><div style="font-size:12px;color:var(--doc-ink3);margin-bottom:8px">${t}</div><div class="card ${sel?"sel":""}" style="margin:0;max-width:100%;color:var(--ink)"><span class="mark"></span><div class="crow"><div class="copen">${`<span class="cthumb" style="background:color-mix(in srgb,${INK.doc} 9%,transparent)">${tile("doc","DOC",26,31)}</span>`}<span class="clbl"><span class="ctitle">客户回访报告.docx</span><span class="cmeta">Word 文档 · 86 KB${meta}</span></span></div><span class="ib">${ic("more")}</span></div>${extra||""}</div></div>`;
+  $("#cardStates").innerHTML=
+    card("常态：不再显示“版本待核验”","",false)+
+    card("正在右侧预览：3 px 墨色标记（沿用）","",true)+
+    card("核对结果：交付后已修改（StatusPartial）",' <span class="st-partial">· 交付后已修改</span>',false,`<div class="cnote" style="animation:none">${ic("warn")}<div><div>此文件在交付后已被修改，当前内容与这张卡片记录的不同。</div><div class="acts2"><span class="lnk">查看当前文件</span><span class="lnk">用当前文件继续修改</span><span class="lnk q">取消</span></div></div></div>`)+
+    card("核对结果：文件已移动或删除（StatusFailed）",' <span class="st-failed">· 文件已移动或删除</span>',false,`<div class="cnote" style="animation:none">${ic("warn")}<div><div>文件已移动或删除，无法打开。</div><div class="acts2"><span class="lnk">复制原路径</span><span class="lnk q">取消</span></div></div></div>`);
+  // notice states
+  const nb=(t,n)=>`<div class="card-d" style="padding:14px"><div style="font-size:12px;color:var(--doc-ink3);margin-bottom:10px">${t}</div><div style="background:var(--canvas);border-radius:10px;padding:16px;display:flex;justify-content:center;color:var(--ink)">${noticeHTML(n,false)}</div></div>`;
+  $("#noticeStates").innerHTML=
+    nb("Success · 2500 ms 自动消失",{kind:"ok",text:"已加入输入框（第 42–48 行），发送前可在引用卡里核对。"})+
+    nb("Info · 需要决定，保持显示",{kind:"info",text:"AI 请求打开 research.example.com",persist:true,actions:[{label:"打开"},{label:"忽略",quiet:true}]})+
+    nb("Warning · 保持到切换文件",{kind:"warn",text:"正在显示文件的当前内容，与对话中该卡片交付时的内容不同。",persist:true})+
+    nb("Error · 保持显示",{kind:"err",text:"另存失败：没有此位置的写入权限，请换个位置。",persist:true});
+  // copy table
+  const CP=[["版本待核验","（不显示）","DeliveryShelf.Artifacts.cs:245"],["完整性一致，内容未检查","与交付时一致（详情：只核对文件是否被改动，不代表内容已审核）","DeliveryShelf.Recovery.cs:333"],["交付版本不可确认","旧记录，无法确认是否改动","同上"],["文件已变化","交付后已修改","同上"],["文件不可访问","文件已移动或删除 ／ 无法读取（按真实原因）","同上"],["核验文件版本","核对是否被改动","ShowArtifactMenu"],["重新加载预览 / 恢复卡片","刷新卡片预览","ShowArtifactMenu"],["文件详情 / 收起文件详情","显示文件详情 / 隐藏文件详情","ShowArtifactMenu"],["打开当前文件","用默认应用打开","ShowArtifactMenu"],["复制路径 · 复制文件路径","复制文件路径（统一）","三处菜单"],["另存为","另存为…（会打开对话框）","三处菜单"],["展开 / 还原预览面板","ToolTip：展开面板 / 还原面板宽度","FilePreviewPanel.Attachment.cs:555"],["切换会话文件","切换到本对话的其他文件","UniversalContentPanel.cs:63"],["暂时无法预览","无法在这里预览","FilePreviewPanel.Feedback.cs:474"],["第 N 行 · 诊断位置","已定位到第 N 行","TextFileContentView.cs:135"],["内容分页 · 字符 a–b / n · 保留原文","分段 x / y · 第 a–b 行，共 n 行","TextFileContentView.cs:49/75"],["当前显示提取的内容，原文排版、图片和图表可能未包含。","简化视图：只显示提取的文字，原排版、图片和图表未显示。","FilePreviewPanel.Documents.cs:439"],["首行按原始数据保留；公式仅显示为文字，不执行。点击单元格可查看完整内容。","表格简化视图：公式显示为文字、不会计算；点击单元格查看完整内容。","同上 :444"],["引用所选 · 引用所选：把选中的文字加入输入框","按钮“引用”；ToolTip：把选中的文字加入输入框（不会立即发送）","Selection / TerminalOutputPanel"],["所选片段已加入输入，可打开引用卡核对后发送。","已加入输入框（第 a–b 行），发送前可在引用卡里核对。","PreviewSnippets.cs"],["（新增）","AI 请求打开 {名称}　［打开］［忽略］","R1-04"],["（新增）","此文件在交付后已被修改，当前内容与这张卡片记录的不同。","R1-02"],["（新增）","正在显示文件的当前内容，与对话中该卡片交付时的内容不同。","R1-02"],["（新增）","页面预览未能生成，当前为简化视图。","R1-06"]];
+  $("#copyTable").innerHTML=`<tr><th>原文</th><th>新文案</th><th>位置</th></tr>`+CP.map(r=>`<tr><td>${esc(r[0])}</td><td><b style="font-weight:500">${esc(r[1])}</b></td><td><code>${esc(r[2])}</code></td></tr>`).join("");
+})();
+
+/* ---------- prompt ---------- */
+(()=>{
+  const src=$("#promptSrc").textContent.replace(/^\n/,"");
+  const inline=s=>esc(s).replace(/`([^`]+)`/g,"<code>$1</code>").replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>");
+  const lines=src.split("\n");let html="",i=0;
+  while(i<lines.length){
+    const l=lines[i];
+    if(/^```/.test(l)){let b="";i++;while(i<lines.length&&!/^```/.test(lines[i])){b+=esc(lines[i])+"\n";i++}html+=`<pre>${b}</pre>`;i++;continue}
+    if(/^\|/.test(l)){const rows=[];while(i<lines.length&&/^\|/.test(lines[i])){rows.push(lines[i]);i++}
+      const cells=r=>r.replace(/^\||\|$/g,"").split("|").map(c=>c.trim());
+      let t="<table><thead><tr>"+cells(rows[0]).map(c=>`<th>${inline(c)}</th>`).join("")+"</tr></thead><tbody>";
+      rows.slice(2).forEach(r=>{t+="<tr>"+cells(r).map(c=>`<td>${inline(c)}</td>`).join("")+"</tr>"});html+=t+"</tbody></table>";continue}
+    let m;
+    if((m=l.match(/^(#{1,3})\s+(.*)/))){html+=`<h${m[1].length}>${inline(m[2])}</h${m[1].length}>`;i++;continue}
+    if(/^>\s?/.test(l)){html+=`<blockquote>${inline(l.replace(/^>\s?/,""))}</blockquote>`;i++;continue}
+    if(/^\s*([-*]|\d+\.)\s+/.test(l)){const ordered=/^\d+\./.test(l.trim());let b="";
+      while(i<lines.length&&/^\s*([-*]|\d+\.)\s+/.test(lines[i])){const ind=lines[i].match(/^\s*/)[0].length;b+=`<li class="${ind>=2?"l2":""}">${inline(lines[i].replace(/^\s*([-*]|\d+\.)\s+/,""))}</li>`;i++}
+      html+=ordered?`<ol>${b}</ol>`:`<ul>${b}</ul>`;continue}
+    if(l.trim()===""){i++;continue}
+    html+=`<p>${inline(l)}</p>`;i++;
+  }
+  $("#promptView").innerHTML=html;
+  $("#promptStat").textContent=`约 ${src.length.toLocaleString()} 字符 · Markdown`;
+  const toast=t=>{const e=$("#toast");e.textContent=t;e.classList.add("on");setTimeout(()=>e.classList.remove("on"),1800)};
+  $("#copyPrompt").addEventListener("click",async()=>{
+    try{await navigator.clipboard.writeText(src);toast("已复制提示词全文")}
+    catch(e){const ta=document.createElement("textarea");ta.value=src;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");toast("已复制提示词全文")}catch(_){toast("复制失败，请手动选择")}ta.remove()}
+  });
+  $("#dlPrompt").addEventListener("click",()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([src],{type:"text/markdown;charset=utf-8"}));a.download="23Hertz_右侧工作区R1_Codex开工提示词.md";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)});
+})();
+
+renderScen();S.jumpPage=5;render({keepScroll:false});
+})();
+</script>
+</body>
+</html>
